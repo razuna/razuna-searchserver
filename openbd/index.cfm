@@ -1,1 +1,0 @@
-<cflocation url="./manual/?/freshinstall">

@@ -25,60 +25,62 @@
 --->
 <cfcomponent output="false" extends="authentication">
 
-	<!--- Create search collection --->
-	<cffunction name="indexFiles" access="remote" output="false" returnformat="json">
-		<cfargument name="collection" required="true" type="string">
-		<cfargument name="storage" required="true" type="string">
-		<cfargument name="database" required="true" type="string">
-		<cfargument name="prefix" required="true" type="string">
-		<cfargument name="secret" required="true" type="string">
+	<!--- Index Files --->
+	<cffunction name="indexFiles" access="public" output="false">
 		<!--- Check login --->
-		<cfset auth(arguments.secret)>
+		<!--- <cfset auth()> --->
 		<!--- Param --->
-		<cfset r.success = true>
-		<cfset r.error = "">
+		<!--- <cfset r.success = true>
+		<cfset r.error = ""> --->
 		<!--- Enable Log --->
 		<cfset consoleoutput(true)>
-
+		<!--- Get Config --->
+		<cfset var config = getConfig()>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting indexing")>
-
-		<!--- Get all hosts and files --->
-		<cfset qryAllHostsAndFiles = _getHosts(arguments.prefix) />
-		<!--- Only if we have records. No need to waste server memory and CPU --->
-		<cfif qryAllHostsAndFiles.recordcount NEQ 0>
-			<!--- Check for lock file. This return a new qry with hosts that can be processed --->
-			<cfset var _qryNew = _lockFile(qryAllHostsAndFiles) />
-			<!--- Check _newQry for records --->
-			<cfif _qryNew.recordcount NEQ 0>
-				<!--- Download doc files if cloud based --->
-				<cfif arguments.storage EQ "amazon">
-					<cfset _getFilesInCloud(arguments.prefix, _qryNew) />
-				</cfif>
-				<!--- Index File --->
-				<cfset _doIndex( qryfiles = _qryNew, storage = arguments.storage, thedatabase = arguments.database ) />
-				<!--- Update database and flush cache --->
-				<cfset _updateDb(qryfiles = _qryNew) />
-				<!--- Remove lock file --->
-				<cfset _removeLockFile(_qryNew) />			
-				<!--- If cloud based remove the temp doc storage --->
-				<cfif arguments.storage EQ "amazon">
-					<cfset _removeTempDocStore(_qryNew) />
-				</cfif>
-			</cfif>
-		<cfelse>
-			<!--- Log --->
-			<cfset console("---------------------- No records to index!")>
+		<!--- Get all hosts to index. This will abort if nothing found. --->
+		<cfset qryAllHostsAndFiles = _getHosts(config.prefix) />
+		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
+		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles) />
+		<!--- Download doc files if cloud based --->
+		<cfif config.storage EQ "amazon">
+			<cfset _getFilesInCloud(_qryNew) />
 		</cfif>
-
+		<!--- Index File --->
+		<cfset _doIndex( qryfiles = _qryNew, storage = config.storage, thedatabase = config.database ) />
+		<!--- Update database and flush cache --->
+		<cfset _updateDb(qryfiles = _qryNew) />
+		<!--- Remove lock file --->
+		<cfset _removeLockFile(_qryNew) />			
+		<!--- If cloud based remove the temp doc storage --->
+		<cfif config.storage EQ "amazon">
+			<cfset _removeTempDocStore(_qryNew) />
+		</cfif>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Indexing done!!!!")>
-
 		<!--- Return --->
-		<cfreturn r />
+		<cfreturn />
 	</cffunction>
 
-
+	<!--- Index Files --->
+	<cffunction name="removeFiles" access="public" output="false">
+		<!--- Enable Log --->
+		<cfset consoleoutput(true)>
+		<!--- Get Config --->
+		<cfset var config = getConfig()>
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Starting removal")>
+		<!--- Grab records to remove --->
+		<cfset var _qryRecords = _qryRemoveRecords()>
+		<!--- Remove records in Lucene --->
+		<cfset _removeFromIndex(_qryRecords)>
+		<!--- All done remove records in database --->
+		<cfset _removeFromDatabase(_qryRecords)>
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Finished removal")>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
 
 
 	<!--- PRIVATE --->
@@ -86,12 +88,14 @@
 	<!--- lock File --->
 	<cffunction name="_lockFile" access="private" returntype="query">
 		<cfargument name="qry" required="true" type="query">
+		<!--- Indexing --->
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qry.host_id)) />
 		<!--- Put query into var --->
 		<cfset var _newQry = arguments.qry />
 		<!--- Group all hosts (since the qry is per file) --->
-		<cfoutput query="arguments.qry" group="host_id">
+		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<!--- Check that collection exists --->
-			<cfinvoke component="collection" method="checkCollection" collection="#host_id#" />
+			<cfinvoke component="collection" method="checkCollection" hostid="#host_id#" />
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
 			<!--- Name of lock file --->
@@ -126,7 +130,19 @@
 				<!--- We are all good write file --->
 				<cffile action="write" file="#GetTempDirectory()#/#lockfile#" output="x" mode="775" />
 			</cfif>
-		</cfoutput>
+		</cfloop>
+		<!--- Only continue if records are found --->
+		<cfif _newQry.recordcount NEQ 0>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index.")>
+		<cfelse>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index. Aborting...")>
+			<!--- Remove lock file --->
+			<cfset _removeLockFile(arguments.qry) />
+			<!--- Abort --->
+			<cfabort>
+		</cfif>
 		<!--- Return --->
 		<cfreturn _newQry />
 	</cffunction>
@@ -162,44 +178,56 @@
 		<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
 		<!--- Var --->
 		<cfset var qry = "" />
-		<!--- Query hosts --->
-		<cfquery datasource="#application.razuna.datasource#" name="qry">
-		SELECT i.host_id as host_id, h.host_db_prefix as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
-		FROM #arguments.prefix#images i, hosts h
-		WHERE i.host_id = h.host_id
-		AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-		AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-		<cfif cgi.http_host CONTAINS "razuna.com">
-			AND h.host_type != 0
+		<!--- Loop over prefix --->
+		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
+			<!--- Query hosts --->
+			<cfquery datasource="#application.razuna.datasource#" name="qry">
+			SELECT i.host_id as host_id, h.host_db_prefix as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
+			FROM #prefix#images i, hosts h
+			WHERE i.host_id = h.host_id
+			AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+			<cfif cgi.http_host CONTAINS "razuna.com">
+				AND h.host_type != 0
+			</cfif>
+			UNION ALL
+			SELECT f.host_id as host_id, h.host_db_prefix as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
+			FROM #prefix#files f, hosts h
+			WHERE f.host_id = h.host_id		
+			AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+			<cfif cgi.http_host CONTAINS "razuna.com">
+				AND h.host_type != 0
+			</cfif>
+			UNION ALL
+			SELECT v.host_id as host_id, h.host_db_prefix as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
+			FROM #prefix#videos v, hosts h
+			WHERE v.host_id = h.host_id		
+			AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+			<cfif cgi.http_host CONTAINS "razuna.com">
+				AND h.host_type != 0
+			</cfif>
+			UNION ALL
+			SELECT a.host_id as host_id, h.host_db_prefix as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
+			FROM #prefix#audios a, hosts h
+			WHERE a.host_id = h.host_id		
+			AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+			<cfif cgi.http_host CONTAINS "razuna.com">
+				AND h.host_type != 0
+			</cfif>
+			</cfquery>
+		</cfloop>
+		<!--- Only continue if records are found --->
+		<cfif qry.recordcount NEQ 0>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index")>
+		<cfelse>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index. Aborting...")>
+			<cfabort>
 		</cfif>
-		UNION ALL
-		SELECT f.host_id as host_id, h.host_db_prefix as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
-		FROM #arguments.prefix#files f, hosts h
-		WHERE f.host_id = h.host_id		
-		AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-		AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-		<cfif cgi.http_host CONTAINS "razuna.com">
-			AND h.host_type != 0
-		</cfif>
-		UNION ALL
-		SELECT v.host_id as host_id, h.host_db_prefix as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
-		FROM #arguments.prefix#videos v, hosts h
-		WHERE v.host_id = h.host_id		
-		AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-		AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-		<cfif cgi.http_host CONTAINS "razuna.com">
-			AND h.host_type != 0
-		</cfif>
-		UNION ALL
-		SELECT a.host_id as host_id, h.host_db_prefix as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
-		FROM #arguments.prefix#audios a, hosts h
-		WHERE a.host_id = h.host_id		
-		AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-		AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-		<cfif cgi.http_host CONTAINS "razuna.com">
-			AND h.host_type != 0
-		</cfif>
-		</cfquery>
 		<!--- Return --->
 		<cfreturn qry />
 	</cffunction>
@@ -207,7 +235,6 @@
 	<!--- Get all assets for Lucene Rebuilding --->
 	<cffunction name="_getFilesInCloud" output="false" returntype="void" access="private">
 		<cfargument name="qry" type="query" required="true">
-		<cfargument name="prefix" type="string" required="true">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Grabing all DOC files and storing them locally")>
 		<!--- Params --->
@@ -225,7 +252,7 @@
 				<cfif fileexists("#docpath#/#file_name_org#")>
 					<!--- Update file DB with new lucene_key --->
 					<cfquery datasource="#application.razuna.datasource#">
-					UPDATE #arguments.prefix#files
+					UPDATE #prefix#files
 					SET lucene_key = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#docpath#/#file_name_org#">
 					WHERE file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#file_id#">
 					</cfquery>
@@ -277,13 +304,13 @@
 				customfieldvalue, folderpath, host_id") />
 		<!--- Create the qoq_vid --->
 		<cfset var qoq_vid = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath") />
+				theext, labels, customfieldvalue, folderpath, host_id") />
 		<!--- Create the qoq_aud --->
 		<cfset var qoq_aud = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath") />
+				theext, labels, customfieldvalue, folderpath, host_id") />
 		<!--- Create the qoq_doc --->
 		<cfset var qoq_doc = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey") />
+				theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id") />
 				
 		<!--- Loop over records --->
 		<cfloop query="arguments.qryfiles">
@@ -392,7 +419,7 @@
 				<cfset var q = {
 					collection : qry_doc.collection,
 					id : qry_doc.id,
-					key : qry_doc.thekey,
+					thekey : qry_doc.thekey,
 					folder : qry_doc.folder,
 					category : qry_doc.category,
 					filename : 	'#thefilename# #qry_doc.filename#',
@@ -406,13 +433,14 @@
 					theext : qry_doc.theext,
 					labels : '#labels_doc#',
 					customfieldvalue : '#REReplace(cf_doc,"#chr(13)#|#chr(9)#|\n|\r","","ALL")#',
-					folderpath : '#folderpath#',
+					folderpath : '#folderpath_doc#',
 					author : qry_doc.author, 
 					rights : qry_doc.rights, 
 					authorsposition : qry_doc.authorsposition, 
 					captionwriter : qry_doc.captionwriter, 
 					webstatement : qry_doc.webstatement, 
-					rightsmarked : qry_doc.rightsmarked
+					rightsmarked : qry_doc.rightsmarked,
+					host_id : '#host_id#'
 				} />
 				<!--- Add result to qoq_doc --->
 				<cfset QueryAddrow(query = qoq_doc, data = q) />
@@ -456,7 +484,8 @@
 					theext : qry_vid.theext,
 					labels : '#labels_vid#',
 					customfieldvalue : '#REReplace(cf_vid,"#chr(13)#|#chr(9)#|\n|\r","","ALL")#',
-					folderpath : '#folderpath#'
+					folderpath : '#folderpath_vid#',
+					host_id : '#host_id#'
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_vid, data = q) />
@@ -500,13 +529,19 @@
 					theext : qry_aud.theext,
 					labels : '#labels_aud#',
 					customfieldvalue : '#REReplace(cf_aud,"#chr(13)#|#chr(9)#|\n|\r","","ALL")#',
-					folderpath : '#folderpath#'
+					folderpath : '#folderpath_aud#',
+					host_id : '#host_id#'
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_aud, data = q) />
 				<!--- Log --->
 				<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
 			</cfif>
+			<cfset var q = "">
+			<cfset var thedesc_1 = "">
+			<cfset var thekeys_1 = "">
+			<cfset var thedesc = "">
+			<cfset var thekeys = "">
 		</cfloop>
 
 		<!--- We should have all the QoQ together now. Insert into Lucene --->
@@ -775,66 +810,85 @@
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Image Index")>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Indexing --->
-		<cfscript>
-			args = {
-			query : arguments.qoq,
-			collection : collection,
-			category : "category",
-			categoryTree : "id",
-			key : "id",
-			title : "id",
-			body : "id",
-			custommap :{
-				id : "id",
-				filename : "filename",
-				filenameorg : "filenameorg",
-				keywords : "keywords",
-				description : "description",
-				rawmetadata : "rawmetadata",
-				extension : "theext",
-				subjectcode : "subjectcode",
-				creator : "creator",
-				title : "title", 
-				authorsposition : "authorsposition", 
-				captionwriter : "captionwriter", 
-				ciadrextadr : "ciadrextadr", 
-				category : "xmp_category",
-				supplementalcategories : "supplementalcategories", 
-				urgency : "urgency",
-				ciadrcity : "ciadrcity", 
-				ciadrctry : "ciadrctry", 
-				location : "location", 
-				ciadrpcode : "ciadrpcode", 
-				ciemailwork : "ciemailwork", 
-				ciurlwork : "ciurlwork", 
-				citelwork : "citelwork", 
-				intellectualgenre : "intellectualgenre", 
-				instructions : "instructions", 
-				source : "source",
-				usageterms : "usageterms", 
-				copyrightstatus : "copyrightstatus", 
-				transmissionreference : "transmissionreference", 
-				webstatement : "webstatement", 
-				headline : "headline", 
-				datecreated : "datecreated", 
-				city : "city", 
-				ciadrregion : "ciadrregion", 
-				country : "country", 
-				countrycode : "countrycode", 
-				scene : "scene", 
-				state : "state", 
-				credit : "credit", 
-				rights : "rights",
-				labels : "labels",
-				customfieldvalue : "customfieldvalue",
-				folderpath : "folderpath",
-				folder : "folder",
-				host_id : "host_id"
-				}
-			};
-			results = CollectionIndexCustom( argumentCollection=args );
-		</cfscript>
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qoq.collection)) />
+		<!--- Loop over hosts --->
+		<cfloop list="#_hosts#" delimiters="," index="h">
+			<!--- Get all records of this host --->
+			<cfquery dbtype="query" name="qry_records">
+			SELECT *
+			FROM arguments.qoq
+			WHERE collection = #h#
+			</cfquery>
+			<cftry>
+				<cfscript>
+					args = {
+					query : qry_records,
+					collection : h,
+					category : "category",
+					categoryTree : "id",
+					key : "id",
+					title : "id",
+					body : "id",
+					custommap :{
+						id : "id",
+						filename : "filename",
+						filenameorg : "filenameorg",
+						keywords : "keywords",
+						description : "description",
+						rawmetadata : "rawmetadata",
+						extension : "theext",
+						subjectcode : "subjectcode",
+						creator : "creator",
+						title : "title", 
+						authorsposition : "authorsposition", 
+						captionwriter : "captionwriter", 
+						ciadrextadr : "ciadrextadr", 
+						category : "xmp_category",
+						supplementalcategories : "supplementalcategories", 
+						urgency : "urgency",
+						ciadrcity : "ciadrcity", 
+						ciadrctry : "ciadrctry", 
+						location : "location", 
+						ciadrpcode : "ciadrpcode", 
+						ciemailwork : "ciemailwork", 
+						ciurlwork : "ciurlwork", 
+						citelwork : "citelwork", 
+						intellectualgenre : "intellectualgenre", 
+						instructions : "instructions", 
+						source : "source",
+						usageterms : "usageterms", 
+						copyrightstatus : "copyrightstatus", 
+						transmissionreference : "transmissionreference", 
+						webstatement : "webstatement", 
+						headline : "headline", 
+						datecreated : "datecreated", 
+						city : "city", 
+						ciadrregion : "ciadrregion", 
+						country : "country", 
+						countrycode : "countrycode", 
+						scene : "scene", 
+						state : "state", 
+						credit : "credit", 
+						rights : "rights",
+						labels : "labels",
+						customfieldvalue : "customfieldvalue",
+						folderpath : "folderpath",
+						folder : "folder",
+						host_id : "host_id"
+						}
+					};
+					results = CollectionIndexCustom( argumentCollection=args );
+				</cfscript>
+				<cfcatch type="any">
+					<cfset console(cfcatch) />
+				</cfcatch>
+			</cftry>
+		</cfloop>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Image Index")>
 		<!--- Return --->
@@ -846,38 +900,60 @@
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Document Index")>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Indexing --->
-		<cfscript>
-			args = {
-			query : arguments.qoq,
-			collection : collection,
-			category : "category",
-			categoryTree : "id",
-			key : "thekey",
-			title : "id",
-			body : "id",
-			custommap :{
-				id : "id",
-				filename : "filename",
-				filenameorg : "filenameorg",
-				keywords : "keywords",
-				description : "description",
-				rawmetadata : "rawmetadata",
-				extension : "theext",
-				author : "author",
-				rights : "rights",
-				authorsposition : "authorsposition", 
-				captionwriter : "captionwriter", 
-				webstatement : "webstatement", 
-				rightsmarked : "rightsmarked",
-				labels : "labels",
-				customfieldvalue : "customfieldvalue",
-				folderpath : "folderpath",
-				folder : "folder"
-				}
-			};
-			results = CollectionIndexfile( argumentCollection=args );
-		</cfscript>
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qoq.collection)) />
+		<!--- Loop over hosts --->
+		<cfloop list="#_hosts#" delimiters="," index="h">
+			<!--- Get all records of this host --->
+			<cfquery dbtype="query" name="qry_records">
+			SELECT *
+			FROM arguments.qoq
+			WHERE collection = #h#
+			</cfquery>
+			<!--- Indexing --->
+			<cftry>
+				<cfscript>
+					args = {
+					query : qry_records,
+					collection : h,
+					category : "category",
+					categoryTree : "id",
+					key : "thekey",
+					title : "id",
+					body : "id",
+					custommap :{
+						id : "id",
+						filename : "filename",
+						filenameorg : "filenameorg",
+						keywords : "keywords",
+						description : "description",
+						rawmetadata : "rawmetadata",
+						extension : "theext",
+						author : "author",
+						rights : "rights",
+						authorsposition : "authorsposition", 
+						captionwriter : "captionwriter", 
+						webstatement : "webstatement", 
+						rightsmarked : "rightsmarked",
+						labels : "labels",
+						customfieldvalue : "customfieldvalue",
+						folderpath : "folderpath",
+						folder : "folder",
+						host_id : "host_id"
+						}
+					};
+					results = CollectionIndexfile( argumentCollection=args );
+				</cfscript>
+				<cfcatch type="any">
+					<cfset console("#now()# ---------------------- ERROR")>
+					<cfset console(cfcatch)>
+				</cfcatch>
+			</cftry>
+		</cfloop>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Document Index")>
 		<!--- Return --->
@@ -889,32 +965,48 @@
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Video Index")>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Indexing --->
-		<cfscript>
-			args = {
-			query : arguments.qoq,
-			collection : collection,
-			category : "category",
-			categoryTree : "id",
-			key : "id",
-			title : "id",
-			body : "id",
-			custommap :{
-				id : "id",
-				filename : "filename",
-				filenameorg : "filenameorg",
-				keywords : "keywords",
-				description : "description",
-				rawmetadata : "rawmetadata",
-				extension : "theext",
-				labels : "labels",
-				customfieldvalue : "customfieldvalue",
-				folderpath : "folderpath",
-				folder : "folder"
-				}
-			};
-			results = CollectionIndexCustom( argumentCollection=args );
-		</cfscript>
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qoq.collection)) />
+		<!--- Loop over hosts --->
+		<cfloop list="#_hosts#" delimiters="," index="h">
+			<!--- Get all records of this host --->
+			<cfquery dbtype="query" name="qry_records">
+			SELECT *
+			FROM arguments.qoq
+			WHERE collection = #h#
+			</cfquery>
+			<!--- Indexing --->
+			<cfscript>
+				args = {
+				query : qry_records,
+				collection : h,
+				category : "category",
+				categoryTree : "id",
+				key : "id",
+				title : "id",
+				body : "id",
+				custommap :{
+					id : "id",
+					filename : "filename",
+					filenameorg : "filenameorg",
+					keywords : "keywords",
+					description : "description",
+					rawmetadata : "rawmetadata",
+					extension : "theext",
+					labels : "labels",
+					customfieldvalue : "customfieldvalue",
+					folderpath : "folderpath",
+					folder : "folder",
+					host_id : "host_id"
+					}
+				};
+				results = CollectionIndexCustom( argumentCollection=args );
+			</cfscript>
+		</cfloop>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Video Index")>
 		<!--- Return --->
@@ -926,38 +1018,53 @@
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Audio Index")>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Indexing --->
-		<cfscript>
-			args = {
-			query : arguments.qoq,
-			collection : collection,
-			category : "category",
-			categoryTree : "id",
-			key : "id",
-			title : "id",
-			body : "id",
-			custommap :{
-				id : "id",
-				filename : "filename",
-				filenameorg : "filenameorg",
-				keywords : "keywords",
-				description : "description",
-				rawmetadata : "rawmetadata",
-				extension : "theext",
-				labels : "labels",
-				customfieldvalue : "customfieldvalue",
-				folderpath : "folderpath",
-				folder : "folder"
-				}
-			};
-			results = CollectionIndexCustom( argumentCollection=args );
-		</cfscript>
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qoq.collection)) />
+		<!--- Loop over hosts --->
+		<cfloop list="#_hosts#" delimiters="," index="h">
+			<!--- Get all records of this host --->
+			<cfquery dbtype="query" name="qry_records">
+			SELECT *
+			FROM arguments.qoq
+			WHERE collection = #h#
+			</cfquery>
+			<!--- Indexing --->
+			<cfscript>
+				args = {
+				query : qry_records,
+				collection : h,
+				category : "category",
+				categoryTree : "id",
+				key : "id",
+				title : "id",
+				body : "id",
+				custommap :{
+					id : "id",
+					filename : "filename",
+					filenameorg : "filenameorg",
+					keywords : "keywords",
+					description : "description",
+					rawmetadata : "rawmetadata",
+					extension : "theext",
+					labels : "labels",
+					customfieldvalue : "customfieldvalue",
+					folderpath : "folderpath",
+					folder : "folder",
+					host_id : "host_id"
+					}
+				};
+				results = CollectionIndexCustom( argumentCollection=args );
+			</cfscript>
+		</cfloop>
+		<!--- Param --->
+		<cfset var qry_records = "">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Audio Index")>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
-
 
 	<!--- Update DB --->
 	<cffunction name="_updateDb" access="private" output="false">
@@ -978,7 +1085,7 @@
 				<cfset var theid = "file_id" />
 			</cfif>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Updating all #db# records for Host #host_id#")>
+			<cfset console("#now()# ---------------------- Updating #file_id# (#db#) record for Host #host_id#")>
 			<!--- Update database --->
 			<cfquery datasource="#application.razuna.datasource#">
 			UPDATE #prefix##db#
@@ -989,14 +1096,78 @@
 		</cfloop>
 		<!--- Flush cache for this host --->
 		<cfoutput query="arguments.qryfiles" group="host_id">
-			<cfset _resetcachetoken(type="Search", hostid=host_id) />
+			<cfset _resetcachetoken(type="search", hostid=host_id) />
+			<cfset _resetcachetoken(type="images", hostid=host_id) />
+			<cfset _resetcachetoken(type="videos", hostid=host_id) />
+			<cfset _resetcachetoken(type="files", hostid=host_id) />
+			<cfset _resetcachetoken(type="audios", hostid=host_id) />
 		</cfoutput>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
 
+	<!--- Query records to remove --->
+	<cffunction name="_qryRemoveRecords" access="private" output="false" returntype="query">
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Fetching records to remove from index")>
+		<!--- Param --->
+		<cfset var qry = "">
+		<!--- Query --->
+		<cfquery datasource="#application.razuna.datasource#" name="qry">
+		SELECT id, type, host_id
+		FROM lucene
+		</cfquery>
+		<!--- Only continue if records are found --->
+		<cfif qry.recordcount NEQ 0>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
+		<cfelse>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove. Aborting...")>
+			<cfabort>
+		</cfif>
+		<!--- Return --->
+		<cfreturn qry />
+	</cffunction>
+
+	<!--- Query records to remove --->
+	<cffunction name="_removeFromIndex" access="private" output="false">
+		<cfargument name="qryrecords" required="true" type="query">
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records from index")>
+		<!--- Simple remove records in Lucene. Id is the key --->
+		<cfoutput query="arguments.qryrecords" group="host_id">
+			<cfscript>
+				args = {
+					query : arguments.qryrecords,
+					collection : "#host_id#",
+					key : "id"
+				};
+				results = CollectionIndexdelete( argumentCollection=args );
+			</cfscript>
+		</cfoutput>
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Finished removing #qryrecords.recordcount# records from index")>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
+	<!--- Remove in DB --->
+	<cffunction name="_removeFromDatabase" access="private" output="false">
+		<cfargument name="qryrecords" required="true" type="query">
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records in database")>
+		<!--- Delete --->
+		<cfloop query="arguments.qryrecords">
+			<cfquery datasource="#application.razuna.datasource#">
+			DELETE FROM lucene
+			WHERE id = <cfqueryparam value="#id#" cfsqltype="cf_sql_varchar">
+			</cfquery>
+		</cfloop>
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- All #qryrecords.recordcount# records removed in database")>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
 </cfcomponent>
-
-
-
-

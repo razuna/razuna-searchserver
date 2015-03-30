@@ -27,7 +27,7 @@
 
 	<!--- Create search collection --->
 	<cffunction name="createCollection" access="remote" output="false" returnformat="json">
-		<cfargument name="collection" required="true" type="string">
+		<cfargument name="hostid" required="true" type="string">
 		<cfargument name="secret" required="true" type="string">
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
@@ -35,14 +35,14 @@
 		<cfset r.success = true>
 		<cfset r.error = "">
 		<!--- Call internal function --->
-		<cfinvoke method="_createCollection" collection="#arguments.collection#">
+		<cfinvoke method="_createCollection" hostid="#arguments.hostid#">
 		<!--- Return --->
 		<cfreturn r />
 	</cffunction>
 
 	<!--- Delete search collection --->
 	<cffunction name="removeCollection" access="remote" output="false" returnformat="json">
-		<cfargument name="collection" required="true" type="string">
+		<cfargument name="hostid" required="true" type="string">
 		<cfargument name="secret" required="true" type="string">
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
@@ -51,7 +51,7 @@
 		<cfset r.error = "">
 		<!--- Delete collection --->
 		<cftry>
-			<cfset CollectionDelete(arguments.collection)>
+			<cfset CollectionDelete(arguments.hostid)>
 			<cfcatch type="any">
 				<cfset r.success = false>
 				<cfset r.error = cfcatch.message>
@@ -63,15 +63,15 @@
 	
 	<!--- Check for Collection --->
 	<cffunction name="checkCollection" access="public" output="false">
-		<cfargument name="collection" required="true" type="string">
+		<cfargument name="hostid" required="true" type="string">
 		<cftry>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.collection#")>
+			<cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.hostid#")>
 			<!--- Get the collection --->
-			<cfset CollectionStatus(arguments.collection)>
+			<cfset CollectionStatus(arguments.hostid)>
 			<!--- Collection does NOT exists, thus create it --->
 			<cfcatch>
-		    	<cfinvoke method="_createCollection" collection="#arguments.collection#">
+		    	<cfinvoke method="_createCollection" hostid="#arguments.hostid#">
 			</cfcatch>
 		</cftry>
 		<!--- Return --->
@@ -86,24 +86,35 @@
 
 	<!--- Check for Collection --->
 	<cffunction name="_createCollection" access="private" output="false">
-		<cfargument name="collection" required="true" type="string">
+		<cfargument name="hostid" required="true" type="string">
 		<!--- Delete collection --->
 		<cftry>
-			<cfset CollectionDelete(arguments.collection)>
+			<cfset CollectionDelete(arguments.hostid)>
 			<cfcatch type="any"></cfcatch>
 		</cftry>
 		<!--- Delete path on disk --->
 		<cftry>
 			<cfset var d = REReplaceNoCase(GetTempDirectory(),"/bluedragon/work/temp","","one")>
-			<cfdirectory action="delete" directory="#d#collections/#arguments.collection#" recurse="true" />
+			<cfdirectory action="delete" directory="#d#collections/#arguments.hostid#" recurse="true" />
 			<cfcatch type="any"></cfcatch>
 		</cftry>
 		<!--- Create collection --->
 		<cftry>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Creating collection for Host #arguments.collection#")>
+			<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
 			<!--- Create --->
-			<cfset CollectionCreate(collection=arguments.collection,relative=true,path="/WEB-INF/collections/#arguments.collection#")>
+			<cfset CollectionCreate(collection=arguments.hostid,relative=true,path="/WEB-INF/collections/#arguments.hostid#")>
+			<!--- Insert record --->
+			<!--- <cfscript>
+				args = {
+					collection : "#arguments.hostid#",
+					key : "108",
+					title : "108",
+					body : "108"
+				};
+				results = CollectionIndexCustom( argumentCollection=args );
+			</cfscript> --->
+			<!--- <cfabort> --->
 			<cfcatch type="any">
 				<cfset r.success = false>
 				<cfset r.error = cfcatch.message>

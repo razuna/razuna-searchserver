@@ -34,6 +34,10 @@
 		<cfargument name="startrow" required="true" type="numeric">
 		<cfargument name="maxrows" required="true" type="numeric">
 		<cfargument name="folderid" required="true" type="string">
+		
+		<cfset consoleoutput(true)>
+		<cfset console("#now()# ---------------------- Starting Search")>
+
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
 		<!--- Param --->
@@ -87,15 +91,15 @@
 				<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
 			</cfif>
 			<cfset consoleoutput(true)>
-			<cfset console("---------------------- Search with")>
+			<cfset console("#now()# ---------------------- Search with")>
 			<cfset console(_criteria)>
 			<!--- Search in Lucene --->
 			<cfsearch collection="#arguments.collection#" criteria="#_criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
 			<cfcatch type="any">
 				<cfset consoleoutput(true)>
-				<cfset console("---------------------- START Error on search")>
+				<cfset console("#now()# ---------------------- START Error on search")>
 				<cfset console(cfcatch)>
-				<cfset console("---------------------- END Error on search")>
+				<cfset console("#now()# ---------------------- END Error on search")>
 				<cfset results = querynew("x")>
 			</cfcatch>
 		</cftry>

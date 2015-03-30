@@ -25,23 +25,38 @@
 --->
 <cfcomponent output="false">
 
+	<!--- Path for this file --->
+	<!--- If path contains cron we have to go up one more --->
+	<cfif ExpandPath("../") CONTAINS "cron">
+		<cfset this._path = ExpandPath("../../") />
+	<cfelse>
+		<cfset this._path = ExpandPath("../") />
+	</cfif>
+	
+
 	<!--- Check for key --->
 	<cffunction name="auth" access="public" output="false">
-		<cfargument name="secret" required="true" type="string">
 		<!--- Var --->
 		<cfset var login = false />
 		<!--- Path --->
-		<cfset var path = "#ExpandPath("..")#config.cfm" />
+		<cfset var path = "#this._path#config.cfm" />
+		
 		<!--- Check for config file --->
 		<cfif fileexists(path)>
 			<!--- Get value --->
 			<cfset var _secret = trim(getProfileString(path, "default", "secret"))>
-			<!--- If value is empty then reset --->
-			<cfif _secret EQ arguments.secret>
+			<!--- Now call options table and get secret --->
+			<cfset var _secret_remote = _getSecretRemote()>
+			<!--- If local and remote key match --->
+			<cfif _secret EQ _secret_remote>
 				<cfset var login = true />
 			</cfif>
 		</cfif>
 		<cfif !login>
+			<!--- Log --->
+			<cfset consoleoutput(true)>
+			<cfset console("#now()# ---------------------- Secret key is not valid! Aborting...")>
+			<cfabort>
 			<cfreturn noAccess() />
 		</cfif>
 		<!--- Return --->
@@ -51,6 +66,22 @@
 	<!--- Send no access --->
 	<cffunction name="noAccess" access="public" output="false" returnformat="json">
 		<cflocation url="/noaccess.cfm" />
+	</cffunction>
+
+	<!--- Check for key --->
+	<cffunction name="getConfig" access="public" output="false">
+		<!--- Path --->
+		<cfset var path = "#this._path#config.cfm" />
+		<!--- Check for config file --->
+		<cfif fileexists(path)>
+			<!--- Get value --->
+			<cfset s.storage = trim(getProfileString(path, "default", "storage"))>
+			<cfset s.database = trim(getProfileString(path, "default", "database"))>
+			<cfset s.prefix = trim(getProfileString(path, "default", "prefix"))>
+			<cfset s.secret = trim(getProfileString(path, "default", "secret"))>
+		</cfif>
+		<!--- Return --->
+		<cfreturn s />
 	</cffunction>
 	
 	<!--- Get Cachetoken --->
@@ -94,7 +125,6 @@
 		<!--- Return --->
 		<cfreturn assetpath />
 	</cffunction>
-
 
 	<!---  --->
 	<!--- PRIVATE --->
@@ -188,6 +218,31 @@
 				<cfset console(cfcatch)>
 			</cfcatch>
 		</cftry>
+	</cffunction>
+
+	<!--- Get Remote key --->
+	<cffunction name="_getSecretRemote" access="private" output="false" returntype="string">
+		<!--- Query --->
+		<cftry>
+			<cfset consoleoutput(true)>
+			<cfset console("#now()# ---------------------- Fetching remote secret key")>
+			<!--- Param --->
+			<cfset var qry = "">
+			<cfset var key = "">
+			<!--- Query --->
+			<cfquery dataSource="#application.razuna.datasource#" name="qry">
+			SELECT opt_value
+			FROM options
+			WHERE lower(opt_id) = <cfqueryparam value="taskserver_secret" CFSQLType="CF_SQL_VARCHAR">
+			</cfquery>
+			<cfset var key = trim(qry.opt_value)>
+			<cfcatch type="any">
+				<cfset console(cfcatch)>
+				<cfset var key = "">
+			</cfcatch>
+		</cftry>
+		<cfset console("#now()# ---------------------- Found key : #key#")>
+		<cfreturn key />
 	</cffunction>
 
 </cfcomponent>
