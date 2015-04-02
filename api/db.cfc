@@ -73,7 +73,7 @@
 		<cfargument name="db_pass" required="true" type="string">
 		<cfargument name="db_path" required="true" type="string">
 		<!--- Name of this connection --->
-		<cfset var datasource_name = "razuna_datasource_name">
+		<cfset var datasource_name = "razuna_server">
 		<!--- Delete the current connection first --->
 		<cftry>
 			<cfinvoke component="bd_config" method="deleteDatasource">
