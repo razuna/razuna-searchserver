@@ -27,11 +27,6 @@
 
 	<!--- Index Files --->
 	<cffunction name="indexFiles" access="public" output="false">
-		<!--- Check login --->
-		<!--- <cfset auth()> --->
-		<!--- Param --->
-		<!--- <cfset r.success = true>
-		<cfset r.error = ""> --->
 		<!--- Enable Log --->
 		<cfset consoleoutput(true)>
 		<!--- Get Config --->
@@ -39,21 +34,21 @@
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting indexing")>
 		<!--- Get all hosts to index. This will abort if nothing found. --->
-		<cfset qryAllHostsAndFiles = _getHosts(config.prefix) />
+		<cfset qryAllHostsAndFiles = _getHosts(config.conf_db_prefix) />
 		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
 		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles) />
 		<!--- Download doc files if cloud based --->
-		<cfif config.storage EQ "amazon">
+		<cfif config.conf_storage EQ "amazon">
 			<cfset _getFilesInCloud(_qryNew) />
 		</cfif>
 		<!--- Index File --->
-		<cfset _doIndex( qryfiles = _qryNew, storage = config.storage, thedatabase = config.database ) />
+		<cfset _doIndex( qryfiles = _qryNew, storage = config.conf_storage, thedatabase = config.conf_db_type ) />
 		<!--- Update database and flush cache --->
 		<cfset _updateDb(qryfiles = _qryNew) />
 		<!--- Remove lock file --->
 		<cfset _removeLockFile(_qryNew) />			
 		<!--- If cloud based remove the temp doc storage --->
-		<cfif config.storage EQ "amazon">
+		<cfif config.conf_storage EQ "amazon">
 			<cfset _removeTempDocStore(_qryNew) />
 		</cfif>
 		<!--- Log --->
@@ -66,8 +61,6 @@
 	<cffunction name="removeFiles" access="public" output="false">
 		<!--- Enable Log --->
 		<cfset consoleoutput(true)>
-		<!--- Get Config --->
-		<cfset var config = getConfig()>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting removal")>
 		<!--- Grab records to remove --->

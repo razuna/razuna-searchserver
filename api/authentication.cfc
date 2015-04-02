@@ -63,16 +63,19 @@
 
 	<!--- Check for key --->
 	<cffunction name="getConfig" access="public" output="false">
-		<!--- Path --->
-		<cfset var path = "#this._path#config.cfm" />
-		<!--- Check for config file --->
-		<cfif fileexists(path)>
-			<!--- Get value --->
-			<cfset s.storage = trim(getProfileString(path, "default", "storage"))>
-			<cfset s.database = trim(getProfileString(path, "default", "database"))>
-			<cfset s.prefix = trim(getProfileString(path, "default", "prefix"))>
-			<cfset s.secret = trim(getProfileString(path, "default", "secret"))>
-		</cfif>
+		<!--- Param --->
+		<cfset var qry = "">
+		<cfset var s = structNew()>
+		<!--- Query --->
+		<cfquery datasource="#application.razuna.datasource#" name="qry">
+		SELECT opt_id, opt_value
+		FROM options
+		WHERE opt_id LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="conf_%">
+		</cfquery>
+		<!--- Get value --->
+		<cfloop query="qry">
+			<cfset s["#opt_id#"] = opt_value>
+		</cfloop>
 		<!--- Return --->
 		<cfreturn s />
 	</cffunction>
