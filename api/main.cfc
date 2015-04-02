@@ -1,5 +1,7 @@
 <cfcomponent>
 
+	<!--- These are called from the cron jobs --->
+
 	<!--- Run indexing --->
 	<cffunction name="index" output="false" access="public">
 		<!--- Log --->
@@ -19,9 +21,3 @@
 	</cffunction>
 
 </cfcomponent>
-
-
-
-
-
-
