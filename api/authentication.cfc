@@ -36,21 +36,14 @@
 
 	<!--- Check for key --->
 	<cffunction name="auth" access="public" output="false">
-		<!--- Var --->
+		<cfargument name="secret" type="string">
+		<!--- Param --->
 		<cfset var login = false />
-		<!--- Path --->
-		<cfset var path = "#this._path#config.cfm" />
-		
-		<!--- Check for config file --->
-		<cfif fileexists(path)>
-			<!--- Get value --->
-			<cfset var _secret = trim(getProfileString(path, "default", "secret"))>
-			<!--- Now call options table and get secret --->
-			<cfset var _secret_remote = _getSecretRemote()>
-			<!--- If local and remote key match --->
-			<cfif _secret EQ _secret_remote>
-				<cfset var login = true />
-			</cfif>
+		<!--- Get remote secret --->
+		<cfset var _secret_remote = _getSecretRemote()>
+		<!--- If passed and remote secret match --->
+		<cfif arguments.secret EQ _secret_remote>
+			<cfset var login = true />
 		</cfif>
 		<cfif !login>
 			<!--- Log --->
@@ -86,7 +79,6 @@
 	
 	<!--- Get Cachetoken --->
 	<cffunction name="getcachetoken" output="false" returntype="string">
-		<cfargument name="secret" type="string">
 		<cfargument name="type" type="string" required="yes">
 		<cfargument name="hostid" type="string" required="yes">
 		<!--- Call --->
@@ -97,7 +89,6 @@
 
 	<!--- reset the global caching variable of this cfc-object --->
 	<cffunction name="resetcachetoken" output="false" returntype="void">
-		<cfargument name="secret" type="string">
 		<cfargument name="type" type="string" required="yes">
 		<cfargument name="hostid" type="string" required="yes">
 		<!--- Call --->

@@ -34,14 +34,11 @@
 		<cfargument name="startrow" required="true" type="numeric">
 		<cfargument name="maxrows" required="true" type="numeric">
 		<cfargument name="folderid" required="true" type="string">
-		
+		<!--- Log --->
 		<cfset consoleoutput(true)>
 		<cfset console("#now()# ---------------------- Starting Search")>
-
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
-		<!--- Param --->
-		<!--- <cfset var results = ""> --->
 		<!--- Param --->
 		<cfset r.success = true>
 		<cfset r.error = "">
@@ -166,7 +163,3 @@
 
 
 </cfcomponent>
-
-
-
-

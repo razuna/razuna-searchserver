@@ -23,44 +23,8 @@
 * along with Razuna. If not, see <http://www.razuna.com/licenses/>.
 *
 --->
-<cfcomponent output="false" extends="authentication">
+<cfcomponent output="false">
 
-	<!--- Create search collection --->
-	<cffunction name="createCollection" access="remote" output="false" returnformat="json">
-		<cfargument name="hostid" required="true" type="string">
-		<cfargument name="secret" required="true" type="string">
-		<!--- Check login --->
-		<cfset auth(arguments.secret)>
-		<!--- Param --->
-		<cfset r.success = true>
-		<cfset r.error = "">
-		<!--- Call internal function --->
-		<cfinvoke method="_createCollection" hostid="#arguments.hostid#">
-		<!--- Return --->
-		<cfreturn r />
-	</cffunction>
-
-	<!--- Delete search collection --->
-	<cffunction name="removeCollection" access="remote" output="false" returnformat="json">
-		<cfargument name="hostid" required="true" type="string">
-		<cfargument name="secret" required="true" type="string">
-		<!--- Check login --->
-		<cfset auth(arguments.secret)>
-		<!--- Param --->
-		<cfset r.success = true>
-		<cfset r.error = "">
-		<!--- Delete collection --->
-		<cftry>
-			<cfset CollectionDelete(arguments.hostid)>
-			<cfcatch type="any">
-				<cfset r.success = false>
-				<cfset r.error = cfcatch.message>
-			</cfcatch>
-		</cftry>
-		<!--- Return --->
-		<cfreturn r />
-	</cffunction>
-	
 	<!--- Check for Collection --->
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
@@ -77,6 +41,8 @@
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
+
+
 
 
 	<!--- PRIVATE --->
@@ -103,18 +69,8 @@
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
 			<!--- Create --->
-			<cfset CollectionCreate(collection=arguments.hostid,relative=true,path="/WEB-INF/collections/#arguments.hostid#")>
-			<!--- Insert record --->
-			<!--- <cfscript>
-				args = {
-					collection : "#arguments.hostid#",
-					key : "108",
-					title : "108",
-					body : "108"
-				};
-				results = CollectionIndexCustom( argumentCollection=args );
-			</cfscript> --->
-			<!--- <cfabort> --->
+			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
+			<!--- On error --->
 			<cfcatch type="any">
 				<cfset r.success = false>
 				<cfset r.error = cfcatch.message>

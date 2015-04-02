@@ -24,7 +24,17 @@
       </cfcatch>
     </cftry>
 
+    <cftry>
+      <cfset cronEnable(true) />
+      <cfset Cronsetdirectory("/cron") />
+      <cfcatch type="any">
+        <cfset consoleoutput(true)>
+        <cfset console("Cron error #cfcatch#")>
+      </cfcatch>
+    </cftry>
+
     <cfset console("---START: Cache Setup---")>
+    
     <!--- Create the cache --->
     <cfset cacheregionnew(
       region="razcache",
