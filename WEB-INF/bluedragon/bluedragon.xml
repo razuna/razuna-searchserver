@@ -7,6 +7,7 @@
     <assert>false</assert>
     <missingtemplatehandler></missingtemplatehandler>
     <tempdirectory>/WEB-INF/bluedragon/work/temp</tempdirectory>
+    <lastfile>/Users/nitai/Documents/workspace/razuna-task-server/WEB-INF/bluedragon/bluedragon.xml.bak.1</lastfile>
     <runtimelogging>true</runtimelogging>
     <deniedips></deniedips>
     <defaultcharset>UTF-8</defaultcharset>
@@ -14,14 +15,15 @@
     <runtimeloggingmax>100</runtimeloggingmax>
     <scriptsrc>/bluedragon/scripts</scriptsrc>
     <formurlcombined>false</formurlcombined>
-    <servercfc>/WEB-INF/Server.cfc</servercfc>
-    <debug>true</debug>
+    <servercfc>/Server.cfc</servercfc>
+    <debug>false</debug>
     <legacyformvalidation>false</legacyformvalidation>
     <cfoutputshorthand>true</cfoutputshorthand>
     <scriptprotect>false</scriptprotect>
     <nativelibdir>/WEB-INF/bin</nativelibdir>
     <errorhandler></errorhandler>
     <functionscopedvariables>true</functionscopedvariables>
+    <lastupdated>03/Apr/2015 15:38.27</lastupdated>
     <whitespacecomp>true</whitespacecomp>
     <allowedips></allowedips>
   </system>
@@ -29,6 +31,25 @@
     <maxfiles>1000</maxfiles>
     <trustcache>false</trustcache>
   </file>
+  <javacustomtags>
+    <classes>/WEB-INF/classes</classes>
+    <mapping name="cfx_javabluedragonhello">
+      <name>cfx_javabluedragonhello</name>
+      <displayname>CFX_JavaBlueDragonHello</displayname>
+      <description>A simple Java CFX tag example</description>
+      <class>com.newatlanta.BlueDragonHello</class>
+    </mapping>
+  </javacustomtags>
+  <nativecustomtags>
+    <mapping name="cfx_nativebluedragonhello">
+      <function>ProcessTagRequest</function>
+      <keeploaded>true</keeploaded>
+      <name>cfx_nativebluedragonhello</name>
+      <displayname>CFX_NativeBlueDragonHello</displayname>
+      <module>/WEB-INF/customtags/BlueDragonHello.dll</module>
+      <description>A simple C++ CFX tag example</description>
+    </mapping>
+  </nativecustomtags>
   <cfchart>
     <cachesize>1000</cachesize>
     <storage>file</storage>
@@ -37,59 +58,36 @@
     <dirs>C:\Windows\Fonts</dirs>
   </fonts>
   <cfquery>
-    <datasource name="razuna_server">
-      <displayname>razuna_server</displayname>
-      <password>E5SRlQSbiM0Ymw==</password>
-      <connectionretries>0</connectionretries>
-      <sqldelete>true</sqldelete>
-      <sqlupdate>true</sqlupdate>
-      <username>razuna</username>
-      <drivername>com.mysql.jdbc.Driver</drivername>
-      <sqlstoredprocedures>true</sqlstoredprocedures>
-      <perrequestconnections>false</perrequestconnections>
-      <sqlinsert>true</sqlinsert>
-      <sqlselect>true</sqlselect>
-      <connectiontimeout>120</connectiontimeout>
-      <port>3306</port>
-      <server>localhost</server>
-      <databasename>razuna</databasename>
-      <description></description>
-      <connectstring>noDatetimeStringSync=true&amp;amp;zeroDateTimeBehavior=convertToNull</connectstring>
-      <initstring></initstring>
-      <logintimeout>120</logintimeout>
-      <hoststring>jdbc:mysql://localhost:3306/razuna?cacheResultSetMetadata=false&amp;autoReconnect=true&amp;noDatetimeStringSync=true&amp;amp;zeroDateTimeBehavior=convertToNull</hoststring>
-      <maxconnections>24</maxconnections>
-      <name>razuna_server</name>
-    </datasource>
     <cache>true</cache>
     <cachecount>1000</cachecount>
+    <slowlog>-1</slowlog>
     <dbdrivers>
-      <driver name="other">
-        <datasourceconfigpage>other.cfm</datasourceconfigpage>
-        <version></version>
-        <name>other</name>
-        <driverdescription>Other JDBC Driver</driverdescription>
-        <drivername></drivername>
-        <jdbctype></jdbctype>
-        <provider></provider>
-        <defaultport></defaultport>
-      </driver>
       <driver name="microsoft sql server (jtds)">
         <datasourceconfigpage>sqlserver-jtds.cfm</datasourceconfigpage>
         <version>1.2.5</version>
         <name>microsoft sql server (jtds)</name>
-        <driverdescription>Microsoft SQL Server (jTDS)</driverdescription>
         <drivername>net.sourceforge.jtds.jdbc.Driver</drivername>
+        <driverdescription>Microsoft SQL Server (jTDS)</driverdescription>
         <jdbctype>4</jdbctype>
         <provider>jTDS</provider>
         <defaultport>1433</defaultport>
+      </driver>
+      <driver name="other">
+        <datasourceconfigpage>other.cfm</datasourceconfigpage>
+        <version></version>
+        <name>other</name>
+        <drivername></drivername>
+        <driverdescription>Other JDBC Driver</driverdescription>
+        <jdbctype></jdbctype>
+        <provider></provider>
+        <defaultport></defaultport>
       </driver>
       <driver name="microsoft sql server (microsoft)">
         <datasourceconfigpage>sqlserver-ms.cfm</datasourceconfigpage>
         <version>2.0</version>
         <name>microsoft sql server (microsoft)</name>
-        <driverdescription>Microsoft SQL Server (Microsoft)</driverdescription>
         <drivername>com.microsoft.sqlserver.jdbc.SQLServerDriver</drivername>
+        <driverdescription>Microsoft SQL Server (Microsoft)</driverdescription>
         <jdbctype>4</jdbctype>
         <provider>Microsoft</provider>
         <defaultport>1433</defaultport>
@@ -98,8 +96,8 @@
         <datasourceconfigpage>h2-embedded.cfm</datasourceconfigpage>
         <version>1.2.134</version>
         <name>h2 embedded (h2)</name>
-        <driverdescription>H2 Embedded (H2)</driverdescription>
         <drivername>org.h2.Driver</drivername>
+        <driverdescription>H2 Embedded (H2)</driverdescription>
         <jdbctype>4</jdbctype>
         <provider>H2</provider>
         <defaultport></defaultport>
@@ -108,8 +106,8 @@
         <datasourceconfigpage>oracle.cfm</datasourceconfigpage>
         <version>10.2.0.4</version>
         <name>oracle (oracle)</name>
-        <driverdescription>Oracle (Oracle)</driverdescription>
         <drivername>oracle.jdbc.OracleDriver</drivername>
+        <driverdescription>Oracle (Oracle)</driverdescription>
         <jdbctype>4</jdbctype>
         <provider>Oracle</provider>
         <defaultport>1521</defaultport>
@@ -118,8 +116,8 @@
         <datasourceconfigpage>mysql5.cfm</datasourceconfigpage>
         <version>5.1.12</version>
         <name>mysql 4/5</name>
-        <driverdescription>MySQL 4/5 (MySQL)</driverdescription>
         <drivername>com.mysql.jdbc.Driver</drivername>
+        <driverdescription>MySQL 4/5 (MySQL)</driverdescription>
         <jdbctype>4</jdbctype>
         <provider>MySQL</provider>
         <defaultport>3306</defaultport>
@@ -128,34 +126,29 @@
         <datasourceconfigpage>postgresql.cfm</datasourceconfigpage>
         <version>8.4-701</version>
         <name>postgresql (postgresql)</name>
-        <driverdescription>PostgreSQL (PostgreSQL)</driverdescription>
         <drivername>org.postgresql.Driver</drivername>
+        <driverdescription>PostgreSQL (PostgreSQL)</driverdescription>
         <jdbctype>4</jdbctype>
         <provider>PostgreSQL</provider>
         <defaultport>5432</defaultport>
       </driver>
     </dbdrivers>
-    <slowlog>-1</slowlog>
   </cfquery>
   <debugoutput>
-    <enabled>true</enabled>
     <executiontimes>
       <show>false</show>
       <highlight>250</highlight>
     </executiontimes>
+    <enabled>false</enabled>
     <exceptions>
-      <show>true</show>
+      <show>false</show>
     </exceptions>
     <tracepoints>
-      <show>true</show>
+      <show>false</show>
     </tracepoints>
     <database>
       <show>false</show>
     </database>
-    <ipaddresses></ipaddresses>
-    <timer>
-      <show>true</show>
-    </timer>
     <variables>
       <url>true</url>
       <form>true</form>
@@ -164,16 +157,20 @@
       <client>true</client>
       <server>true</server>
       <request>true</request>
-      <session>true</session>
       <application>true</application>
+      <session>true</session>
       <local>true</local>
       <cffile>true</cffile>
       <show>true</show>
       <variables>false</variables>
     </variables>
+    <timer>
+      <show>false</show>
+    </timer>
+    <ipaddresses></ipaddresses>
   </debugoutput>
   <cfapplication>
-    <j2eesession>true</j2eesession>
+    <j2eesession>false</j2eesession>
     <clientglobalupdatesdisabled>true</clientglobalupdatesdisabled>
     <applicationtimeout>#CreateTimeSpan(2,0,0,0)#</applicationtimeout>
     <clientpurgeenabled>true</clientpurgeenabled>
@@ -185,7 +182,7 @@
   </cfapplication>
   <openbdadminapi>
     <version>2.0</version>
-    <lastupdated>18/Mar/2015 17:47:59</lastupdated>
+    <lastupdated>03/Apr/2015 15:19:37</lastupdated>
   </openbdadminapi>
   <cfmail>
     <usetls>false</usetls>
@@ -203,4 +200,10 @@
     <datasource></datasource>
     <total>1000</total>
   </cfcachecontent>
+  <cfmlcustomtags>
+    <mapping name="cf">
+      <directory>/WEB-INF/customtags</directory>
+      <name>cf</name>
+    </mapping>
+  </cfmlcustomtags>
 </server>

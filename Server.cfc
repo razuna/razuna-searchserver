@@ -25,11 +25,21 @@
     </cftry>
 
     <cftry>
+      <cfset console("------------ENABLING CRON------------------")>
       <cfset cronEnable(true) />
-      <cfset Cronsetdirectory("/cron") />
       <cfcatch type="any">
         <cfset consoleoutput(true)>
-        <cfset console("Cron error #cfcatch#")>
+        <cfset console("------------ Cron error !!!!!!!!!!!!!!!!!!!!!!!!!")>
+        <cfset console(cfcatch)>
+      </cfcatch>
+    </cftry>
+    <cftry>
+      <cfset console("------------ENABLING CRON DIRECTORY------------------")>
+       <cfset CronSetDirectory("/cron") />
+      <cfcatch type="any">
+        <cfset consoleoutput(true)>
+        <cfset console("------------ Cron error !!!!!!!!!!!!!!!!!!!!!!!!!")>
+        <cfset console(cfcatch)>
       </cfcatch>
     </cftry>
 
