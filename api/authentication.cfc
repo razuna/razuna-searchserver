@@ -50,7 +50,6 @@
 			<cfset consoleoutput(true)>
 			<cfset console("#now()# ---------------------- Secret key is not valid! Aborting...")>
 			<cfabort>
-			<cfreturn noAccess() />
 		</cfif>
 		<!--- Return --->
 		<cfreturn login />
@@ -63,21 +62,30 @@
 
 	<!--- Check for key --->
 	<cffunction name="getConfig" access="public" output="false">
-		<!--- Param --->
-		<cfset var qry = "">
-		<cfset var s = structNew()>
-		<!--- Query --->
-		<cfquery datasource="#application.razuna.datasource#" name="qry">
-		SELECT opt_id, opt_value
-		FROM options
-		WHERE opt_id LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="conf_%">
-		</cfquery>
-		<!--- Get value --->
-		<cfloop query="qry">
-			<cfset s["#opt_id#"] = opt_value>
-		</cfloop>
-		<!--- Return --->
-		<cfreturn s />
+		<cftry>
+			<!--- Param --->
+			<cfset var qry = "">
+			<cfset var s = structNew()>
+			<!--- Query --->
+			<cfquery datasource="#application.razuna.datasource#" name="qry">
+			SELECT opt_id, opt_value
+			FROM options
+			WHERE opt_id LIKE <cfqueryparam cfsqltype="cf_sql_varchar" value="conf_%">
+			</cfquery>
+			<!--- Get value --->
+			<cfloop query="qry">
+				<cfset s["#opt_id#"] = opt_value>
+			</cfloop>
+			<!--- Return --->
+			<cfreturn s />
+			<cfcatch type="any">
+				<cfset consoleoutput(true)>
+				<cfset console("#now()# ---------------------- Config Error. Aborting... !!!!!!!!!!!!!!!!!!!!!!!!!")>
+				<cfset console(cfcatch)>
+				<cfabort>
+			</cfcatch>
+   		</cftry>
+		
 	</cffunction>
 	
 	<!--- Get Cachetoken --->
