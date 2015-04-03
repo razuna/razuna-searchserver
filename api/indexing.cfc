@@ -1101,26 +1101,34 @@
 
 	<!--- Query records to remove --->
 	<cffunction name="_qryRemoveRecords" access="private" output="false" returntype="query">
-		<!--- Log --->
-		<cfset console("#now()# ---------------------- Fetching records to remove from index")>
-		<!--- Param --->
-		<cfset var qry = "">
-		<!--- Query --->
-		<cfquery datasource="#application.razuna.datasource#" name="qry">
-		SELECT id, type, host_id
-		FROM lucene
-		</cfquery>
-		<!--- Only continue if records are found --->
-		<cfif qry.recordcount NEQ 0>
+		<cftry>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
-		<cfelse>
-			<!--- Log --->
-			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove. Aborting...")>
-			<cfabort>
-		</cfif>
-		<!--- Return --->
-		<cfreturn qry />
+			<cfset console("#now()# ---------------------- Fetching records to remove from index")>
+			<!--- Param --->
+			<cfset var qry = "">
+			<!--- Query --->
+			<cfquery datasource="#application.razuna.datasource#" name="qry">
+			SELECT id, type, host_id
+			FROM lucene
+			</cfquery>
+			<!--- Only continue if records are found --->
+			<cfif qry.recordcount NEQ 0>
+				<!--- Log --->
+				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
+			<cfelse>
+				<!--- Log --->
+				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove. Aborting...")>
+				<cfabort>
+			</cfif>
+			<!--- Return --->
+			<cfreturn qry />
+			<cfcatch type="any">
+				<cfset consoleoutput(true)>
+				<cfset console("#now()# ---------------------- Error fetching records. Aborting... !!!!!!!!!!!!!!!!!!!!!!!!!")>
+				<cfset console(cfcatch)>
+				<cfabort>
+			</cfcatch>
+		</cftry>
 	</cffunction>
 
 	<!--- Query records to remove --->
