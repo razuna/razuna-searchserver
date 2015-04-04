@@ -132,7 +132,7 @@
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index. Aborting...")>
 			<!--- Remove lock file --->
-			<cfset _removeLockFile(arguments.qry) />
+			<!--- <cfset _removeLockFile(arguments.qry) /> --->
 			<!--- Abort --->
 			<cfabort>
 		</cfif>
