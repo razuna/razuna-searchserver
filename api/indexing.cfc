@@ -34,7 +34,7 @@
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting indexing")>
 		<!--- Get all hosts to index. This will abort if nothing found. --->
-		<cfset qryAllHostsAndFiles = _getHosts(config.conf_db_prefix) />
+		<cfset qryAllHostsAndFiles = _getHosts(prefix=config.conf_db_prefix, dbtype=config.conf_db_type) />
 		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
 		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles) />
 		<!--- Download doc files if cloud based --->
@@ -169,6 +169,7 @@
 	<!--- Get all hosts --->
 	<cffunction name="_getHosts" access="private">
 		<cfargument name="prefix" required="true">
+		<cfargument name="dbtype" required="true">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
 		<!--- Var --->
@@ -177,7 +178,7 @@
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<!--- Query hosts --->
 			<cfquery datasource="#application.razuna.datasource#" name="qry">
-			SELECT i.host_id as host_id, h.host_db_prefix as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 5000</cfif> i.host_id as host_id, h.host_db_prefix as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
 			FROM #prefix#images i, hosts h
 			WHERE i.host_id = h.host_id
 			AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
@@ -185,8 +186,9 @@
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
 			</cfif>
+			<cfif arguments.dbtype NEQ "mssql">LIMIT 5000</cfif>
 			UNION ALL
-			SELECT f.host_id as host_id, h.host_db_prefix as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 5000</cfif> f.host_id as host_id, h.host_db_prefix as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
 			FROM #prefix#files f, hosts h
 			WHERE f.host_id = h.host_id		
 			AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
@@ -194,8 +196,9 @@
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
 			</cfif>
+			<cfif arguments.dbtype NEQ "mssql">LIMIT 5000</cfif>
 			UNION ALL
-			SELECT v.host_id as host_id, h.host_db_prefix as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 5000</cfif> v.host_id as host_id, h.host_db_prefix as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
 			FROM #prefix#videos v, hosts h
 			WHERE v.host_id = h.host_id		
 			AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
@@ -203,8 +206,9 @@
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
 			</cfif>
+			<cfif arguments.dbtype NEQ "mssql">LIMIT 5000</cfif>
 			UNION ALL
-			SELECT a.host_id as host_id, h.host_db_prefix as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 5000</cfif> a.host_id as host_id, h.host_db_prefix as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
 			FROM #prefix#audios a, hosts h
 			WHERE a.host_id = h.host_id		
 			AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
@@ -212,6 +216,7 @@
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
 			</cfif>
+			<cfif arguments.dbtype NEQ "mssql">LIMIT 5000</cfif>
 			</cfquery>
 		</cfloop>
 		<!--- Only continue if records are found --->
