@@ -143,8 +143,10 @@
 	<!--- Remove lock file --->
 	<cffunction name="_removeLockFile" access="private">
 		<cfargument name="qry" required="true" type="query">
-		<!--- Group all hosts (since the qry is per file) --->
-		<cfoutput query="arguments.qry" group="host_id">
+		<!--- Valuelist hosts --->
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qry.host_id)) />
+		<!--- Loop over hosts --->
+		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<cftry>
 				<!--- Log --->
 				<cfset console("#now()# ---------------------- Removing lock file of Host: #host_id#")>
@@ -159,7 +161,7 @@
 					<cfset console(cfcatch)>
 				</cfcatch>
 			</cftry>
-		</cfoutput>
+		</cfloop>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1087,14 +1089,17 @@
 			AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 			</cfquery>
 		</cfloop>
+		<!--- Group hosts --->
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qryfiles.host_id)) />
+		<!--- Loop over hosts --->
+		<cfloop list="#_hosts#" delimiters="," index="host_id">
 		<!--- Flush cache for this host --->
-		<cfoutput query="arguments.qryfiles" group="host_id">
 			<cfset _resetcachetoken(type="search", hostid=host_id) />
 			<cfset _resetcachetoken(type="images", hostid=host_id) />
 			<cfset _resetcachetoken(type="videos", hostid=host_id) />
 			<cfset _resetcachetoken(type="files", hostid=host_id) />
 			<cfset _resetcachetoken(type="audios", hostid=host_id) />
-		</cfoutput>
+		</cfloop>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1136,8 +1141,11 @@
 		<cfargument name="qryrecords" required="true" type="query">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records from index")>
+		<!--- Group hosts --->
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qryrecords.host_id)) />
+		<!--- Loop over hosts --->
+		<cfloop list="#_hosts#" delimiters="," index="host_id">
 		<!--- Simple remove records in Lucene. Id is the key --->
-		<cfoutput query="arguments.qryrecords" group="host_id">
 			<cfscript>
 				args = {
 					query : arguments.qryrecords,
@@ -1146,7 +1154,7 @@
 				};
 				results = CollectionIndexdelete( argumentCollection=args );
 			</cfscript>
-		</cfoutput>
+		</cfloop>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished removing #qryrecords.recordcount# records from index")>
 		<!--- Return --->
