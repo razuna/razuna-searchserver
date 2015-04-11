@@ -178,7 +178,7 @@
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<!--- Query hosts --->
 			<cfquery datasource="#application.razuna.datasource#" name="qry">
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> i.host_id as host_id, h.host_db_prefix as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> i.host_id as host_id, h.host_shard_group as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
 			FROM #prefix#images i, hosts h
 			WHERE i.host_id = h.host_id
 			AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
@@ -188,7 +188,7 @@
 			</cfif>
 			<cfif arguments.dbtype NEQ "mssql">LIMIT 50000</cfif>
 			UNION ALL
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> f.host_id as host_id, h.host_db_prefix as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> f.host_id as host_id, h.host_shard_group as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
 			FROM #prefix#files f, hosts h
 			WHERE f.host_id = h.host_id		
 			AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
@@ -198,7 +198,7 @@
 			</cfif>
 			<cfif arguments.dbtype NEQ "mssql">LIMIT 50000</cfif>
 			UNION ALL
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> v.host_id as host_id, h.host_db_prefix as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> v.host_id as host_id, h.host_shard_group as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
 			FROM #prefix#videos v, hosts h
 			WHERE v.host_id = h.host_id		
 			AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
@@ -208,7 +208,7 @@
 			</cfif>
 			<cfif arguments.dbtype NEQ "mssql">LIMIT 50000</cfif>
 			UNION ALL
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> a.host_id as host_id, h.host_db_prefix as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
+			SELECT<cfif arguments.dbtype EQ "mssql"> TOP 50000</cfif> a.host_id as host_id, h.host_shard_group as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
 			FROM #prefix#audios a, hosts h
 			WHERE a.host_id = h.host_id		
 			AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
