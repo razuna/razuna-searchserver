@@ -1,10 +1,9 @@
 OpenBD Release Notes
 __________________________________
 
-$Date: 2015-03-20 20:47:55 +0000 (Fri, 20 Mar 2015) $
+$Date: 2015-03-11 18:09:26 +0000 (Wed, 11 Mar 2015) $
 __________________________________
 
-- fixed JEE Session Management Null Pointer when App Server refusing to create 
 - fixed #534: cfzip extract appending to file instead of overwriting
 - fixed #291: support for file attribute as a synonym for zipfile in cfzip tag
 - fixed AmazonS3xx() functions to normalize keys
