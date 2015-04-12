@@ -34,7 +34,7 @@
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting indexing")>
 		<!--- Get all hosts to index. This will abort if nothing found. --->
-		<cfset qryAllHostsAndFiles = _getHosts(prefix=config.conf_db_prefix, dbtype=config.conf_db_type) />
+		<cfset var qryAllHostsAndFiles = _getHosts(prefix=config.conf_db_prefix, dbtype=config.conf_db_type) />
 		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
 		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles) />
 		<!--- Download doc files if cloud based --->
@@ -98,7 +98,7 @@
 			<cfset var lockfiledelerr = false>
 			<cfif fileExists(lockfilepath) >
 				<cfset var lockfiledate = getfileinfo(lockfilepath).lastmodified>
-				<cfif datediff("h", lockfiledate, now()) GT 2>
+				<cfif datediff("n", lockfiledate, now()) GT 5>
 					<cftry>
 						<cffile action="delete" file="#lockfilepath#">
 						<cfcatch><cfset lockfiledelerr = true></cfcatch> <!--- Catch any errors on file deletion --->
@@ -174,7 +174,7 @@
 		<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
 		<!--- Var --->
 		<cfset var qry = "" />
-		<cfset var howmany = 5000 />
+		<cfset var howmany = 1000 />
 		<!--- Loop over prefix --->
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<!--- Query hosts --->
