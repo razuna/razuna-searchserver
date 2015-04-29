@@ -579,12 +579,12 @@
 		<cfset console("#now()# ---------------------- Getting Image: #arguments.file_id# for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
+		<cfset var qry_desc = "" >
 		<!--- Get cache --->
 		<cfset var cache = _getcachetoken("images", arguments.hostid) />
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getImages */ DISTINCT f.host_id collection, f.img_id id, f.folder_id_r folder, f.img_filename filename, f.img_filename_org filenameorg, f.link_kind, f.lucene_key,
-		ct.img_description description, ct.img_keywords keywords, 
+		SELECT /* #cache#_getImages */ DISTINCT f.host_id collection, f.img_id id, f.folder_id_r folder, f.img_filename filename, f.img_filename_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 
 		f.img_extension theext, img_meta as rawmetadata, 'img' as category,
 		x.subjectcode, x.creator, x.title, x.authorsposition, x.captionwriter, x.ciadrextadr, x.category as xmp_category,
 		x.supplementalcategories, x.urgency, x.ciadrcity, 
@@ -592,11 +592,27 @@
 		x.usageterms, x.copyrightstatus, x.transmissionreference, x.webstatement, x.headline, x.datecreated, x.city, x.ciadrregion, 
 		x.country, x.countrycode, x.scene, x.state, x.credit, x.rights
 		FROM #arguments.prefix#images f 
-		LEFT JOIN #arguments.prefix#images_text ct ON f.img_id = ct.img_id_r
 		LEFT JOIN #arguments.prefix#xmp x ON f.img_id = x.id_r AND x.asset_type = <cfqueryparam cfsqltype="cf_sql_varchar" value="img"> AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.img_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
+		<!--- Get keywords and description --->
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
+		SELECT /* #cache#_getImagesDesc */ img_description, img_keywords
+		FROM #arguments.prefix#images_text
+		WHERE img_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		</cfquery>
+		<cfset var desc = "">
+		<cfset var keys = "">
+		<!--- Add to qry --->
+		<cfloop query="qry_desc">
+			<cfset desc = desc & img_description & " ">
+			<cfset keys = keys & img_keywords & " ">
+		</cfloop>
+		<!--- Set cells --->
+		<cfset QuerySetcell( qry, "keywords", keys ) />
+		<cfset QuerySetcell( qry, "description", desc ) />
 		<!--- Return --->
 		<cfreturn qry />
 	</cffunction>
@@ -612,21 +628,36 @@
 		<cfset console("#now()# ---------------------- Getting Document: #arguments.file_id# for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
+		<cfset var qry_desc = "" >
 		<!--- Get cache --->
 		<cfset var cache = _getcachetoken("files", arguments.hostid) />
 		<!--- Param --->
 		<cfset var the_file = "">
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-	    SELECT /* #cache#_getDocs */ DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key,
-	    ct.file_desc description, ct.file_keywords keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext,
-	    x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey
+	    SELECT /* #cache#_getDocs */ DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey
 		FROM #arguments.prefix#files f 
-		LEFT JOIN #arguments.prefix#files_desc ct ON f.file_id = ct.file_id_r
 		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
+		<!--- Get keywords and description --->
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
+		SELECT /* #cache#_getDocsDesc */ file_keywords, file_desc
+		FROM #arguments.prefix#files_desc
+		WHERE file_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		</cfquery>
+		<cfset var desc = "">
+		<cfset var keys = "">
+		<!--- Add to qry --->
+		<cfloop query="qry_desc">
+			<cfset desc = desc & file_desc & " ">
+			<cfset keys = keys & file_keywords & " ">
+		</cfloop>
+		<!--- Set cells --->
+		<cfset QuerySetcell( qry, "keywords", keys ) />
+		<cfset QuerySetcell( qry, "description", desc ) />
 		<!--- Index only doc files --->
 		<cfif qry.link_kind NEQ "url" AND arguments.notfile EQ "F">
 			<cftry>
@@ -687,17 +718,34 @@
 		<cfset console("#now()# ---------------------- Getting Video: #arguments.file_id# for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
+		<cfset var qry_desc = "" >
 		<!--- Get cache --->
 		<cfset var cache = _getcachetoken("videos", arguments.hostid) />
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
 	    SELECT /* #cache#_getVideos */ DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key,
-	    ct.vid_description description, ct.vid_keywords keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category
+	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category
 		FROM #arguments.prefix#videos f 
-		LEFT JOIN #arguments.prefix#videos_text ct ON f.vid_id = ct.vid_id_r
 		WHERE f.vid_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
+		<!--- Get keywords and description --->
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
+		SELECT /* #cache#_getVideosDesc */ vid_description, vid_keywords
+		FROM #arguments.prefix#videos_text
+		WHERE vid_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		</cfquery>
+		<cfset var desc = "">
+		<cfset var keys = "">
+		<!--- Add to qry --->
+		<cfloop query="qry_desc">
+			<cfset desc = desc & vid_description & " ">
+			<cfset keys = keys & vid_keywords & " ">
+		</cfloop>
+		<!--- Set cells --->
+		<cfset QuerySetcell( qry, "keywords", keys ) />
+		<cfset QuerySetcell( qry, "description", desc ) />
 		<!--- Return --->
 		<cfreturn qry />
 	</cffunction>
@@ -711,17 +759,35 @@
 		<cfset console("#now()# ---------------------- Getting Audio: #arguments.file_id# for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
+		<cfset var qry_desc = "" >
 		<!--- Get cache --->
 		<cfset var cache = _getcachetoken("audios", arguments.hostid) />
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
 		SELECT /* #cache#_getAudios */ DISTINCT a.host_id collection, a.aud_id id, a.folder_id_r folder, a.aud_name filename, a.aud_name_org filenameorg, a.link_kind, a.lucene_key,
-		aut.aud_description description, aut.aud_keywords keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category
+		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category
 		FROM #arguments.prefix#audios a
 		LEFT JOIN #arguments.prefix#audios_text aut ON a.aud_id = aut.aud_id_r
 		WHERE a.aud_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND a.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
+		<!--- Get keywords and description --->
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
+		SELECT /* #cache#_getImagesDesc */ aud_description, aud_keywords
+		FROM #arguments.prefix#audios_text
+		WHERE aud_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		</cfquery>
+		<cfset var desc = "">
+		<cfset var keys = "">
+		<!--- Add to qry --->
+		<cfloop query="qry_desc">
+			<cfset desc = desc & aud_description & " ">
+			<cfset keys = keys & aud_keywords & " ">
+		</cfloop>
+		<!--- Set cells --->
+		<cfset QuerySetcell( qry, "keywords", keys ) />
+		<cfset QuerySetcell( qry, "description", desc ) />
 		<!--- Return --->
 		<cfreturn qry />
 	</cffunction>
@@ -947,6 +1013,41 @@
 					};
 					results = CollectionIndexfile( argumentCollection=args );
 				</cfscript>
+				<!--- If the file could not be added add it normaly  --->
+				<cfif !results.inserted>
+					<cfscript>
+						args = {
+						query : qry_records,
+						collection : h,
+						category : "category",
+						categoryTree : "id",
+						key : "id",
+						title : "id",
+						body : "id",
+						custommap :{
+							id : "id",
+							filename : "filename",
+							filenameorg : "filenameorg",
+							keywords : "keywords",
+							description : "description",
+							rawmetadata : "rawmetadata",
+							extension : "theext",
+							author : "author",
+							rights : "rights",
+							authorsposition : "authorsposition", 
+							captionwriter : "captionwriter", 
+							webstatement : "webstatement", 
+							rightsmarked : "rightsmarked",
+							labels : "labels",
+							customfieldvalue : "customfieldvalue",
+							folderpath : "folderpath",
+							folder : "folder",
+							host_id : "host_id"
+							}
+						};
+						results = CollectionIndexCustom( argumentCollection=args );
+					</cfscript>
+				</cfif>
 				<cfcatch type="any">
 					<cfset console("#now()# ---------------------- ERROR")>
 					<cfset console(cfcatch)>

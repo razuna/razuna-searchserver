@@ -88,8 +88,9 @@
 				<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
 			</cfif>
 			<cfset consoleoutput(true)>
-			<cfset console("#now()# ---------------------- Search with")>
+			<cfset console("#now()# ---------------------- Search with start")>
 			<cfset console(_criteria)>
+			<cfset console("#now()# ---------------------- Search with end")>
 			<!--- Search in Lucene --->
 			<cfsearch collection="#arguments.collection#" criteria="#_criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
 			<cfcatch type="any">
