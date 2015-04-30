@@ -185,6 +185,7 @@
 			FROM #prefix#images i, hosts h
 			WHERE i.host_id = h.host_id
 			AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND i.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
 			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
@@ -195,6 +196,7 @@
 			FROM #prefix#files f, hosts h
 			WHERE f.host_id = h.host_id		
 			AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND f.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
 			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
@@ -205,6 +207,7 @@
 			FROM #prefix#videos v, hosts h
 			WHERE v.host_id = h.host_id		
 			AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND v.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
 			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
@@ -215,6 +218,7 @@
 			FROM #prefix#audios a, hosts h
 			WHERE a.host_id = h.host_id		
 			AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			AND a.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
 			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 			<cfif cgi.http_host CONTAINS "razuna.com">
 				AND h.host_type != 0
