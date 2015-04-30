@@ -142,9 +142,11 @@
 
 	<!--- Remove lock file --->
 	<cffunction name="_removeLockFile" access="private">
-		<cfargument name="qry" required="true" type="query">
+		<cfargument name="qry_remove_lock" required="true" type="query">
+		<!--- Param --->
+		<cfset var host_id = "">
 		<!--- Valuelist hosts --->
-		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qry.host_id)) />
+		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qry_remove_lock.host_id)) />
 		<!--- Loop over hosts --->
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<cftry>
@@ -1011,43 +1013,8 @@
 						host_id : "host_id"
 						}
 					};
-					results = CollectionIndexfile( argumentCollection=args );
+					results = CollectionIndexCustom( argumentCollection=args );
 				</cfscript>
-				<!--- If the file could not be added add it normaly  --->
-				<cfif !results.inserted>
-					<cfscript>
-						args = {
-						query : qry_records,
-						collection : h,
-						category : "category",
-						categoryTree : "id",
-						key : "id",
-						title : "id",
-						body : "id",
-						custommap :{
-							id : "id",
-							filename : "filename",
-							filenameorg : "filenameorg",
-							keywords : "keywords",
-							description : "description",
-							rawmetadata : "rawmetadata",
-							extension : "theext",
-							author : "author",
-							rights : "rights",
-							authorsposition : "authorsposition", 
-							captionwriter : "captionwriter", 
-							webstatement : "webstatement", 
-							rightsmarked : "rightsmarked",
-							labels : "labels",
-							customfieldvalue : "customfieldvalue",
-							folderpath : "folderpath",
-							folder : "folder",
-							host_id : "host_id"
-							}
-						};
-						results = CollectionIndexCustom( argumentCollection=args );
-					</cfscript>
-				</cfif>
 				<cfcatch type="any">
 					<cfset console("#now()# ---------------------- ERROR")>
 					<cfset console(cfcatch)>
