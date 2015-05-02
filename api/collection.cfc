@@ -25,6 +25,25 @@
 --->
 <cfcomponent output="false">
 
+	<!--- REMOTE --->
+
+	<!--- Rebuild Collection --->
+	<cffunction name="rebuildCollection" access="public" output="false">
+		<cfargument name="hostid" required="true" type="string">
+		<cfargument name="secret" required="true" type="string">
+		<!--- Log --->
+		<cfset consoleoutput(true)>
+		<cfset console("#now()# ---------------------- Removing Collection for rebuild")>
+		<!--- Check login --->
+		<cfset auth(arguments.secret)>
+		<!--- Get the collection --->
+		<cfset CollectionDelete(arguments.hostid)>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
+	<!--- PUBLIC --->
+
 	<!--- Check for Collection --->
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
@@ -41,8 +60,6 @@
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
-
-
 
 
 	<!--- PRIVATE --->
