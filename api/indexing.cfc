@@ -179,53 +179,67 @@
 		<cfset var howmany = 1000 />
 		<!--- Loop over prefix --->
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
-			<!--- Query hosts --->
-			<cfquery datasource="#application.razuna.datasource#" name="qry">
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> i.host_id as host_id, h.host_shard_group as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
-			FROM #prefix#images i, hosts h
-			WHERE i.host_id = h.host_id
-			AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-			AND i.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
-			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-			<cfif cgi.http_host CONTAINS "razuna.com">
-				AND h.host_type != 0
-			</cfif>
-			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
-			UNION ALL
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> f.host_id as host_id, h.host_shard_group as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
-			FROM #prefix#files f, hosts h
-			WHERE f.host_id = h.host_id		
-			AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-			AND f.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
-			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-			<cfif cgi.http_host CONTAINS "razuna.com">
-				AND h.host_type != 0
-			</cfif>
-			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
-			UNION ALL
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> v.host_id as host_id, h.host_shard_group as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
-			FROM #prefix#videos v, hosts h
-			WHERE v.host_id = h.host_id		
-			AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-			AND v.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
-			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-			<cfif cgi.http_host CONTAINS "razuna.com">
-				AND h.host_type != 0
-			</cfif>
-			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
-			UNION ALL
-			SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> a.host_id as host_id, h.host_shard_group as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
-			FROM #prefix#audios a, hosts h
-			WHERE a.host_id = h.host_id		
-			AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
-			AND a.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
-			AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
-			<cfif cgi.http_host CONTAINS "razuna.com">
-				AND h.host_type != 0
-			</cfif>
-			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
-			</cfquery>
+			<cftry>
+				<!--- Query hosts --->
+				<cfquery datasource="#application.razuna.datasource#" name="qry">
+				(
+					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> i.host_id as host_id, h.host_shard_group as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
+					FROM #prefix#images i, hosts h
+					WHERE i.host_id = h.host_id
+					AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+					AND i.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+					<cfif cgi.http_host CONTAINS "razuna.com">
+						AND h.host_type != 0
+					</cfif>
+					<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
+				)
+				UNION ALL
+				(
+					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> f.host_id as host_id, h.host_shard_group as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
+					FROM #prefix#files f, hosts h
+					WHERE f.host_id = h.host_id		
+					AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+					AND f.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+					<cfif cgi.http_host CONTAINS "razuna.com">
+						AND h.host_type != 0
+					</cfif>
+					<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
+				)
+				UNION ALL
+				(
+					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> v.host_id as host_id, h.host_shard_group as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
+					FROM #prefix#videos v, hosts h
+					WHERE v.host_id = h.host_id		
+					AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+					AND v.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+					<cfif cgi.http_host CONTAINS "razuna.com">
+						AND h.host_type != 0
+					</cfif>
+					<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
+				)
+				UNION ALL
+				(
+					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> a.host_id as host_id, h.host_shard_group as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
+					FROM #prefix#audios a, hosts h
+					WHERE a.host_id = h.host_id		
+					AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+					AND a.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
+					<cfif cgi.http_host CONTAINS "razuna.com">
+						AND h.host_type != 0
+					</cfif>
+					<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
+				)
+				</cfquery>
+				<cfcatch type="any">
+					<cfset console(cfcatch)>
+				</cfcatch>
+			</cftry>
 		</cfloop>
+		
 		<!--- Only continue if records are found --->
 		<cfif qry.recordcount NEQ 0>
 			<!--- Log --->
