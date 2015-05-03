@@ -23,12 +23,12 @@
 * along with Razuna. If not, see <http://www.razuna.com/licenses/>.
 *
 --->
-<cfcomponent output="false">
+<cfcomponent output="false" extends="authentication">
 
 	<!--- REMOTE --->
 
 	<!--- Rebuild Collection --->
-	<cffunction name="rebuildCollection" access="public" output="false">
+	<cffunction name="rebuildCollection" access="remote" output="false">
 		<cfargument name="hostid" required="true" type="string">
 		<cfargument name="secret" required="true" type="string">
 		<!--- Log --->
@@ -38,6 +38,7 @@
 		<cfset auth(arguments.secret)>
 		<!--- Get the collection --->
 		<cfset CollectionDelete(arguments.hostid)>
+		<cfset console("#now()# ---------------------- Collection removed for rebuild")>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
