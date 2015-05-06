@@ -117,7 +117,7 @@
 		<!--- Param --->
 		<cfset var qry = "" />
 		<!--- Query --->
-		<cfquery datasource="#application.razuna.datasource#" name="qry" cachedwithin="1" region="razcache">
+		<cfquery datasource="#application.razuna.datasource#" name="qry">
 		SELECT /* #cachetoken#getAssetPath */ set2_path_to_assets
 		FROM #arguments.prefix#settings_2
 		WHERE host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -194,7 +194,7 @@
 			<!--- Get the cachetoken for here --->
 			<cfset var cachetoken = _getcachetoken("folders", arguments.hostid)>
 			<!--- Query: Get current folder_id_r --->
-			<cfquery datasource="#application.razuna.datasource#" name="qry" cachedwithin="1" region="razcache">
+			<cfquery datasource="#application.razuna.datasource#" name="qry">
 			SELECT /* #cachetoken#getbreadcrumb */ f.folder_name, f.folder_id_r, f.folder_id
 			FROM #arguments.prefix#folders f
 			WHERE f.folder_id = <cfqueryparam value="#arguments.folder_id_r#" cfsqltype="CF_SQL_VARCHAR">

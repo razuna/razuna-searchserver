@@ -43,16 +43,16 @@
       </cfcatch>
     </cftry>
 
-    <cfset console("---START: Cache Setup---")>
+    <!--- <cfset console("---START: Cache Setup---")> --->
     
     <!--- Create the cache --->
-    <cfset cacheregionnew(
+   <!---  <cfset cacheregionnew(
       region="razcache",
       props=
       {
         type : 'memorydisk'
       }
-    )>
+    )> --->
 
     <!--- READ the documentation at http://wiki.razuna.com/display/ecp/Configure+Caching !!! --->
 
@@ -84,7 +84,7 @@
       }
     )>
     --->
-     <cfset console("---DONE: Cache Setup---")>
+     <!--- <cfset console("---DONE: Cache Setup---")> --->
      <cfset console("---------------FINISHED---------------------")>
 
   </cffunction>

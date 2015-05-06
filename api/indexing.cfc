@@ -600,11 +600,9 @@
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
-		<!--- Get cache --->
-		<cfset var cache = _getcachetoken("images", arguments.hostid) />
 		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getImages */ DISTINCT f.host_id collection, f.img_id id, f.folder_id_r folder, f.img_filename filename, f.img_filename_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT f.host_id collection, f.img_id id, f.folder_id_r folder, f.img_filename filename, f.img_filename_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 
 		f.img_extension theext, img_meta as rawmetadata, 'img' as category,
 		x.subjectcode, x.creator, x.title, x.authorsposition, x.captionwriter, x.ciadrextadr, x.category as xmp_category,
 		x.supplementalcategories, x.urgency, x.ciadrcity, 
@@ -617,8 +615,8 @@
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
 		<!--- Get keywords and description --->
-		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getImagesDesc */ img_description, img_keywords
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
+		SELECT img_description, img_keywords
 		FROM #arguments.prefix#images_text
 		WHERE img_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -649,21 +647,19 @@
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
-		<!--- Get cache --->
-		<cfset var cache = _getcachetoken("files", arguments.hostid) />
 		<!--- Param --->
 		<cfset var the_file = "">
 		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-	    SELECT /* #cache#_getDocs */ DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+	    SELECT DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey
 		FROM #arguments.prefix#files f 
 		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
 		<!--- Get keywords and description --->
-		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getDocsDesc */ file_keywords, file_desc
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
+		SELECT file_keywords, file_desc
 		FROM #arguments.prefix#files_desc
 		WHERE file_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -739,19 +735,17 @@
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
-		<!--- Get cache --->
-		<cfset var cache = _getcachetoken("videos", arguments.hostid) />
 		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-	    SELECT /* #cache#_getVideos */ DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key,
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+	    SELECT DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key,
 	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category
 		FROM #arguments.prefix#videos f 
 		WHERE f.vid_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
 		<!--- Get keywords and description --->
-		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getVideosDesc */ vid_description, vid_keywords
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
+		SELECT vid_description, vid_keywords
 		FROM #arguments.prefix#videos_text
 		WHERE vid_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -780,11 +774,9 @@
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
-		<!--- Get cache --->
-		<cfset var cache = _getcachetoken("audios", arguments.hostid) />
 		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getAudios */ DISTINCT a.host_id collection, a.aud_id id, a.folder_id_r folder, a.aud_name filename, a.aud_name_org filenameorg, a.link_kind, a.lucene_key,
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT a.host_id collection, a.aud_id id, a.folder_id_r folder, a.aud_name filename, a.aud_name_org filenameorg, a.link_kind, a.lucene_key,
 		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category
 		FROM #arguments.prefix#audios a
 		LEFT JOIN #arguments.prefix#audios_text aut ON a.aud_id = aut.aud_id_r
@@ -792,8 +784,8 @@
 		AND a.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		</cfquery>
 		<!--- Get keywords and description --->
-		<cfquery name="qry_desc" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getImagesDesc */ aud_description, aud_keywords
+		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
+		SELECT aud_description, aud_keywords
 		FROM #arguments.prefix#audios_text
 		WHERE aud_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -841,11 +833,9 @@
 		<cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
-		<!--- Get cache --->
-		<cfset var cache = _getcachetoken(arguments.category, arguments.hostid) />
 		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getCustomFields_#arguments.category# */ DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + cast(v.cf_value AS NVARCHAR(max))<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),' ',cast(v.cf_value AS CHAR))</cfif> AS customfieldvalue
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + cast(v.cf_value AS NVARCHAR(max))<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),' ',cast(v.cf_value AS CHAR))</cfif> AS customfieldvalue
 		FROM #arguments.prefix#custom_fields_values v, #arguments.prefix#custom_fields_text ft
 		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND v.cf_value != ''
@@ -870,11 +860,9 @@
 		<cfset console("#now()# ---------------------- Getting Labels: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
-		<!--- Get cache --->
-		<cfset var cache = _getcachetoken(arguments.category, arguments.hostid) />
 		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#" cachedwithin="1" region="razcache">
-		SELECT /* #cache#_getLabels */ DISTINCT l.label_path
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT l.label_path
 		FROM ct_labels ct, #arguments.prefix#labels l
 		WHERE ct.ct_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND l.label_id = ct.ct_label_id
