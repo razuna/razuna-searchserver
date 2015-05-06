@@ -25,7 +25,7 @@
 --->
 <cfcomponent output="false" extends="authentication">
 
-	<!--- Create search collection --->
+	<!--- Create database source --->
 	<cffunction name="setup" access="remote" output="false" returntype="struct" returnformat="json">
 		<cfargument name="db_type" required="true" type="string">
 		<cfargument name="db_name" required="true" type="string">
