@@ -38,9 +38,9 @@
 		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
 		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles) />
 		<!--- Download doc files if cloud based --->
-		<cfif config.conf_storage EQ "amazon">
+		<!--- <cfif config.conf_storage EQ "amazon">
 			<cfset _getFilesInCloud(_qryNew) />
-		</cfif>
+		</cfif> --->
 		<!--- Index File --->
 		<cfset _doIndex( qryfiles = _qryNew, storage = config.conf_storage, thedatabase = config.conf_db_type ) />
 		<!--- Update database and flush cache --->
