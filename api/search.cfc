@@ -34,6 +34,7 @@
 		<cfargument name="startrow" required="true" type="numeric">
 		<cfargument name="maxrows" required="true" type="numeric">
 		<cfargument name="folderid" required="true" type="string">
+		<cfargument name="search_type" required="true" type="string">
 		<!--- Log --->
 		<cfset consoleoutput(true)>
 		<cfset console("#now()# ---------------------- Starting Search")>
@@ -51,6 +52,7 @@
 			<cfinvokeargument name="startrow" value="#arguments.startrow#" />
 			<cfinvokeargument name="maxrows" value="#arguments.maxrows#" />
 			<cfinvokeargument name="folderid" value="#arguments.folderid#" />
+			<cfinvokeargument name="search_type" value="#arguments.search_type#" />
 		</cfinvoke>
 		<!--- Return --->
 		<cfreturn r />
@@ -72,12 +74,13 @@
 		<cfargument name="startrow" required="true" type="numeric">
 		<cfargument name="maxrows" required="true" type="numeric">
 		<cfargument name="folderid" required="true" type="string">
+		<cfargument name="search_type" required="true" type="string">
 		<!--- Param --->
 		<cfset var results = "">
 		<!--- Search --->
 		<cftry>
 			<!--- Syntax --->
-			<cfset var _criteria = _searchSyntax(arguments.criteria) />
+			<cfset var _criteria = _searchSyntax(criteria=arguments.criteria, search_type=arguments.search_type) />
 			<!--- if the folderid is not 0 we can filter by folderid --->
 			<cfif arguments.folderid NEQ 0>
 				<cfset var folderlist = "" />
@@ -108,6 +111,8 @@
 	<!--- Internal search --->
 	<cffunction name="_searchSyntax" access="private" output="false" returntype="string">
 		<cfargument name="criteria" required="true" type="string">
+		<cfargument name="search_type" required="true" type="string">
+
 		<!--- 
 		 Decode URL encoding that is encoded using the encodeURIComponent javascript method. 
 		 Preserve the '+' sign during decoding as the URLDecode methode will remove it if present.
@@ -117,6 +122,10 @@
 		<!--- If criteria is empty --->
 		<cfif criteria EQ "">
 			<cfset var criteria = "">
+		<!--- FOR DETAIL SEARCH WE LEAVE IT ALONE --->
+		<cfelseif arguments.search_type EQ "adv">
+			<cfset var criteria = criteria>
+		<!--- SIMPLE SEARCH --->
 		<!--- Put search together. If the criteria contains a ":" then we assume the user wants to search with his own fields --->
 		<cfelseif NOT criteria CONTAINS ":" AND NOT criteria EQ "*">
 			<cfset criteria = _escapelucenechars(criteria)>
