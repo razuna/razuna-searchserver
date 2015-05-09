@@ -322,16 +322,16 @@
 				supplementalcategories, urgency, ciadrcity, ciadrctry, location, ciadrpcode, ciemailwork, ciurlwork, citelwork, 
 				intellectualgenre, instructions, source, usageterms, copyrightstatus, transmissionreference, webstatement, headline, 
 				datecreated, city, ciadrregion, country, countrycode, scene, state, credit, rights, labels, 
-				customfieldvalue, folderpath, host_id, change_time, create_time") />
+				customfieldvalue, folderpath, host_id, change_time, create_time, file_type") />
 		<!--- Create the qoq_vid --->
 		<cfset var qoq_vid = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time") />
+				theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type") />
 		<!--- Create the qoq_aud --->
 		<cfset var qoq_aud = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time") />
+				theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type") />
 		<!--- Create the qoq_doc --->
 		<cfset var qoq_doc = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id, change_time, create_time") />
+				theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id, change_time, create_time, file_type") />
 				
 		<!--- Loop over records --->
 		<cfloop query="arguments.qryfiles">
@@ -411,7 +411,8 @@
 					folderpath : '#folderpath_img#',
 					host_id : '#host_id#',
 					create_time : dateformat(qry_img.create_time, 'yyyymmdd'),
-					change_time : dateformat(qry_img.change_time, 'yyyymmdd')
+					change_time : dateformat(qry_img.change_time, 'yyyymmdd'),
+					file_type : qry_img.file_type
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_img, data = q) />
@@ -465,7 +466,8 @@
 					rightsmarked : qry_doc.rightsmarked,
 					host_id : '#host_id#',
 					create_time : dateformat(qry_doc.create_time, 'yyyymmdd'),
-					change_time : dateformat(qry_doc.change_time, 'yyyymmdd')
+					change_time : dateformat(qry_doc.change_time, 'yyyymmdd'),
+					file_type : qry_doc.file_type
 				} />
 				<!--- Add result to qoq_doc --->
 				<cfset QueryAddrow(query = qoq_doc, data = q) />
@@ -512,7 +514,8 @@
 					folderpath : '#folderpath_vid#',
 					host_id : '#host_id#',
 					create_time : dateformat(qry_vid.create_time, 'yyyymmdd'),
-					change_time : dateformat(qry_vid.change_time, 'yyyymmdd')
+					change_time : dateformat(qry_vid.change_time, 'yyyymmdd'),
+					file_type : qry_vid.file_type
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_vid, data = q) />
@@ -559,7 +562,8 @@
 					folderpath : '#folderpath_aud#',
 					host_id : '#host_id#',
 					create_time : dateformat(qry_aud.create_time, 'yyyymmdd'),
-					change_time : dateformat(qry_aud.change_time, 'yyyymmdd')
+					change_time : dateformat(qry_aud.change_time, 'yyyymmdd'),
+					file_type : qry_aud.file_type
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_aud, data = q) />
@@ -616,7 +620,11 @@
 		x.supplementalcategories, x.urgency, x.ciadrcity, 
 		x.ciadrctry, x.location, x.ciadrpcode, x.ciemailwork, x.ciurlwork, x.citelwork, x.intellectualgenre, x.instructions, x.source,
 		x.usageterms, x.copyrightstatus, x.transmissionreference, x.webstatement, x.headline, x.datecreated, x.city, x.ciadrregion, 
-		x.country, x.countrycode, x.scene, x.state, x.credit, x.rights
+		x.country, x.countrycode, x.scene, x.state, x.credit, x.rights,
+		CASE
+			WHEN (f.img_group IS NOT NULL) THEN 'rendition'
+		    ELSE 'original'
+		END as file_type
 		FROM #arguments.prefix#images f 
 		LEFT JOIN #arguments.prefix#xmp x ON f.img_id = x.id_r AND x.asset_type = <cfqueryparam cfsqltype="cf_sql_varchar" value="img"> AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.img_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
@@ -660,6 +668,7 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 	    SELECT DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey, f.doc_create_time as create_time, f.doc_change_time as change_time,
+	    	'org' as file_type
 		FROM #arguments.prefix#files f 
 		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
@@ -746,7 +755,11 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 	    SELECT DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key, f.vid_create_time as create_time, f.vid_change_time as change_time, 
-	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category
+	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category,
+	    CASE
+	    	WHEN (f.vid_group IS NOT NULL) THEN 'rendition'
+	        ELSE 'original'
+	    END as file_type
 		FROM #arguments.prefix#videos f 
 		WHERE f.vid_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -785,7 +798,11 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 		SELECT DISTINCT a.host_id collection, a.aud_id id, a.folder_id_r folder, a.aud_name filename, a.aud_name_org filenameorg, a.link_kind, a.lucene_key, a.aud_create_time as create_time, a.aud_change_time as change_time,
-		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category
+		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category,
+		CASE
+			WHEN (a.aud_group IS NOT NULL) THEN 'rendition'
+		    ELSE 'original'
+		END as file_type
 		FROM #arguments.prefix#audios a
 		LEFT JOIN #arguments.prefix#audios_text aut ON a.aud_id = aut.aud_id_r
 		WHERE a.aud_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
@@ -962,7 +979,8 @@
 						folder : "folder",
 						host_id : "host_id",
 						create_time : "create_time",
-						change_time : "change_time"
+						change_time : "change_time",
+						file_type : "file_type"
 						}
 					};
 					results = CollectionIndexCustom( argumentCollection=args );
@@ -1028,7 +1046,8 @@
 						folder : "folder",
 						host_id : "host_id",
 						create_time : "create_time",
-						change_time : "change_time"
+						change_time : "change_time",
+						file_type : "file_type"
 						}
 					};
 					results = CollectionIndexCustom( argumentCollection=args );
@@ -1088,7 +1107,8 @@
 					folder : "folder",
 					host_id : "host_id",
 					create_time : "create_time",
-					change_time : "change_time"
+					change_time : "change_time",
+					file_type : "file_type"
 					}
 				};
 				results = CollectionIndexCustom( argumentCollection=args );
@@ -1143,7 +1163,8 @@
 					folder : "folder",
 					host_id : "host_id",
 					create_time : "create_time",
-					change_time : "change_time"
+					change_time : "change_time",
+					file_type : "file_type"
 					}
 				};
 				results = CollectionIndexCustom( argumentCollection=args );

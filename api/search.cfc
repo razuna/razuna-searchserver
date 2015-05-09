@@ -35,6 +35,7 @@
 		<cfargument name="maxrows" required="true" type="numeric">
 		<cfargument name="folderid" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
+		<cfargument name="search_rendition" required="true" type="string">
 		<!--- Log --->
 		<cfset consoleoutput(true)>
 		<cfset console("#now()# ---------------------- Starting Search")>
@@ -53,6 +54,7 @@
 			<cfinvokeargument name="maxrows" value="#arguments.maxrows#" />
 			<cfinvokeargument name="folderid" value="#arguments.folderid#" />
 			<cfinvokeargument name="search_type" value="#arguments.search_type#" />
+			<cfinvokeargument name="search_rendition" value="#arguments.search_rendition#" />
 		</cfinvoke>
 		<!--- Return --->
 		<cfreturn r />
@@ -75,12 +77,13 @@
 		<cfargument name="maxrows" required="true" type="numeric">
 		<cfargument name="folderid" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
+		<cfargument name="search_rendition" required="true" type="string">
 		<!--- Param --->
 		<cfset var results = "">
 		<!--- Search --->
 		<cftry>
 			<!--- Syntax --->
-			<cfset var _criteria = _searchSyntax(criteria=arguments.criteria, search_type=arguments.search_type) />
+			<cfset var _criteria = _searchSyntax(criteria=arguments.criteria, search_type=arguments.search_type, search_rendition=arguments.search_rendition) />
 			<!--- if the folderid is not 0 we can filter by folderid --->
 			<cfif arguments.folderid NEQ 0>
 				<cfset var folderlist = "" />
@@ -112,6 +115,7 @@
 	<cffunction name="_searchSyntax" access="private" output="false" returntype="string">
 		<cfargument name="criteria" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
+		<cfargument name="search_rendition" required="true" type="string">
 
 		<!--- 
 		 Decode URL encoding that is encoded using the encodeURIComponent javascript method. 
@@ -141,6 +145,10 @@
 				<cfset var criteria = 'filename:(#criteria#*) keywords:(#criteria_sp#*) description:(#criteria_sp#*) id:(#criteria_sp#*) labels:(#criteria_sp#*) customfieldvalue:(#criteria_sp#*) filename:("#criteria#") keywords:("#criteria_sp#") description:("#criteria_sp#") id:("#criteria_sp#") labels:("#criteria_sp#") customfieldvalue:("#criteria_sp#")'>
 			</cfif>
 			<cfset var criteria = '(' & criteria_sp  & ') ' & criteria />
+		</cfif>
+		<!--- Add rendition search to it --->
+		<cfif arguments.search_rendition EQ "t">
+			<cfset var criteria = '(' & criteria & ') AND file_type:original'>
 		</cfif>
 		<!--- Return --->
 		<cfreturn criteria />
