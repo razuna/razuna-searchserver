@@ -148,7 +148,11 @@
 		</cfif>
 		<!--- Add rendition search to it --->
 		<cfif arguments.search_rendition EQ "t">
-			<cfset var criteria = '(' & criteria & ') AND file_type:original'>
+			<cfif criteria EQ "*">
+				<cfset var criteria = 'file_type:original'>
+			<cfelse>
+				<cfset var criteria = '(' & criteria & ') AND file_type:original'>
+			</cfif>
 		</cfif>
 		<!--- Return --->
 		<cfreturn criteria />
