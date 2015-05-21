@@ -860,7 +860,7 @@
 		<cfset var qry = "" >
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
-		SELECT DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + replace(cast(v.cf_value AS NVARCHAR(max), ',', ' '))<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),' ', replace(cast(v.cf_value AS CHAR), ',', ' '))</cfif> AS customfieldvalue
+		SELECT DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + replace(cast(v.cf_value AS NVARCHAR(max)), ',', ' ')<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),' ', replace(cast(v.cf_value AS CHAR), ',', ' '))</cfif> AS customfieldvalue
 		FROM #arguments.prefix#custom_fields_values v, #arguments.prefix#custom_fields_text ft
 		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND v.cf_value != ''
