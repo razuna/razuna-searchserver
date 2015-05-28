@@ -41,6 +41,7 @@
 		<cfset var login = false />
 		<!--- Get remote secret --->
 		<cfset var _secret_remote = _getSecretRemote()>
+
 		<!--- If passed and remote secret match --->
 		<cfif arguments.secret EQ _secret_remote>
 			<cfset var login = true />

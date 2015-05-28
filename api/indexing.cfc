@@ -346,7 +346,7 @@
 				<!--- Custom Fields --->
 				<cfset var cf_img = _getCustomFields(hostid = host_id, prefix = prefix, file_id = file_id, thedatabase = arguments.thedatabase, category = "images") />
 				<!--- Labels --->
-				<cfset var labels_img = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "images") />
+				<cfset var labels_img = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "images", groupid = qry_img.groupid) />
 				<!--- Remove foreign chars for some columns --->
 				<cfset var thefilename = REReplaceNoCase(qry_img.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
@@ -482,7 +482,7 @@
 				<!--- Custom Fields --->
 				<cfset var cf_vid = _getCustomFields(hostid = host_id, prefix = prefix, file_id = file_id, thedatabase = arguments.thedatabase, category = "videos") />
 				<!--- Labels --->
-				<cfset var labels_vid = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "videos") />
+				<cfset var labels_vid = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "videos", groupid = qry_vid.groupid) />
 				<!--- Remove foreign chars for some columns --->
 				<cfset var thefilename = REReplaceNoCase(qry_vid.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
@@ -530,7 +530,7 @@
 				<!--- Custom Fields --->
 				<cfset var cf_aud = _getCustomFields(hostid = host_id, prefix = prefix, file_id = file_id, thedatabase = arguments.thedatabase, category = "audios") />
 				<!--- Labels --->
-				<cfset var labels_aud = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "audios") />
+				<cfset var labels_aud = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "audios", groupid = qry_aud.groupid) />
 				<!--- Remove foreign chars for some columns --->
 				<cfset var thefilename = REReplaceNoCase(qry_aud.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
@@ -620,7 +620,7 @@
 		x.supplementalcategories, x.urgency, x.ciadrcity, 
 		x.ciadrctry, x.location, x.ciadrpcode, x.ciemailwork, x.ciurlwork, x.citelwork, x.intellectualgenre, x.instructions, x.source,
 		x.usageterms, x.copyrightstatus, x.transmissionreference, x.webstatement, x.headline, x.datecreated, x.city, x.ciadrregion, 
-		x.country, x.countrycode, x.scene, x.state, x.credit, x.rights,
+		x.country, x.countrycode, x.scene, x.state, x.credit, x.rights, f.img_group as groupid,
 		CASE
 			WHEN (f.img_group IS NOT NULL) THEN 'rendition'
 		    ELSE 'original'
@@ -755,7 +755,7 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 	    SELECT DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key, f.vid_create_time as create_time, f.vid_change_time as change_time, 
-	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category,
+	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category, f.vid_group as groupid,
 	    CASE
 	    	WHEN (f.vid_group IS NOT NULL) THEN 'rendition'
 	        ELSE 'original'
@@ -798,7 +798,7 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 		SELECT DISTINCT a.host_id collection, a.aud_id id, a.folder_id_r folder, a.aud_name filename, a.aud_name_org filenameorg, a.link_kind, a.lucene_key, a.aud_create_time as create_time, a.aud_change_time as change_time,
-		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category,
+		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category, a.aud_group as groupid,
 		CASE
 			WHEN (a.aud_group IS NOT NULL) THEN 'rendition'
 		    ELSE 'original'
@@ -881,17 +881,24 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<cfargument name="category" required="true" type="string">
+		<cfargument name="groupid" required="false" default="" type="string">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Getting Labels: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
+		<!--- Get the labels of the original record if there is a group value --->
+		<cfif arguments.groupid EQ "">
+			<cfset var _theid = arguments.file_id>
+		<cfelse>
+			<cfset var _theid = arguments.groupid>
+		</cfif>
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 		SELECT DISTINCT l.label_path
 		FROM ct_labels ct, #arguments.prefix#labels l
-		WHERE ct.ct_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		WHERE l.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND l.label_id = ct.ct_label_id
-		AND l.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		AND ct.ct_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#_theid#">
 		</cfquery>
 		<!--- if records found --->
 		<cfif qry.recordcount NEQ 0>

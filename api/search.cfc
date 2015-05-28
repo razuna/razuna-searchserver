@@ -142,7 +142,7 @@
 			<cfif criteria CONTAINS '"' OR criteria CONTAINS "*" OR find(" AND ", criteria) NEQ 0 OR find(" OR ", criteria) NEQ 0>
 				<cfset var criteria = 'filename:("#criteria#") keywords:("#criteria_sp#") description:("#criteria_sp#") id:("#criteria_sp#") labels:("#criteria_sp#") customfieldvalue:("#criteria_sp#")'>
 			<cfelse>
-				<cfset var criteria = 'filename:(#criteria#*) keywords:(#criteria_sp#*) description:(#criteria_sp#*) id:(#criteria_sp#*) labels:(#criteria_sp#*) customfieldvalue:(#criteria_sp#*) filename:("#criteria#") keywords:("#criteria_sp#") description:("#criteria_sp#") id:("#criteria_sp#") labels:("#criteria_sp#") customfieldvalue:("#criteria_sp#")'>
+				<cfset var criteria = 'filename:(#criteria#*) keywords:(#criteria_sp#) description:(#criteria_sp#) id:(#criteria_sp#*) labels:(#criteria_sp#) customfieldvalue:(#criteria_sp#*) filename:("#criteria#") keywords:("#criteria_sp#") description:("#criteria_sp#") id:("#criteria_sp#") labels:("#criteria_sp#") customfieldvalue:("#criteria_sp#")'>
 			</cfif>
 			<cfset var criteria = '(' & criteria_sp  & ') ' & criteria />
 		</cfif>
