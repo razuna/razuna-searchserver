@@ -91,7 +91,12 @@
 				<cfloop list="#arguments.folderid#" index="i" delimiters=",">
 					<cfset var folderlist = folderlist & ' folder:("#i#")' />
 				</cfloop>
-				<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
+				<!--- If the returning _criteria is empty we only tag on the folderlist (with this fix user can search with *) --->
+				<cfif _criteria EQ "">
+					<cfset var _criteria = "( #folderlist# )" />
+				<cfelse>
+					<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
+				</cfif>
 			</cfif>
 			<cfset consoleoutput(true)>
 			<cfset console("#now()# ---------------------- Search with start")>
@@ -99,6 +104,11 @@
 			<cfset console("#now()# ---------------------- Search with end")>
 			<!--- Search in Lucene --->
 			<cfsearch collection="#arguments.collection#" criteria="#_criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
+			<!--- Only return the columns we need from Lucene --->
+			<cfquery dbtype="query" name="results">
+			SELECT category, categorytree, rank, searchcount
+			FROM results
+			</cfquery>
 			<cfcatch type="any">
 				<cfset consoleoutput(true)>
 				<cfset console("#now()# ---------------------- START Error on search")>
@@ -124,7 +134,7 @@
 		--->
 		<cfset var criteria = replace(urlDecode(replace(arguments.criteria,"+","PLUSSIGN","ALL")),"PLUSSIGN","+","ALL")>
 		<!--- If criteria is empty --->
-		<cfif criteria EQ "">
+		<cfif criteria EQ "" OR criteria EQ "*">
 			<cfset var criteria = "">
 		<!--- FOR DETAIL SEARCH WE LEAVE IT ALONE --->
 		<cfelseif arguments.search_type EQ "adv">
@@ -148,7 +158,7 @@
 		</cfif>
 		<!--- Add rendition search to it --->
 		<cfif arguments.search_rendition EQ "t">
-			<cfif criteria EQ "*">
+			<cfif criteria EQ "" OR criteria EQ "*">
 				<cfset var criteria = 'file_type:original'>
 			<cfelse>
 				<cfset var criteria = '(' & criteria & ') AND file_type:original'>
