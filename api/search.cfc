@@ -105,10 +105,12 @@
 			<!--- Search in Lucene --->
 			<cfsearch collection="#arguments.collection#" criteria="#_criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
 			<!--- Only return the columns we need from Lucene --->
-			<cfquery dbtype="query" name="results">
-			SELECT category, categorytree, rank, searchcount
-			FROM results
-			</cfquery>
+			<cfif results.recordcount NEQ 0>
+				<cfquery dbtype="query" name="results">
+				SELECT category, categorytree, rank, searchcount
+				FROM results
+				</cfquery>
+			</cfif>
 			<cfcatch type="any">
 				<cfset consoleoutput(true)>
 				<cfset console("#now()# ---------------------- START Error on search")>

@@ -47,10 +47,10 @@
 		<cfset _updateDb(qryfiles = _qryNew) />
 		<!--- Remove lock file --->
 		<cfset _removeLockFile(_qryNew) />			
-		<!--- If cloud based remove the temp doc storage --->
+		<!--- If cloud based remove the temp doc storage
 		<cfif config.conf_storage EQ "amazon">
 			<cfset _removeTempDocStore(_qryNew) />
-		</cfif>
+		</cfif> --->
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Indexing done!!!!")>
 		<!--- Return --->
@@ -71,6 +71,22 @@
 		<cfset _removeFromDatabase(_qryRecords)>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished removal")>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
+	<!--- Update Index --->
+	<cffunction name="updateIndex" access="public" output="false">
+		<!--- Enable Log --->
+		<cfset consoleoutput(true)>
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Starting update")>
+		<!--- Grab hosts --->
+		<cfset var _qryHosts = _qryHosts()>
+		<!--- Insert dummy record --->
+		<cfset _insertDeleteRecordInIndex(_qryHosts)>
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Finished update")>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1299,6 +1315,31 @@
 		</cfloop>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- All #qryrecords.recordcount# records removed in database")>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
+	<!--- Will insert and delete a dummy record --->
+	<cffunction name="_insertDeleteRecordInIndex" access="private">
+		<cfargument name="qryHosts" required="true" type="query">
+		<!--- Loop over Hosts --->
+		<cfloop query="arguments.qryHosts">
+			<cftry>
+				<!--- Create random key --->
+				<cfset var _random = createuuid()>
+				<cfset var _result = "">
+				<!--- Insert --->
+				<cfindex collection="#host_id#" action="update" type="custom" key="#_random#" body="#_random#" title="#_random#" status="_result" />
+				<!--- If inserted than delete --->
+				<cfif _result.inserted>
+					<cfindex collection="#host_id#" action="delete" key="#_random#" />
+				</cfif>
+				<cfcatch type="any">
+					<cfset consoleoutput(true)>
+					<cfset console(cfcatch)>
+				</cfcatch>
+			</cftry>
+		</cfloop>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>

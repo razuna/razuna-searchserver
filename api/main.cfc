@@ -20,4 +20,13 @@
 		<cfinvoke component="indexing" method="removeFiles" />
 	</cffunction>
 
+	<!--- Run Update --->
+	<cffunction name="update" output="false" access="public">
+		<!--- Log --->
+		<cfset consoleoutput(true)>
+		<cfset console("#now()# --- Executing Update from Cron")>
+		<!--- Call Indexing --->
+		<cfinvoke component="indexing" method="updateIndex" />
+	</cffunction>
+
 </cfcomponent>

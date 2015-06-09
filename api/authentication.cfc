@@ -129,6 +129,20 @@
 		<cfreturn assetpath />
 	</cffunction>
 
+	<!--- Get hosts only --->
+	<cffunction name="_qryHosts" access="public">
+		<!--- Param --->
+		<cfset var qry = "">
+		<!--- Query --->
+		<cfquery datasource="#application.razuna.datasource#" name="qry">
+		SELECT host_id
+		FROM hosts
+		</cfquery>
+		<!--- Return --->
+		<cfreturn qry />
+	</cffunction>
+
+
 	<!---  --->
 	<!--- PRIVATE --->
 	<!---  --->
@@ -247,6 +261,8 @@
 		<cfset console("#now()# ---------------------- Found key : #key#")>
 		<cfreturn key />
 	</cffunction>
+
+	
 
 </cfcomponent>
 
