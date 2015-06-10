@@ -1419,17 +1419,28 @@
 	<!--- Will insert and delete a dummy record --->
 	<cffunction name="_insertDeleteRecordInIndex" access="private">
 		<cfargument name="qryHosts" required="true" type="query">
+		<!--- Get collectionlist --->
+		<cfset var _clist = collectionlist()>
 		<!--- Loop over Hosts --->
 		<cfloop query="arguments.qryHosts">
 			<cftry>
-				<!--- Create random key --->
-				<cfset var _random = createuuid()>
-				<cfset var _result = "">
-				<!--- Insert --->
-				<cfindex collection="#host_id#" action="update" type="custom" key="#_random#" body="#_random#" title="#_random#" status="_result" />
-				<!--- If inserted than delete --->
-				<cfif _result.inserted>
-					<cfindex collection="#host_id#" action="delete" key="#_random#" />
+				<!--- Check if collection is available --->
+				<cfquery dbtype="query" name="qry_col">
+				SELECT *
+				FROM _clist
+				WHERE name = '#host_id#'
+				</cfquery>
+				<!--- If found continue --->
+				<cfif qry_col.recordcount NEQ 0>
+					<!--- Create random key --->
+					<cfset var _random = createuuid()>
+					<cfset var _result = "">
+					<!--- Insert --->
+					<cfindex collection="#host_id#" action="update" type="custom" key="#_random#" body="#_random#" title="#_random#" status="_result" />
+					<!--- If inserted than delete --->
+					<cfif _result.inserted>
+						<cfindex collection="#host_id#" action="delete" key="#_random#" />
+					</cfif>
 				</cfif>
 				<cfcatch type="any">
 					<cfset consoleoutput(true)>
