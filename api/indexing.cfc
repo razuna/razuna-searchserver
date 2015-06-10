@@ -63,10 +63,12 @@
 		<cfset consoleoutput(true)>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting removal")>
+		<!--- Get Config --->
+		<cfset var config = getConfig()>
 		<!--- Grab records to remove --->
-		<cfset var _qryRecords = _qryRemoveRecords()>
+		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix)>
 		<!--- Remove records in Lucene --->
-		<cfset _removeFromIndex(_qryRecords)>
+		<cfset _removeFromIndex(qryrecords=_qryRecords,prefix=config.conf_db_prefix)>
 		<!--- All done remove records in database --->
 		<cfset _removeFromDatabase(_qryRecords)>
 		<!--- Log --->
@@ -708,7 +710,7 @@
 		<cfset QuerySetcell( qry, "keywords", keys ) />
 		<cfset QuerySetcell( qry, "description", desc ) />
 		<!--- Index only doc files --->
-		<cfif qry.link_kind NEQ "url" AND arguments.notfile EQ "F">
+		<!--- <cfif qry.link_kind NEQ "url" AND arguments.notfile EQ "F">
 			<cftry>
 				<!--- Get assetpath of each host (could be different) --->
 				<cfset var assetPath = getAssetPath(arguments.hostid, arguments.prefix) />
@@ -745,15 +747,16 @@
 					<cfset console(cfcatch)>
 				</cfcatch>
 			</cftry>
-		</cfif>
+		</cfif> --->
 		<!--- Decide on the key --->
-		<cfif the_file EQ "">
+		<!--- <cfif the_file EQ "">
 			<cfset var thekey = qry.id>
 		<cfelse>
 			<cfset var thekey = the_file>
 		</cfif>
 		<!--- Set key properly --->
-		<cfset QuerySetcell( qry, "thekey", thekey ) />
+		<cfset QuerySetcell( qry, "thekey", thekey ) /> --->
+		<cfset QuerySetcell( qry, "thekey", qry.id ) />
 		<!--- Return --->
 		<cfreturn qry />
 	</cffunction>
@@ -1246,6 +1249,7 @@
 
 	<!--- Query records to remove --->
 	<cffunction name="_qryRemoveRecords" access="private" output="false" returntype="query">
+		<cfargument name="prefix" required="true">
 		<cftry>
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Fetching records to remove from index")>
@@ -1253,9 +1257,52 @@
 			<cfset var qry = "">
 			<!--- Query --->
 			<cfquery datasource="#application.razuna.datasource#" name="qry">
-			SELECT id, type, host_id
-			FROM lucene
+			SELECT img_id as id, 'img' as type, host_id
+			FROM raz1_images
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			UNION ALL
+			SELECT vid_id as id, 'vid' as type, host_id
+			FROM raz1_videos
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			UNION ALL
+			SELECT aud_id as id, 'aud' as type, host_id
+			FROM raz1_audios
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			UNION ALL
+			SELECT file_id as id, 'doc' as type, host_id
+			FROM raz1_files
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif Listfindnocase(arguments.prefix,"raz2_") NEQ 0>
+			UNION ALL
+			SELECT img_id as id, 'img' as type, host_id
+			FROM raz2_images
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			UNION ALL
+			SELECT vid_id as id, 'vid' as type, host_id
+			FROM raz2_videos
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			UNION ALL
+			SELECT aud_id as id, 'aud' as type, host_id
+			FROM raz2_audios
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			UNION ALL
+			SELECT file_id as id, 'doc' as type, host_id
+			FROM raz2_files
+			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			</cfif>
 			</cfquery>
+
+			<!--- SELECT id, type, host_id
+			FROM lucene --->
+
 			<!--- Only continue if records are found --->
 			<cfif qry.recordcount NEQ 0>
 				<!--- Log --->
@@ -1279,21 +1326,71 @@
 	<!--- Query records to remove --->
 	<cffunction name="_removeFromIndex" access="private" output="false">
 		<cfargument name="qryrecords" required="true" type="query">
+		<cfargument name="prefix" required="true">
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records from index")>
 		<!--- Group hosts --->
 		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qryrecords.host_id)) />
-		<!--- Loop over hosts --->
+		<!--- Loop --->
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
-		<!--- Simple remove records in Lucene. Id is the key --->
-			<cfscript>
-				args = {
-					query : arguments.qryrecords,
-					collection : "#host_id#",
-					key : "id"
-				};
-				results = CollectionIndexdelete( argumentCollection=args );
-			</cfscript>
+			<!--- Get all records of this host --->
+			<cfquery dbtype="query" name="qry_records">
+			SELECT *
+			FROM arguments.qryrecords
+			WHERE host_id = #host_id#
+			</cfquery>
+			<!--- Simple remove records in Lucene. Id is the key --->
+			<cftry>
+				<cfloop query="qry_records">
+					<!--- Remove from index --->
+					<cfindex collection="#host_id#" action="delete" key="#id#" />
+					<!--- Update record in DB --->
+					<cftry>
+						<cfif type EQ "img">
+							<cfset var _db = "images">
+							<cfset var _id = "img_id">
+						<cfelseif type EQ "vid">
+							<cfset var _db = "videos" />
+							<cfset var _id = "vid_id" />
+						<cfelseif type EQ "aud">
+							<cfset var _db = "audios" />
+							<cfset var _id = "aud_id" />
+						<cfelseif type EQ "doc">
+							<cfset var _db = "files" />
+							<cfset var _id = "file_id" />
+						</cfif>
+						<cfquery datasource="#application.razuna.datasource#">
+						UPDATE raz1_#_db#
+						SET is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+						WHERE #_id# = <cfqueryparam value="#id#" cfsqltype="cf_sql_varchar">
+						</cfquery>
+						<cfif Listfindnocase(arguments.prefix,"raz2_") NEQ 0>
+							<cfquery datasource="#application.razuna.datasource#">
+							UPDATE raz2_#_db#
+							SET is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+							WHERE #_id# = <cfqueryparam value="#id#" cfsqltype="cf_sql_varchar">
+							</cfquery>
+						</cfif>
+						<cfcatch type="database">
+							<cfset console("ERROR IN UPDATING DB FOR REMOVE")>
+							<cfset console(cfcatch)>
+						</cfcatch>
+					</cftry>
+				</cfloop>
+				<!--- <cfscript>
+					args = {
+						query : qry_records,
+						collection : "#host_id#",
+						key : "id"
+					};
+					results = CollectionIndexdelete( argumentCollection=args );
+				</cfscript>
+				<cfset console(results)> --->
+				<cfcatch type="any">
+					<cfset console("ERROR IN REMOVING")>
+					<cfset console(cfcatch)>
+				</cfcatch>
+			</cftry>
 		</cfloop>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished removing #qryrecords.recordcount# records from index")>
