@@ -49,23 +49,20 @@
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.hostid#")>
-		<!--- Var --->
-		<cfset var qry_col = "">
-		<!--- Get the collectionlist --->
-		<cfset var _clist = collectionlist()>
-		<!--- Check if collection is available --->
-		<cfquery dbtype="query" name="qry_col">
-		SELECT *
-		FROM _clist
-		WHERE name = '#arguments.hostid#'
-		</cfquery>
-		<!--- Collection does NOT exists, thus create it --->
-		<cfif qry_col.recordcount EQ 0>
-			<cfset console("#now()# ---------------------- CREATING COLLECTION FOR HOST #arguments.hostid#")>
-			<cfinvoke method="_createCollection" hostid="#arguments.hostid#">
-		</cfif>
-		<!--- Return --->
+		<!--- <cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.hostid#")> --->
+		<!--- We simply create a collection and let it throw an error --->
+		<cftry>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
+			<!--- Create --->
+			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
+			<!--- On error --->
+			<cfcatch type="any">
+				<!--- Log --->
+				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+			</cfcatch>
+		</cftry>
 		<cfreturn />
 	</cffunction>
 
