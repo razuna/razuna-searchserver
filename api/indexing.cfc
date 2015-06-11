@@ -1261,6 +1261,9 @@
 			<cfset var qry = "">
 			<!--- Query --->
 			<cfquery datasource="#application.razuna.datasource#" name="qry">
+			SELECT id, type, host_id
+			FROM lucene
+			UNION ALL
 			SELECT img_id as id, 'img' as type, host_id
 			FROM raz1_images
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
@@ -1303,10 +1306,6 @@
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			</cfif>
 			</cfquery>
-
-			<!--- SELECT id, type, host_id
-			FROM lucene --->
-
 			<!--- Only continue if records are found --->
 			<cfif qry.recordcount NEQ 0>
 				<!--- Log --->
