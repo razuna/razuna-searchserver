@@ -106,7 +106,7 @@
 		<!--- Group all hosts (since the qry is per file) --->
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<!--- Check that collection exists --->
-			<cfinvoke component="collection" method="checkCollection" hostid="#host_id#" />
+			<!--- <cfinvoke component="collection" method="checkCollection" hostid="#host_id#" /> --->
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
 			<!--- Name of lock file --->
@@ -206,6 +206,7 @@
 					WHERE i.host_id = h.host_id
 					AND i.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
 					AND i.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND i.is_available = <cfqueryparam CFSQLType="CF_SQL_VARCHAR" value="1">
 					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 					<cfif cgi.http_host CONTAINS "razuna.com">
 						AND h.host_type != 0
@@ -219,6 +220,7 @@
 					WHERE f.host_id = h.host_id		
 					AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
 					AND f.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND f.is_available = <cfqueryparam CFSQLType="CF_SQL_VARCHAR" value="1">
 					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 					<cfif cgi.http_host CONTAINS "razuna.com">
 						AND h.host_type != 0
@@ -232,6 +234,7 @@
 					WHERE v.host_id = h.host_id		
 					AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
 					AND v.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND v.is_available = <cfqueryparam CFSQLType="CF_SQL_VARCHAR" value="1">
 					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 					<cfif cgi.http_host CONTAINS "razuna.com">
 						AND h.host_type != 0
@@ -245,6 +248,7 @@
 					WHERE a.host_id = h.host_id		
 					AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
 					AND a.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
+					AND a.is_available = <cfqueryparam CFSQLType="CF_SQL_VARCHAR" value="1">
 					AND ( h.host_shard_group IS NOT NULL OR h.host_shard_group != '' )
 					<cfif cgi.http_host CONTAINS "razuna.com">
 						AND h.host_type != 0
