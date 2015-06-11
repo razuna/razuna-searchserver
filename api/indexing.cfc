@@ -644,8 +644,8 @@
 		x.usageterms, x.copyrightstatus, x.transmissionreference, x.webstatement, x.headline, x.datecreated, x.city, x.ciadrregion, 
 		x.country, x.countrycode, x.scene, x.state, x.credit, x.rights, f.img_group as groupid,
 		CASE
-			WHEN (f.img_group IS NOT NULL) THEN 'rendition'
-		    ELSE 'original'
+			WHEN (f.img_group = '' OR f.img_group IS NULL) THEN 'original'
+	        ELSE 'rendition'
 		END as file_type
 		FROM #arguments.prefix#images f 
 		LEFT JOIN #arguments.prefix#xmp x ON f.img_id = x.id_r AND x.asset_type = <cfqueryparam cfsqltype="cf_sql_varchar" value="img"> AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -780,8 +780,8 @@
 	    SELECT DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key, f.vid_create_time as create_time, f.vid_change_time as change_time, 
 	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category, f.vid_group as groupid,
 	    CASE
-	    	WHEN (f.vid_group IS NOT NULL) THEN 'rendition'
-	        ELSE 'original'
+	    	WHEN (f.vid_group = '' OR f.vid_group IS NULL) THEN 'original'
+	        ELSE 'rendition'
 	    END as file_type
 		FROM #arguments.prefix#videos f 
 		WHERE f.vid_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
@@ -823,8 +823,8 @@
 		SELECT DISTINCT a.host_id collection, a.aud_id id, a.folder_id_r folder, a.aud_name filename, a.aud_name_org filenameorg, a.link_kind, a.lucene_key, a.aud_create_time as create_time, a.aud_change_time as change_time,
 		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category, a.aud_group as groupid,
 		CASE
-			WHEN (a.aud_group IS NOT NULL) THEN 'rendition'
-		    ELSE 'original'
+			WHEN (a.aud_group = '' OR a.aud_group IS NULL) THEN 'original'
+	        ELSE 'rendition'
 		END as file_type
 		FROM #arguments.prefix#audios a
 		LEFT JOIN #arguments.prefix#audios_text aut ON a.aud_id = aut.aud_id_r
