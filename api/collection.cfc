@@ -36,9 +36,15 @@
 		<cfset console("#now()# ---------------------- Removing Collection for rebuild")>
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
-		<!--- Get the collection --->
+		<!--- Remove Collection --->
 		<cfset CollectionDelete(arguments.hostid)>
 		<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+		<cfpause interval="10" />
+		<!--- Now create it again --->
+		<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
+		<!--- Create --->
+		<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
+		<cfset console("#now()# ---------------------- DONE creating collection for Host #arguments.hostid#")>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -53,7 +59,8 @@
 		<!--- We simply create a collection and let it throw an error --->
 		<cftry>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
+			<!--- <cfset console("#now()# ---------------------- Checking for collection for Host #arguments.hostid#")> --->
+			<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
 			<!--- Create --->
 			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
 			<!--- On error --->
