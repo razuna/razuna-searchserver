@@ -48,16 +48,23 @@
 	<!--- Check for Collection --->
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
-		<cftry>
-			<!--- Log --->
-			<cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.hostid#")>
-			<!--- Get the collection --->
-			<cfset CollectionStatus(arguments.hostid)>
-			<!--- Collection does NOT exists, thus create it --->
-			<cfcatch>
-		    	<cfinvoke method="_createCollection" hostid="#arguments.hostid#">
-			</cfcatch>
-		</cftry>
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.hostid#")>
+		<!--- Var --->
+		<cfset var qry_col = "">
+		<!--- Get the collectionlist --->
+		<cfset var _clist = collectionlist()>
+		<!--- Check if collection is available --->
+		<cfquery dbtype="query" name="qry_col">
+		SELECT *
+		FROM _clist
+		WHERE name = '#arguments.hostid#'
+		</cfquery>
+		<!--- Collection does NOT exists, thus create it --->
+		<cfif qry_col.recordcount EQ 0>
+			<cfset console("#now()# ---------------------- CREATING COLLECTION FOR HOST #arguments.hostid#")>
+			<cfinvoke method="_createCollection" hostid="#arguments.hostid#">
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
