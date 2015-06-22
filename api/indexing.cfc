@@ -1345,10 +1345,10 @@
 			<!--- Simple remove records in Lucene. Id is the key --->
 			<cftry>
 				<cfloop query="qry_records">
-					<!--- Remove from index --->
-					<cfindex collection="#host_id#" action="delete" key="#id#" />
-					<!--- Update record in DB --->
 					<cftry>
+						<!--- Remove from index --->
+						<cfindex collection="#host_id#" action="delete" key="#id#" />
+						<!--- Update record in DB --->
 						<cfif type EQ "img">
 							<cfset var _db = "images">
 							<cfset var _id = "img_id">

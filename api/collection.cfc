@@ -37,14 +37,20 @@
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
 		<!--- Remove Collection --->
-		<cfset CollectionDelete(arguments.hostid)>
-		<cfset console("#now()# ---------------------- Collection removed for rebuild")>
-		<cfpause interval="10" />
+		<cftry>
+			<cfset CollectionDelete(arguments.hostid)>
+			<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+			<cfpause interval="10" />
+			<cfcatch type="any"></cfcatch>
+		</cftry>
 		<!--- Now create it again --->
-		<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
-		<!--- Create --->
-		<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
-		<cfset console("#now()# ---------------------- DONE creating collection for Host #arguments.hostid#")>
+		<cftry>
+			<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
+			<!--- Create --->
+			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
+			<cfset console("#now()# ---------------------- DONE creating collection for Host #arguments.hostid#")>
+			<cfcatch type="any"></cfcatch>
+		</cftry>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
