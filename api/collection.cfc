@@ -56,7 +56,7 @@
 	</cffunction>
 
 	<!--- This is being called from create collection cron job --->
-	<cffunction name="createCollection" access="remote" output="false">
+	<cffunction name="createCollections" access="public" output="false">
 		<!--- Log --->
 		<cfset consoleoutput(true)>
 		<cfset console("#now()# ---------------------- Creating new collections")>
