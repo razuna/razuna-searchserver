@@ -55,6 +55,28 @@
 		<cfreturn />
 	</cffunction>
 
+	<!--- This is being called from create collection cron job --->
+	<cffunction name="createCollection" access="remote" output="false">
+		<!--- Log --->
+		<cfset consoleoutput(true)>
+		<cfset console("#now()# ---------------------- Creating new collections")>
+		<!--- Grab all hosts --->
+		<cfset var _qry_hosts = _qryHosts()>
+		<!--- Loop over hosts --->
+		<cfloop query="_qry_hosts">
+			<!---Create Collection --->
+			<cftry>
+				<cfset console("#now()# ---------------------- CREATING collection for Host #host_id#")>
+				<!--- Create --->
+				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
+				<cfset console("#now()# ---------------------- DONE creating collection for Host #host_id#")>
+				<cfcatch type="any"></cfcatch>
+			</cftry>
+		</cfloop>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
 	<!--- PUBLIC --->
 
 	<!--- Check for Collection --->
