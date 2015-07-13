@@ -199,7 +199,7 @@
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<cftry>
 				<!--- Query hosts --->
-				<cfquery datasource="#application.razuna.datasource#" name="qry">
+				<cfquery datasource="#application.razuna.datasource#" name="qry_#prefix#">
 				(
 					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> i.host_id as host_id, h.host_shard_group as prefix, i.img_id as file_id, 'img' as category, 'T' as notfile
 					FROM #prefix#images i, hosts h
@@ -261,7 +261,16 @@
 				</cfcatch>
 			</cftry>
 		</cfloop>
-		
+		<!--- Combine above query if there is raz2_ --->
+		<cfquery dbtype="query" name="qry">
+		SELECT *
+		FROM qry_raz1_
+		<cfif listfind(arguments.prefix, "raz2_")>
+			UNION
+			SELECT *
+			FROM qry_raz2_
+		</cfif>
+		</cfquery>
 		<!--- Only continue if records are found --->
 		<cfif qry.recordcount NEQ 0>
 			<!--- Log --->
