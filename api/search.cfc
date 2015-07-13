@@ -80,36 +80,82 @@
 		<cfargument name="search_rendition" required="true" type="string">
 		<!--- Param --->
 		<cfset var results = "">
+		<cfset var folderlist = "" />
 		<!--- Search --->
 		<cftry>
 			<!--- Syntax --->
 			<cfset var _criteria = _searchSyntax(criteria=arguments.criteria, search_type=arguments.search_type, search_rendition=arguments.search_rendition) />
-			<!--- if the folderid is not 0 we can filter by folderid --->
+			<!--- if the folderid is not 0 we need to filter by folderid --->
 			<cfif arguments.folderid NEQ 0>
-				<cfset var folderlist = "" />
-				<!--- Since it could be a list --->
-				<cfloop list="#arguments.folderid#" index="i" delimiters=",">
-					<cfset var folderlist = folderlist & ' folder:("#i#")' />
-				</cfloop>
-				<!--- If the returning _criteria is empty we only tag on the folderlist (with this fix user can search with *) --->
-				<cfif _criteria EQ "">
-					<cfset var _criteria = "( #folderlist# )" />
+				<!--- New list var --->
+				<cfset var counter_folderlist = 0>
+				<!--- If more than 200 folders do the split, else normal operation --->
+				<cfif listlen(arguments.folderid) GTE 200>
+					<!--- Create new temp query for lucene results --->
+					<cfset var results = queryNew("category, categorytree, rank, searchcount")>
+					<!--- Create new list --->
+					<cfset "variables.folderlist_#counter_folderlist#" = "">
+					<!--- Loop over folders --->
+					<cfloop list="#arguments.folderid#" index="folderid">
+						<!--- If we have more than 200 in the current list create a new list --->
+						<cfif listlen(variables["folderlist_" & counter_folderlist], " ") GTE 200>
+							<!--- Increase counter --->
+							<cfset counter_folderlist++>
+							<!--- Create new list with new counter --->
+							<cfset "variables.folderlist_#counter_folderlist#" = "">
+						</cfif>
+						<!--- Append to list --->
+						<cfset "variables.folderlist_#counter_folderlist#" = variables["folderlist_" & counter_folderlist] & ' folder:("#folderid#")'>
+						<cfset console("Folderlist: #counter_folderlist# " & variables["folderlist_" & counter_folderlist])>
+					</cfloop>
+					<!--- We go the individual folder lists, now loop over it and put together the criteria and search in Lucene --->
+					<cfloop from="0" to="#counter_folderlist#" index="n">
+						<!--- If the returning _criteria is empty we only tag on the folderlist (with this fix user can search with *) --->
+						<cfif _criteria EQ "">
+							<cfset "variables.criteria_#n#" = "( " & variables["folderlist_" & n] & " )" />
+						<cfelse>
+							<cfset "variables.criteria_#n#" = "( #_criteria# ) AND ( " & variables["folderlist_" & n] & " )" />
+						</cfif>
+						<!--- Call internal function --->
+						<cfset "variables.results_#n#" = _embeddedSearch(collection=arguments.collection, criteria=variables["criteria_" & n], category=arguments.category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
+						<!--- Set result in variable as QoQ can't handle complex variables --->
+						<cfset var _thisqry = variables["results_" & n]>
+						<!--- Take the resultset from lucene and combine the searches --->
+						<cfquery dbtype="query" name="results">
+						SELECT category, categorytree, rank, searchcount
+						FROM results
+						UNION
+						SELECT category, categorytree, rank, searchcount
+						FROM _thisqry
+						</cfquery>
+					</cfloop>
+					<!--- Now get the temp results table and sum up searchcount --->
+					<cfquery dbtype="query" name="resultssum">
+					SELECT sum(searchcount) as newcount
+					FROM results
+					</cfquery>
+					<!--- And update all records --->
+					<cfquery dbtype="query" name="results">
+					SELECT category, categorytree, rank, '#resultssum.newcount#' AS searchcount
+					FROM results
+					</cfquery>
 				<cfelse>
-					<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
+					<!--- Since it could be a list --->
+					<cfloop list="#arguments.folderid#" index="i" delimiters=",">
+						<cfset var folderlist = folderlist & ' folder:("#i#")' />
+					</cfloop>
+					<!--- If the returning _criteria is empty we only tag on the folderlist (with this fix user can search with *) --->
+					<cfif _criteria EQ "">
+						<cfset var _criteria = "( #folderlist# )" />
+					<cfelse>
+						<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
+					</cfif>
+					<!--- Call internal function --->
+					<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
 				</cfif>
-			</cfif>
-			<cfset consoleoutput(true)>
-			<cfset console("#now()# ---------------------- Search with start")>
-			<cfset console(_criteria)>
-			<cfset console("#now()# ---------------------- Search with end")>
-			<!--- Search in Lucene --->
-			<cfsearch collection="#arguments.collection#" criteria="#_criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
-			<!--- Only return the columns we need from Lucene --->
-			<cfif results.recordcount NEQ 0>
-				<cfquery dbtype="query" name="results">
-				SELECT category, categorytree, rank, searchcount
-				FROM results
-				</cfquery>
+			<cfelse>
+				<!--- Call internal function --->
+				<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
 			</cfif>
 			<cfcatch type="any">
 				<cfset consoleoutput(true)>
@@ -121,6 +167,33 @@
 		</cftry>
 		<!--- Return --->
 		<cfreturn results />
+	</cffunction>
+
+	<!--- Function for internal searches coming from above --->
+	<cffunction name="_embeddedSearch" access="private" output="false">
+		<cfargument name="collection" required="true" type="string">
+		<cfargument name="criteria" required="true" type="string">
+		<cfargument name="category" required="true" type="string">
+		<cfargument name="startrow" required="true" type="string">
+		<cfargument name="maxrows" required="true" type="string">
+		<!--- Var --->
+		<cfset var results = querynew("category, categorytree, rank, searchcount")>
+		<!--- Log --->
+		<cfset consoleoutput(true)>
+		<cfset console("#now()# ---------------------- Search with start")>
+		<cfset console(arguments.criteria)>
+		<cfset console("#now()# ---------------------- Search with end")>
+		<!--- Search in Lucene --->
+		<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
+		<!--- Only return the columns we need from Lucene --->
+		<cfif results.recordcount NEQ 0>
+			<cfquery dbtype="query" name="results">
+			SELECT category, categorytree, rank, searchcount
+			FROM results
+			</cfquery>
+		</cfif>
+		<!--- Return --->
+		<cfreturn results>
 	</cffunction>
 
 	<!--- Internal search --->
