@@ -129,6 +129,23 @@
 						FROM _thisqry
 						</cfquery>
 					</cfloop>
+					<!--- Now get the temp results table to get the searchcount --->
+					<cfquery dbtype="query" name="resultssum">
+					SELECT searchcount
+					FROM results
+					GROUP BY searchcount
+					</cfquery>
+					<!--- New var --->
+					<cfset var newcount = 0>
+					<!--- Loop over records and add searchcount together  --->
+					<cfloop query="resultssum">
+						<cfset newcount = newcount + searchcount>
+					</cfloop>
+					<!--- And update all records --->
+					<cfquery dbtype="query" name="results">
+					SELECT category, categorytree, rank, '#newcount#' AS searchcount
+					FROM results
+					</cfquery>
 					<!--- Now get the temp results table and sum up searchcount --->
 					<cfquery dbtype="query" name="resultssum">
 					SELECT sum(searchcount) as newcount
