@@ -211,7 +211,6 @@
 		<cfargument name="criteria" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
-
 		<!--- 
 		 Decode URL encoding that is encoded using the encodeURIComponent javascript method. 
 		 Preserve the '+' sign during decoding as the URLDecode methode will remove it if present.
@@ -247,6 +246,10 @@
 				<cfset var criteria = 'file_type:original'>
 			<cfelse>
 				<cfset var criteria = '(' & criteria & ') AND file_type:original'>
+			</cfif>
+		<cfelse>
+			<cfif criteria EQ "" OR criteria EQ "*">
+				<cfset var criteria = 'file_type:original'>
 			</cfif>
 		</cfif>
 		<!--- Return --->
