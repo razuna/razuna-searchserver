@@ -49,7 +49,7 @@
 		<cfinvoke method="_search" returnvariable="r.results">
 			<cfinvokeargument name="collection" value="#arguments.collection#" />
 			<cfinvokeargument name="criteria" value="#arguments.criteria#" />
-			<cfinvokeargument name="category" value="#arguments.category#" />
+			<cfinvokeargument name="arg_category" value="#arguments.category#" />
 			<cfinvokeargument name="startrow" value="#arguments.startrow#" />
 			<cfinvokeargument name="maxrows" value="#arguments.maxrows#" />
 			<cfinvokeargument name="folderid" value="#arguments.folderid#" />
@@ -72,15 +72,16 @@
 	<cffunction name="_search" access="private" output="false" returntype="query">
 		<cfargument name="collection" required="true" type="string">
 		<cfargument name="criteria" required="true" type="string">
-		<cfargument name="category" required="true" type="string">
+		<cfargument name="arg_category" required="true" type="string">
 		<cfargument name="startrow" required="true" type="numeric">
 		<cfargument name="maxrows" required="true" type="numeric">
 		<cfargument name="folderid" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
 		<!--- Param --->
-		<cfset var results = "">
+		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<cfset var folderlist = "" />
+		<cfset var _searchcount = 0 />
 		<!--- Search --->
 		<cftry>
 			<!--- Syntax --->
@@ -92,7 +93,7 @@
 				<!--- If more than 200 folders do the split, else normal operation --->
 				<cfif listlen(arguments.folderid) GTE 200>
 					<!--- Create new temp query for lucene results --->
-					<cfset var results = queryNew("category, categorytree, rank, searchcount")>
+					<!--- <cfset var results = queryNew("category, categorytree, rank, searchcount")> --->
 					<!--- Create new list --->
 					<cfset "variables.folderlist_#counter_folderlist#" = "">
 					<!--- Loop over folders --->
@@ -106,7 +107,6 @@
 						</cfif>
 						<!--- Append to list --->
 						<cfset "variables.folderlist_#counter_folderlist#" = variables["folderlist_" & counter_folderlist] & ' folder:("#folderid#")'>
-						<cfset console("Folderlist: #counter_folderlist# " & variables["folderlist_" & counter_folderlist])>
 					</cfloop>
 					<!--- We go the individual folder lists, now loop over it and put together the criteria and search in Lucene --->
 					<cfloop from="0" to="#counter_folderlist#" index="n">
@@ -117,45 +117,36 @@
 							<cfset "variables.criteria_#n#" = "( #_criteria# ) AND ( " & variables["folderlist_" & n] & " )" />
 						</cfif>
 						<!--- Call internal function --->
-						<cfset "variables.results_#n#" = _embeddedSearch(collection=arguments.collection, criteria=variables["criteria_" & n], category=arguments.category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
+						<cfset "variables.results_#n#" = _embeddedSearch(collection=arguments.collection, criteria=variables["criteria_" & n], category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
 						<!--- Set result in variable as QoQ can't handle complex variables --->
 						<cfset var _thisqry = variables["results_" & n]>
-						<!--- Take the resultset from lucene and combine the searches --->
-						<cfquery dbtype="query" name="results">
-						SELECT category, categorytree, rank, searchcount
-						FROM results
-						UNION
-						SELECT category, categorytree, rank, searchcount
-						FROM _thisqry
-						</cfquery>
-					</cfloop>
-					<!--- Now get the temp results table to get the searchcount --->
-					<cfquery dbtype="query" name="resultssum">
-					SELECT searchcount
-					FROM results
-					GROUP BY searchcount
-					</cfquery>
-					<!--- New var --->
-					<cfset var newcount = 0>
-					<!--- Loop over records and add searchcount together  --->
-					<cfloop query="resultssum">
-						<cfset newcount = newcount + searchcount>
+						<!--- Add up the searchcount --->
+						<cfset var _searchcount = _searchcount + _thisqry.searchcount>
+						<!--- Check how many records are already in the results set and calculate how many should be added --->
+						<cfset var _how_many_to_add = arguments.maxrows - results.recordcount>
+						<!--- If the add is higher than 0 --->
+						<cfif results.recordcount LT arguments.maxrows>
+							<!--- Loop over the records and add each one --->
+							<cfoutput query="_thisqry" startrow="1" maxrows="#_how_many_to_add#">
+								<cfset var _q = structnew()>
+								<cfset _q.category = category>
+								<cfset _q.categorytree = categorytree>
+								<cfset _q.rank = rank>
+								<cfset _q.searchcount = searchcount>
+								<!--- Add to query --->
+								<cfset queryaddrow(query=results, data=_q)>
+							</cfoutput>
+						<cfelse>
+							<cfbreak />
+						</cfif>
 					</cfloop>
 					<!--- And update all records --->
 					<cfquery dbtype="query" name="results">
-					SELECT category, categorytree, rank, '#newcount#' AS searchcount
+					SELECT category, categorytree, rank, '#_searchcount#' AS searchcount
 					FROM results
 					</cfquery>
-					<!--- Now get the temp results table and sum up searchcount --->
-					<cfquery dbtype="query" name="resultssum">
-					SELECT sum(searchcount) as newcount
-					FROM results
-					</cfquery>
-					<!--- And update all records --->
-					<cfquery dbtype="query" name="results">
-					SELECT category, categorytree, rank, '#resultssum.newcount#' AS searchcount
-					FROM results
-					</cfquery>
+					<!--- <cfset consoleoutput(true)>
+					<cfset console(results)> --->
 				<cfelse>
 					<!--- Since it could be a list --->
 					<cfloop list="#arguments.folderid#" index="i" delimiters=",">
@@ -168,11 +159,11 @@
 						<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
 					</cfif>
 					<!--- Call internal function --->
-					<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
+					<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
 				</cfif>
 			<cfelse>
 				<!--- Call internal function --->
-				<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
+				<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
 			</cfif>
 			<cfcatch type="any">
 				<cfset consoleoutput(true)>
