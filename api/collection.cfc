@@ -66,76 +66,19 @@
 		<cfloop query="_qry_hosts">
 			<!---Create Collection --->
 			<cftry>
-				<cfset console("#now()# ---------------------- CREATING collection for Host #host_id#")>
 				<!--- Create --->
 				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
-				<cfset console("#now()# ---------------------- DONE creating collection for Host #host_id#")>
-				<cfcatch type="any"></cfcatch>
+				<cfset console("#now()# ---------------------- Setting up collection for Host #host_id#")>
+				<cfcatch type="any">
+				<cfset console("#now()# ---------------------- Collection for Host #host_id# already exists")>
+				</cfcatch>
 			</cftry>
 		</cfloop>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
 
-	<!--- PUBLIC --->
-
-	<!--- Check for Collection --->
-	<cffunction name="checkCollection" access="public" output="false">
-		<cfargument name="hostid" required="true" type="string">
-		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.hostid#")> --->
-		<!--- We simply create a collection and let it throw an error --->
-		<cftry>
-			<!--- Log --->
-			<!--- <cfset console("#now()# ---------------------- Checking for collection for Host #arguments.hostid#")> --->
-			<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
-			<!--- Create --->
-			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
-			<!--- On error --->
-			<cfcatch type="any">
-				<!--- Log --->
-				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
-				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
-			</cfcatch>
-		</cftry>
-		<cfreturn />
-	</cffunction>
-
-
 	<!--- PRIVATE --->
-
-
-	
-
-	<!--- Check for Collection --->
-	<cffunction name="_createCollection" access="private" output="false">
-		<cfargument name="hostid" required="true" type="string">
-		<!--- Delete collection --->
-		<cftry>
-			<cfset CollectionDelete(arguments.hostid)>
-			<cfcatch type="any"></cfcatch>
-		</cftry>
-		<!--- Delete path on disk --->
-		<cftry>
-			<cfset var d = REReplaceNoCase(GetTempDirectory(),"/bluedragon/work/temp","","one")>
-			<cfdirectory action="delete" directory="#d#collections/#arguments.hostid#" recurse="true" />
-			<cfcatch type="any"></cfcatch>
-		</cftry>
-		<!--- Create collection --->
-		<cftry>
-			<!--- Log --->
-			<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
-			<!--- Create --->
-			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
-			<!--- On error --->
-			<cfcatch type="any">
-				<cfset r.success = false>
-				<cfset r.error = cfcatch.message>
-			</cfcatch>
-		</cftry>
-		<!--- Return --->
-		<cfreturn />
-	</cffunction>
 
 </cfcomponent>
 

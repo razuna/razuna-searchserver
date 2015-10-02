@@ -105,8 +105,6 @@
 		<cfset var _newQry = arguments.qry />
 		<!--- Group all hosts (since the qry is per file) --->
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
-			<!--- Check that collection exists --->
-			<!--- <cfinvoke component="collection" method="checkCollection" hostid="#host_id#" /> --->
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
 			<!--- Name of lock file --->
