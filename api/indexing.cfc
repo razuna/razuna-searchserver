@@ -697,7 +697,7 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 	    SELECT DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey, f.file_create_time as create_time, f.file_change_time as change_time,
-	    	'org' as file_type
+	    	'original' as file_type
 		FROM #arguments.prefix#files f 
 		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
