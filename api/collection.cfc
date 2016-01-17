@@ -82,14 +82,18 @@
 					<cftry>
 						<cftry>
 							<cfset CollectionDelete(host_id)>
-							<cfcatch type="any"></cfcatch>
+							<cfcatch type="any">
+							<cfset console("CollectionDelete: #cfcatch.message#")>
+							</cfcatch>
 						</cftry>
 						<!--- Lets also remove the directory on disk --->
 						<cftry>
 							<cfset console("#now()# ---------------------- REMOVING COLLECTION DIR FOR HOST #host_id#")>
 							<cfset var d = REReplaceNoCase(GetTempDirectory(),"/bluedragon/work/temp","","one")>
 							<cfdirectory action="delete" directory="#d#collections/#host_id#" recurse="true" />
-							<cfcatch type="any"></cfcatch>
+							<cfcatch type="any">
+								<cfset console("cfdirectory: #cfcatch.message#")>
+							</cfcatch>
 						</cftry>
 						<cfset console("#now()# ---------------------- Collection removed for rebuild")>
 						<cfpause interval="10" />
