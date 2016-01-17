@@ -186,9 +186,8 @@
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<!--- Log --->
 		<cfset consoleoutput(true)>
-		<cfset console("#now()# ---------------------- Search with start")>
-		<cfset console(arguments.criteria)>
-		<cfset console("#now()# ---------------------- Search with end")>
+		<cfset console("#now()# ---------------------- SEARCH STARTING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
+		<cfset console("SEARCH WITH: #arguments.criteria#")>
 		<!--- Search in Lucene --->
 		<cfif arguments.maxrows NEQ 0>
 			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
@@ -202,6 +201,7 @@
 			FROM results
 			</cfquery>
 		</cfif>
+		<cfset console("#now()# ---------------------- SEARCH DONE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<!--- Return --->
 		<cfreturn results>
 	</cffunction>
@@ -216,36 +216,61 @@
 		 Preserve the '+' sign during decoding as the URLDecode methode will remove it if present.
 		 Do not use escape(deprecated) or encodeURI (doesn't encode '+' sign) methods to encode. Use the encodeURIComponent javascript method only.
 		--->
+		<!--- Params --->
+		<cfset consoleoutput(true)>
+		<cfset var _del = " OR ">
+		<cfset var _space = 0>
+		<cfset var _count = 0>
+		<cfset var _search_string = "">
+		<!--- urlDecode --->
 		<cfset var criteria = replace(urlDecode(replace(arguments.criteria,"+","PLUSSIGN","ALL")),"PLUSSIGN","+","ALL")>
-		<!--- If criteria is empty --->
+		<!--- If criteria is empty or user enters * we search with nothing --->
 		<cfif criteria EQ "" OR criteria EQ "*">
 			<cfset var criteria = "">
 		<!--- FOR DETAIL SEARCH WE LEAVE IT ALONE --->
 		<cfelseif arguments.search_type EQ "adv">
 			<cfset var criteria = criteria>
-		<!--- SIMPLE SEARCH --->
 		<!--- Put search together. If the criteria contains a ":" then we assume the user wants to search with his own fields --->
 		<cfelseif NOT criteria CONTAINS ":" AND NOT criteria EQ "*">
+			<!--- Escape search string --->
 			<cfset criteria = _escapelucenechars(criteria)>
-			<!--- Replace spaces with AND if query doesn't contain AND, OR  or " --->
-			<cfif find(" AND ", criteria) EQ 0 AND find(" OR ", criteria) EQ 0 AND find('"', criteria) EQ 0 >
-				<cfset var criteria_sp = replace(criteria,chr(32)," AND ", "ALL")>
-			<cfelse>	
-				<cfset var criteria_sp = criteria>
+			<!--- If we find AND in criteria --->
+			<cfif find(" AND ", criteria) GT 0>
+				<!--- Set var --->
+				<cfset var _del = " AND ">
+				<!--- Now remove all AND or OR in criteria --->
+				<cfset criteria = replace(criteria," AND","","ALL")>
+				<cfset criteria = replace(criteria," OR","","ALL")>
 			</cfif>
-			<cfif criteria CONTAINS '"' OR criteria CONTAINS "*" OR find(" AND ", criteria) NEQ 0 OR find(" OR ", criteria) NEQ 0>
-				<cfset var criteria = 'filename:("#criteria#") keywords:("#criteria_sp#") description:("#criteria_sp#") id:("#criteria_sp#") labels:("#criteria_sp#") customfieldvalue:("#criteria_sp#")'>
+			<!--- Are there more than one word --->
+			<cfset var _space = find(" ", criteria)>
+			<!--- If there is space we loop over all the words in criteria --->
+			<cfif _space > 0>
+				<!--- How many items in loop --->
+				<cfset _total = ListLen(criteria, " ")>
+				<!--- Loop over criteria to put together the search string --->
+				<cfloop list="#criteria#" delimiters=" " index="word">
+					<cfset var _count = _count + 1>
+					<!--- if we reach the total count we null the _del --->
+					<cfif _count EQ _total>
+						<cfset var _del = "">
+					</cfif>
+					<!--- For each word create the search string --->
+					<cfset var _search_string = _search_string & '( ' & '(#word#) filename:(#word#) keywords:(#word#) description:(#word#) id:(#word#) labels:(#word#) customfieldvalue:(#word#)' & ' )' & _del>
+				</cfloop>
+			<!--- Just one word in criteria --->
 			<cfelse>
-				<cfset var criteria = 'filename:(#criteria#*) keywords:(#criteria_sp#) description:(#criteria_sp#) id:(#criteria_sp#*) labels:(#criteria_sp#) customfieldvalue:(#criteria_sp#*) filename:("#criteria#") keywords:("#criteria_sp#") description:("#criteria_sp#") id:("#criteria_sp#") labels:("#criteria_sp#") customfieldvalue:("#criteria_sp#")'>
+				<cfset var _search_string = '(#criteria#) filename:(#criteria#) keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) customfieldvalue:(#criteria#)'>
 			</cfif>
-			<cfset var criteria = '(' & criteria_sp  & ') ' & criteria />
+			<!--- Set criteria --->
+			<cfset var criteria = _search_string />
 		</cfif>
-		<!--- Add rendition search to it --->
+		<!--- Add rendition search to criteria --->
 		<cfif arguments.search_rendition EQ "t">
 			<cfif criteria EQ "" OR criteria EQ "*">
 				<cfset var criteria = 'file_type:original'>
 			<cfelse>
-				<cfset var criteria = '(' & criteria & ') AND file_type:original'>
+				<cfset var criteria = '( ' & criteria & ' ) AND file_type:original'>
 			</cfif>
 		<cfelse>
 			<cfif criteria EQ "" OR criteria EQ "*">
@@ -277,6 +302,7 @@
 		<cfset lucenestr = replace(lucenestr,"||","\||","ALL")>	
 		<cfset lucenestr = replace(lucenestr,"(","\(","ALL")>
 		<cfset lucenestr = replace(lucenestr,")","\)","ALL")>		
+		<cfset lucenestr = replace(lucenestr,'"','','ALL')>		
 		<!--- Return --->
 		<cfreturn lucenestr>	
 	</cffunction>
