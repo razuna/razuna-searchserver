@@ -71,39 +71,39 @@
 				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
 				<cfset console("#now()# ---------------------- CREATED collection for Host #host_id#")>
 				<cfcatch type="any">
-				<cfif cfcatch.message CONTAINS "already exists">
-					<!--- Log --->
-					<cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")>
-				<cfelse>
-					<!--- Log --->
-					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
-					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
-					<!--- Lets remove the directory and collection so on next run it works --->
-					<cftry>
+					<cfif cfcatch.message CONTAINS "already exists">
+						<!--- Log --->
+						<cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")>
+					<cfelse>
+						<!--- Log --->
+						<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
+						<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+						<!--- Lets remove the directory and collection so on next run it works --->
 						<cftry>
-							<cfset CollectionDelete(host_id)>
+							<cftry>
+								<cfset CollectionDelete(host_id)>
+								<cfcatch type="any">
+									<cfset console("CollectionDelete: #cfcatch.message#")>
+								</cfcatch>
+							</cftry>
+							<!--- Lets also remove the directory on disk --->
+							<cftry>
+								<cfset console("#now()# ---------------------- REMOVING COLLECTION DIR FOR HOST #host_id#")>
+								<cfset var d = REReplaceNoCase(GetTempDirectory(),"/bluedragon/work/temp","","one")>
+								<cfdirectory action="delete" directory="#d#collections/#host_id#" recurse="true" />
+								<cfcatch type="any">
+									<cfset console("cfdirectory: #cfcatch.message#")>
+								</cfcatch>
+							</cftry>
+							<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+							<cfpause interval="10" />
 							<cfcatch type="any">
-							<cfset console("CollectionDelete: #cfcatch.message#")>
+								<!--- Log --->
+								<cfset console("#now()# ---------------------- STILL AN ERROR ------------------")>
+								<cfset console("#now()# ---------------------- #cfcatch.message#")>
 							</cfcatch>
 						</cftry>
-						<!--- Lets also remove the directory on disk --->
-						<cftry>
-							<cfset console("#now()# ---------------------- REMOVING COLLECTION DIR FOR HOST #host_id#")>
-							<cfset var d = REReplaceNoCase(GetTempDirectory(),"/bluedragon/work/temp","","one")>
-							<cfdirectory action="delete" directory="#d#collections/#host_id#" recurse="true" />
-							<cfcatch type="any">
-								<cfset console("cfdirectory: #cfcatch.message#")>
-							</cfcatch>
-						</cftry>
-						<cfset console("#now()# ---------------------- Collection removed for rebuild")>
-						<cfpause interval="10" />
-						<cfcatch type="any">
-							<!--- Log --->
-							<cfset console("#now()# ---------------------- STILL AN ERROR ------------------")>
-							<cfset console("#now()# ---------------------- #cfcatch.message#")>
-						</cfcatch>
-					</cftry>
-				</cfif>
+					</cfif>
 				</cfcatch>
 			</cftry>
 		</cfloop>
