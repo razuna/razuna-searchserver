@@ -66,14 +66,15 @@
 		<cfloop query="_qry_hosts">
 			<!---Create Collection --->
 			<cftry>
-				<cfset console("#now()# ---------------------- CREATING collection for Host #host_id#")>
+				<cfset console("#now()# ---------------------- CHECKING collection for Host #host_id#")>
 				<!--- Create --->
 				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
-				<cfset console("#now()# ---------------------- DONE creating collection for Host #host_id#")>
+				<cfset console("#now()# ---------------------- CREATED collection for Host #host_id#")>
 				<cfcatch type="any">
+				<cfif cfcatch.message CONTAINS "already exists">
 					<!--- Log --->
-					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
-					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+					<cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")>
+				</cfif>
 				</cfcatch>
 			</cftry>
 		</cfloop>
