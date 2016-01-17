@@ -83,14 +83,13 @@
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Checking that collection exists for Host #arguments.hostid#")> --->
+		<cfset console("#now()# ---------------------- CHECKING that collection exists for Host #arguments.hostid#")>
 		<!--- We simply create a collection and let it throw an error --->
 		<cftry>
-			<!--- Log --->
-			<!--- <cfset console("#now()# ---------------------- Checking for collection for Host #arguments.hostid#")> --->
-			<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
 			<!--- Create --->
 			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
+			<!--- Log --->
+			<cfset console("#now()# ---------------------- While checking collection for Host #arguments.hostid# we found that we had to re-create it !!!!!!")>
 			<!--- On error --->
 			<cfcatch type="any">
 				<!--- Log --->
