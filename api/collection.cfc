@@ -72,7 +72,7 @@
 				<cfset console("#now()# ---------------------- DONE creating collection for Host #host_id#")>
 				<cfcatch type="any">
 					<!--- Log --->
-					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
 					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 				</cfcatch>
 			</cftry>
