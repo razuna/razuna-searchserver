@@ -70,7 +70,11 @@
 				<!--- Create --->
 				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
 				<cfset console("#now()# ---------------------- DONE creating collection for Host #host_id#")>
-				<cfcatch type="any"></cfcatch>
+				<cfcatch type="any">
+					<!--- Log --->
+					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+				</cfcatch>
 			</cftry>
 		</cfloop>
 		<!--- Return --->
