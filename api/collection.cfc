@@ -74,6 +74,10 @@
 				<cfif cfcatch.message CONTAINS "already exists">
 					<!--- Log --->
 					<cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")>
+				<cfelse>
+					<!--- Log --->
+					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
+					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 				</cfif>
 				</cfcatch>
 			</cftry>
