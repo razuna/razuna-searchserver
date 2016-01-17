@@ -78,6 +78,17 @@
 					<!--- Log --->
 					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
 					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+					<!--- Lets remove the directory and collection so on next run it works --->
+					<cftry>
+						<cfset CollectionDelete(host_id)>
+						<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+						<cfpause interval="10" />
+						<cfcatch type="any">
+							<!--- Log --->
+							<cfset console("#now()# ---------------------- ERROR ------------------")>
+							<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+						</cfcatch>
+					</cftry>
 				</cfif>
 				</cfcatch>
 			</cftry>
