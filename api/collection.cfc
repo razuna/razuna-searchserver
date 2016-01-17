@@ -80,7 +80,10 @@
 					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 					<!--- Lets remove the directory and collection so on next run it works --->
 					<cftry>
-						<cfset CollectionDelete(host_id)>
+						<cftry>
+							<cfset CollectionDelete(host_id)>
+							<cfcatch type="any"></cfcatch>
+						</cftry>
 						<!--- Lets also remove the directory on disk --->
 						<cftry>
 							<cfset console("#now()# ---------------------- REMOVING COLLECTION DIR FOR HOST #host_id#")>
@@ -92,8 +95,8 @@
 						<cfpause interval="10" />
 						<cfcatch type="any">
 							<!--- Log --->
-							<cfset console("#now()# ---------------------- ERROR ------------------")>
-							<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+							<cfset console("#now()# ---------------------- STILL AN ERROR ------------------")>
+							<cfset console("#now()# ---------------------- #cfcatch.message#")>
 						</cfcatch>
 					</cftry>
 				</cfif>
