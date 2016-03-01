@@ -342,7 +342,8 @@
 		<!--- Params --->
 		<cfset var folderpath = "">
 		<!--- <cfset var theregchars = "[\&\(\)\[\]\'\n\r]+"> --->
-		<cfset var theregchars = "[\$\%\_\-\,\.\&\(\)\[\]\*\n\r]+">
+		<cfset var theregchars = "[\$\%\;\_\-\,\.\&\(\)\[\]\*\n\r]+">
+		<cfset var theregchars_cf = "[\|\$\%\;\,\&\(\)\[\]\*\n\r]+">
 		<cfset var thedesc = "">
 		<cfset var thekeys = "">
 		<!--- Create the qoq_img --->
@@ -374,6 +375,9 @@
 				<cfset var folderpath_img = _folderPath(hostid = host_id, prefix = prefix, folder = qry_img.folder) />
 				<!--- Custom Fields --->
 				<cfset var cf_img = _getCustomFields(hostid = host_id, prefix = prefix, file_id = file_id, thedatabase = arguments.thedatabase, category = "images") />
+				<!--- Replace special chars in custom fields --->
+				<cfset var cf_img = REReplace(cf_img, "#chr(13)#|#chr(9)#|\n|\r", "", "ALL") >
+				<cfset var cf_img = REReplace(cf_img, theregchars_cf, " ", "ALL") >
 				<!--- Labels --->
 				<cfset var labels_img = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "images", groupid = qry_img.groupid) />
 				<!--- Remove foreign chars for some columns --->
@@ -436,7 +440,7 @@
 					credit : qry_img.credit,
 					rights : qry_img.rights,
 					labels : '#labels_img#',
-					customfieldvalue : '#REReplace(cf_img,"#chr(13)#|#chr(9)#|\n|\r","","ALL")#',
+					customfieldvalue : cf_img,
 					folderpath : '#folderpath_img#',
 					host_id : '#host_id#',
 					create_time : dateformat(qry_img.create_time, 'yyyymmdd'),
@@ -455,6 +459,9 @@
 				<cfset var folderpath_doc = _folderPath(hostid = host_id, prefix = prefix, folder = qry_doc.folder) />
 				<!--- Custom Fields --->
 				<cfset var cf_doc = _getCustomFields(hostid = host_id, prefix = prefix, file_id = file_id, thedatabase = arguments.thedatabase, category = "files") />
+				<!--- Replace special chars in custom fields --->
+				<cfset var cf_doc = REReplace(cf_doc, "#chr(13)#|#chr(9)#|\n|\r", "", "ALL") >
+				<cfset var cf_doc = REReplace(cf_doc, theregchars_cf, " ", "ALL") >
 				<!--- Labels --->
 				<cfset var labels_doc = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "files") />
 				<!--- Remove foreign chars for some columns --->
@@ -485,7 +492,7 @@
 					thecategory : qry_doc.thecategory,
 					theext : qry_doc.theext,
 					labels : '#labels_doc#',
-					customfieldvalue : '#REReplace(cf_doc,"#chr(13)#|#chr(9)#|\n|\r","","ALL")#',
+					customfieldvalue : cf_doc,
 					folderpath : '#folderpath_doc#',
 					author : qry_doc.author, 
 					rights : qry_doc.rights, 
@@ -510,6 +517,9 @@
 				<cfset var folderpath_vid = _folderPath(hostid = host_id, prefix = prefix, folder = qry_vid.folder) />
 				<!--- Custom Fields --->
 				<cfset var cf_vid = _getCustomFields(hostid = host_id, prefix = prefix, file_id = file_id, thedatabase = arguments.thedatabase, category = "videos") />
+				<!--- Replace special chars in custom fields --->
+				<cfset var cf_vid = REReplace(cf_vid, "#chr(13)#|#chr(9)#|\n|\r", "", "ALL") >
+				<cfset var cf_vid = REReplace(cf_vid, theregchars_cf, " ", "ALL") >
 				<!--- Labels --->
 				<cfset var labels_vid = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "videos", groupid = qry_vid.groupid) />
 				<!--- Remove foreign chars for some columns --->
@@ -539,7 +549,7 @@
 					thecategory : qry_vid.thecategory,
 					theext : qry_vid.theext,
 					labels : '#labels_vid#',
-					customfieldvalue : '#REReplace(cf_vid,"#chr(13)#|#chr(9)#|\n|\r","","ALL")#',
+					customfieldvalue : cf_vid,
 					folderpath : '#folderpath_vid#',
 					host_id : '#host_id#',
 					create_time : dateformat(qry_vid.create_time, 'yyyymmdd'),
@@ -558,6 +568,9 @@
 				<cfset var folderpath_aud = _folderPath(hostid = host_id, prefix = prefix, folder = qry_aud.folder) />
 				<!--- Custom Fields --->
 				<cfset var cf_aud = _getCustomFields(hostid = host_id, prefix = prefix, file_id = file_id, thedatabase = arguments.thedatabase, category = "audios") />
+				<!--- Replace special chars in custom fields --->
+				<cfset var cf_aud = REReplace(cf_aud, "#chr(13)#|#chr(9)#|\n|\r", "", "ALL") >
+				<cfset var cf_aud = REReplace(cf_aud, theregchars_cf, " ", "ALL") >
 				<!--- Labels --->
 				<cfset var labels_aud = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "audios", groupid = qry_aud.groupid) />
 				<!--- Remove foreign chars for some columns --->
@@ -587,7 +600,7 @@
 					thecategory : qry_aud.thecategory,
 					theext : qry_aud.theext,
 					labels : '#labels_aud#',
-					customfieldvalue : '#REReplace(cf_aud,"#chr(13)#|#chr(9)#|\n|\r","","ALL")#',
+					customfieldvalue : cf_aud,
 					folderpath : '#folderpath_aud#',
 					host_id : '#host_id#',
 					create_time : dateformat(qry_aud.create_time, 'yyyymmdd'),
