@@ -256,11 +256,11 @@
 						<cfset var _del = "">
 					</cfif>
 					<!--- For each word create the search string --->
-					<cfset var _search_string = _search_string & '( ' & '(#word#) filename:(#word#) keywords:(#word#) description:(#word#) id:(#word#) labels:(#word#) customfieldvalue:(#word#*)' & ' )' & _del>
+					<cfset var _search_string = _search_string & '( ' & '(#word#) filename:(#word#) keywords:(#word#) description:(#word#) id:(#word#) labels:(#word#) customfieldvalue:(#word#)' & ' )' & _del>
 				</cfloop>
 			<!--- Just one word in criteria --->
 			<cfelse>
-				<cfset var _search_string = '(#criteria#) filename:(#criteria#) keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) customfieldvalue:(#criteria#*)'>
+				<cfset var _search_string = '(#criteria#) filename:(#criteria#) keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) customfieldvalue:(#criteria#)'>
 			</cfif>
 			<!--- Set criteria --->
 			<cfset var criteria = _search_string />
