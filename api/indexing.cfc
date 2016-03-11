@@ -901,9 +901,20 @@
 		<cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
+		<cfset var _values = "" >
 		<!--- Query Record --->
+		<!--- <cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + replace(cast(v.cf_value AS NVARCHAR(max)), ',', ' ')<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),'_', replace(cast(v.cf_value AS CHAR), ',', ' '))</cfif> AS customfieldvalue
+		FROM #arguments.prefix#custom_fields_values v, #arguments.prefix#custom_fields_text ft
+		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND v.cf_value != ''
+		AND v.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		AND v.cf_id_r = ft.cf_id_r 
+		AND v.host_id = ft.host_id 
+		AND ft.lang_id_r = 1
+		</cfquery> --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
-		SELECT DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + replace(cast(v.cf_value AS NVARCHAR(max)), ',', ' ')<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),' ', replace(cast(v.cf_value AS CHAR), ',', ' '))</cfif> AS customfieldvalue
+		SELECT DISTINCT ft.cf_id_r, v.cf_value
 		FROM #arguments.prefix#custom_fields_values v, #arguments.prefix#custom_fields_text ft
 		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND v.cf_value != ''
@@ -912,10 +923,17 @@
 		AND v.host_id = ft.host_id 
 		AND ft.lang_id_r = 1
 		</cfquery>
+		<!--- Loop over records and put fields together --->
+		<cfloop query="qry">
+			<cfset _id = replace(cf_id_r, '-', '', 'ALL')>
+			<cfloop list="#cf_value#" delimiters=" " index="value">
+				<cfset _values = _values & "#_id##value# ">
+			</cfloop>
+		</cfloop>
 		<!--- Add custom fields to a list --->
-		<cfset var list = valuelist(qry.customfieldvalue, " ")>
+		<!--- <cfset var list = valuelist(qry.customfieldvalue, " ")> --->
 		<!--- Return --->
-		<cfreturn list />
+		<cfreturn _values />
 	</cffunction>
 
 	<!--- Get Labels --->
