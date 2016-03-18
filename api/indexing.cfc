@@ -917,7 +917,7 @@
 		SELECT DISTINCT ft.cf_id_r, v.cf_value
 		FROM #arguments.prefix#custom_fields_values v, #arguments.prefix#custom_fields_text ft
 		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
-		AND v.cf_value != ''
+		AND ( v.cf_value != '' OR v.cf_value IS NOT NULL )
 		AND v.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND v.cf_id_r = ft.cf_id_r 
 		AND v.host_id = ft.host_id 
