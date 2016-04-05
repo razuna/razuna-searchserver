@@ -381,13 +381,13 @@
 				<!--- Labels --->
 				<cfset var labels_img = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "images", groupid = qry_img.groupid) />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_img.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_img.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_img set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_img">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
@@ -465,13 +465,13 @@
 				<!--- Labels --->
 				<cfset var labels_doc = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "files") />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_doc.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_doc.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_all set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_doc">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
@@ -523,13 +523,13 @@
 				<!--- Labels --->
 				<cfset var labels_vid = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "videos", groupid = qry_vid.groupid) />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_vid.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_vid.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_all set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_vid">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
@@ -574,13 +574,13 @@
 				<!--- Labels --->
 				<cfset var labels_aud = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "audios", groupid = qry_aud.groupid) />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_aud.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_aud.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_all set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_aud">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
