@@ -361,7 +361,7 @@
 				theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type") />
 		<!--- Create the qoq_doc --->
 		<cfset var qoq_doc = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id, change_time, create_time, file_type") />
+				theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id, change_time, create_time, file_type, is_file") />
 				
 		<!--- Loop over records --->
 		<cfloop query="arguments.qryfiles">
@@ -381,13 +381,13 @@
 				<!--- Labels --->
 				<cfset var labels_img = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "images", groupid = qry_img.groupid) />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_img.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_img.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_img set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_img">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
@@ -465,13 +465,13 @@
 				<!--- Labels --->
 				<cfset var labels_doc = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "files") />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_doc.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_doc.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_all set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_doc">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
@@ -503,7 +503,8 @@
 					host_id : '#host_id#',
 					create_time : dateformat(qry_doc.create_time, 'yyyymmdd'),
 					change_time : dateformat(qry_doc.change_time, 'yyyymmdd'),
-					file_type : qry_doc.file_type
+					file_type : qry_doc.file_type,
+					is_file : qry_doc.is_file
 				} />
 				<!--- Add result to qoq_doc --->
 				<cfset QueryAddrow(query = qoq_doc, data = q) />
@@ -523,13 +524,13 @@
 				<!--- Labels --->
 				<cfset var labels_vid = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "videos", groupid = qry_vid.groupid) />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_vid.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_vid.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_all set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_vid">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
@@ -574,13 +575,13 @@
 				<!--- Labels --->
 				<cfset var labels_aud = _getLabels(hostid = host_id, prefix = prefix, file_id = file_id, category = "audios", groupid = qry_aud.groupid) />
 				<!--- Remove foreign chars for some columns --->
-				<cfset var thefilename = REReplaceNoCase(qry_aud.filename, "'", "", "ALL")><!--- For single quotes remove them instead of replacing with space --->
+				<cfset var thefilename = REReplaceNoCase(qry_aud.filename, "'", " ", "ALL")><!--- For single quotes remove them instead of replacing with space --->
 				<cfset var thefilename = REReplaceNoCase(thefilename, theregchars, " ", "ALL")>
 				<!--- Loop over the qry_all set because we could have more then one language for the description and keywords --->
 				<cfloop query="qry_aud">
 					<!--- For single quotes remove them instead of replacing with space --->
-					<cfset var thedesc_1 = REReplaceNoCase(description, "'", "", "ALL") >
-					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", "", "ALL")>
+					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
+					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
 				</cfloop>
@@ -710,7 +711,7 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 	    SELECT DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey, f.file_create_time as create_time, f.file_change_time as change_time,
-	    	'original' as file_type
+	    	'original' as file_type, 'false' as is_file
 		FROM #arguments.prefix#files f 
 		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
@@ -734,24 +735,12 @@
 		<cfset QuerySetcell( qry, "keywords", keys ) />
 		<cfset QuerySetcell( qry, "description", desc ) />
 		<!--- Index only doc files --->
-		<!--- <cfif qry.link_kind NEQ "url" AND arguments.notfile EQ "F">
+		<cfif qry.link_kind NEQ "url" AND arguments.notfile EQ "F">
 			<cftry>
 				<!--- Get assetpath of each host (could be different) --->
 				<cfset var assetPath = getAssetPath(arguments.hostid, arguments.prefix) />
-				<!--- Nirvanix or Amazon --->
-				<cfif (arguments.storage EQ "amazon" OR arguments.storage EQ "akamai")>
-					<!--- Check if windows or not --->
-					<cfif ! _isWindows()>
-						<cfset qry.lucene_key = replacenocase(qry.lucene_key," ","\ ","all")>
-						<cfset qry.lucene_key = replacenocase(qry.lucene_key,"&","\&","all")>
-						<cfset qry.lucene_key = replacenocase(qry.lucene_key,"'","\'","all")>
-					</cfif>
-					<!--- Index: Update file --->
-					<cfif fileExists(qry.lucene_key)>
-						<cfset var the_file = qry.lucene_key>
-					</cfif>
 				<!--- Local Storage --->
-				<cfelseif qry.link_kind NEQ "lan" AND arguments.storage EQ "local" AND fileexists("#assetpath#/#arguments.hostid#/#qry.folder#/#qry.category#/#qry.id#/#qry.filenameorg#")>
+				<cfif qry.link_kind NEQ "lan" AND arguments.storage EQ "local" AND fileexists("#assetpath#/#arguments.hostid#/#qry.folder#/#qry.category#/#qry.id#/#qry.filenameorg#")>
 					<!--- Index: Update file --->
 					<cfset var the_file = "#assetpath#/#arguments.hostid#/#qry.folder#/#qry.category#/#qry.id#/#qry.filenameorg#">
 				<!--- Linked file --->
@@ -771,16 +760,18 @@
 					<cfset console(cfcatch)>
 				</cfcatch>
 			</cftry>
-		</cfif> --->
+		</cfif>
 		<!--- Decide on the key --->
-		<!--- <cfif the_file EQ "">
+		<cfif the_file EQ "">
 			<cfset var thekey = qry.id>
 		<cfelse>
 			<cfset var thekey = the_file>
+			<!--- Set key properly --->
+			<cfset QuerySetcell( qry, "is_file", 'true' ) />
 		</cfif>
 		<!--- Set key properly --->
-		<cfset QuerySetcell( qry, "thekey", thekey ) /> --->
-		<cfset QuerySetcell( qry, "thekey", qry.id ) />
+		<cfset QuerySetcell( qry, "thekey", thekey ) />
+		<!--- <cfset QuerySetcell( qry, "thekey", qry.id ) /> --->
 		<!--- Return --->
 		<cfreturn qry />
 	</cffunction>
@@ -901,9 +892,10 @@
 		<cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
 		<!--- Param --->
 		<cfset var qry = "" >
+		<cfset var _values = "" >
 		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#">
-		SELECT DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + replace(cast(v.cf_value AS NVARCHAR(max)), ',', ' ')<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),' ', replace(cast(v.cf_value AS CHAR), ',', ' '))</cfif> AS customfieldvalue
+		<!--- <cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT <cfif arguments.thedatabase EQ "mssql">cast(ft.cf_id_r AS VARCHAR(100)) + ' ' + replace(cast(v.cf_value AS NVARCHAR(max)), ',', ' ')<cfelse>CONCAT(cast(ft.cf_id_r AS CHAR),'_', replace(cast(v.cf_value AS CHAR), ',', ' '))</cfif> AS customfieldvalue
 		FROM #arguments.prefix#custom_fields_values v, #arguments.prefix#custom_fields_text ft
 		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND v.cf_value != ''
@@ -911,11 +903,28 @@
 		AND v.cf_id_r = ft.cf_id_r 
 		AND v.host_id = ft.host_id 
 		AND ft.lang_id_r = 1
+		</cfquery> --->
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT ft.cf_id_r, v.cf_value
+		FROM #arguments.prefix#custom_fields_values v, #arguments.prefix#custom_fields_text ft
+		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND ( v.cf_value != '' OR v.cf_value IS NOT NULL )
+		AND v.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		AND v.cf_id_r = ft.cf_id_r 
+		AND v.host_id = ft.host_id 
+		AND ft.lang_id_r = 1
 		</cfquery>
+		<!--- Loop over records and put fields together --->
+		<cfloop query="qry">
+			<cfset _id = replace(cf_id_r, '-', '', 'ALL')>
+			<cfloop list="#cf_value#" delimiters=" " index="value">
+				<cfset _values = _values & "#_id##value# ">
+			</cfloop>
+		</cfloop>
 		<!--- Add custom fields to a list --->
-		<cfset var list = valuelist(qry.customfieldvalue, " ")>
+		<!--- <cfset var list = valuelist(qry.customfieldvalue, " ")> --->
 		<!--- Return --->
-		<cfreturn list />
+		<cfreturn _values />
 	</cffunction>
 
 	<!--- Get Labels --->
@@ -1064,6 +1073,14 @@
 			SELECT *
 			FROM arguments.qoq
 			WHERE collection = #h#
+			AND is_file = 'false'
+			</cfquery>
+			<!--- Get all records of this host for indexing files --->
+			<cfquery dbtype="query" name="qry_records_files">
+			SELECT *
+			FROM arguments.qoq
+			WHERE collection = #h#
+			AND is_file = 'true'
 			</cfquery>
 			<!--- Indexing --->
 			<cftry>
@@ -1104,6 +1121,47 @@
 				</cfscript>
 				<cfcatch type="any">
 					<cfset console("#now()# ---------------------- ERROR")>
+					<cfset console(cfcatch)>
+				</cfcatch>
+			</cftry>
+			<cftry>
+				<cfscript>
+					args = {
+					query : qry_records_files,
+					collection : h,
+					category : "category",
+					categoryTree : "id",
+					key : "thekey",
+					title : "id",
+					body : "id",
+					custommap :{
+						id : "id",
+						filename : "filename",
+						filenameorg : "filenameorg",
+						keywords : "keywords",
+						description : "description",
+						rawmetadata : "rawmetadata",
+						extension : "theext",
+						author : "author",
+						rights : "rights",
+						authorsposition : "authorsposition", 
+						captionwriter : "captionwriter", 
+						webstatement : "webstatement", 
+						rightsmarked : "rightsmarked",
+						labels : "labels",
+						customfieldvalue : "customfieldvalue",
+						folderpath : "folderpath",
+						folder : "folder",
+						host_id : "host_id",
+						create_time : "create_time",
+						change_time : "change_time",
+						file_type : "file_type"
+						}
+					};
+					results = CollectionIndexfile( argumentCollection=args );
+				</cfscript>
+				<cfcatch type="any">
+					<cfset console("#now()# ---------------------- ERROR INDEXING FILES")>
 					<cfset console(cfcatch)>
 				</cfcatch>
 			</cftry>

@@ -85,7 +85,7 @@
 		<!--- Search --->
 		<cftry>
 			<!--- Syntax --->
-			<cfset var _criteria = _searchSyntax(criteria=arguments.criteria, search_type=arguments.search_type, search_rendition=arguments.search_rendition) />
+			<cfset var _criteria = _searchSyntax(criteria=arguments.criteria, search_type=arguments.search_type, search_rendition=arguments.search_rendition, host_id=arguments.collection) />
 			<!--- if the folderid is not 0 we need to filter by folderid --->
 			<cfif arguments.folderid NEQ 0>
 				<!--- New list var --->
@@ -211,6 +211,7 @@
 		<cfargument name="criteria" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
+		<cfargument name="host_id" required="true" type="numeric">
 		<!--- 
 		 Decode URL encoding that is encoded using the encodeURIComponent javascript method. 
 		 Preserve the '+' sign during decoding as the URLDecode methode will remove it if present.
@@ -244,6 +245,8 @@
 			</cfif>
 			<!--- Are there more than one word --->
 			<cfset var _space = find(" ", criteria)>
+			<!--- Get Custom Fields --->
+			<cfset var _cf_fields = _getCustomFields(host_id=arguments.host_id)>
 			<!--- If there is space we loop over all the words in criteria --->
 			<cfif _space > 0>
 				<!--- How many items in loop --->
@@ -255,13 +258,19 @@
 					<cfif _count EQ _total>
 						<cfset var _del = "">
 					</cfif>
+					<!--- Put totgether the custom field --->
+					<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=word)>
 					<!--- For each word create the search string --->
-					<cfset var _search_string = _search_string & '( ' & '(#word#) filename:(#word#) keywords:(#word#) description:(#word#) id:(#word#) labels:(#word#) customfieldvalue:(#word#)' & ' )' & _del>
+					<cfset var _search_string = _search_string & '( ' & '(#word#) filename:(#word#) keywords:(#word#) description:(#word#) id:(#word#) labels:(#word#) ' &  _the_custom_field & ' )' & _del>
 				</cfloop>
 			<!--- Just one word in criteria --->
 			<cfelse>
-				<cfset var _search_string = '(#criteria#) filename:(#criteria#) keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) customfieldvalue:(#criteria#)'>
+				<!--- Put totgether the custom field --->
+				<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=criteria)>
+				<!--- The seach string --->
+				<cfset var _search_string = '(#criteria#) filename:(#criteria#) keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) ' & _the_custom_field>
 			</cfif>
+			
 			<!--- Set criteria --->
 			<cfset var criteria = _search_string />
 		</cfif>
@@ -305,6 +314,41 @@
 		<cfset lucenestr = replace(lucenestr,'"','','ALL')>		
 		<!--- Return --->
 		<cfreturn lucenestr>	
+	</cffunction>
+
+	<!--- Get all custom fields --->
+	<cffunction name="_getCustomFields" access="private" output="false" returntype="string">
+		<cfargument name="host_id" type="numeric" required="true">
+		<!--- Get Config --->
+		<cfset var config = getConfig()>
+		<!--- Param --->
+		<cfset var qry = "">
+		<!--- Query --->
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT DISTINCT cf_id
+		FROM #config.conf_db_prefix#custom_fields
+		WHERE lower(cf_enabled) = <cfqueryparam cfsqltype="cf_sql_varchar" value="t">
+		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.host_id#">
+		</cfquery>
+		<!--- Return --->
+		<cfreturn valuelist(qry.cf_id) >
+	</cffunction>
+
+	<!--- Put custom fields together --->
+	<cffunction name="_createCustomFields" access="private" output="false" returntype="string">
+		<cfargument name="fields" type="string" required="true">
+		<cfargument name="word" type="string" required="true">
+		<!--- Param --->
+		<cfset var _field = "">
+		<!--- Loop over fields --->
+		<cfloop list="#arguments.fields#" delimiters="," index="f">
+			<!--- Remove - from id --->
+			<cfset var _id = replace(f, "-", "", "ALL")>
+			<!--- Each id and word--->
+			<cfset var _field = _field & "customfieldvalue:(" & _id & arguments.word & ") ">
+		</cfloop>
+		<!--- Return --->
+		<cfreturn _field>
 	</cffunction>
 
 
