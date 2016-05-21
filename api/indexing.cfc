@@ -388,8 +388,8 @@
 					<!--- For single quotes remove them instead of replacing with space --->
 					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
 					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
-					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
-					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
+					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
+					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
 				<!--- Struct for adding to qoq_img --->
 				<cfset var q = {
@@ -472,8 +472,8 @@
 					<!--- For single quotes remove them instead of replacing with space --->
 					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
 					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
-					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
-					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
+					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
+					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
 				<!--- Struct for adding to qoq_img --->
 				<cfset var q = {
@@ -531,8 +531,8 @@
 					<!--- For single quotes remove them instead of replacing with space --->
 					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
 					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
-					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
-					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
+					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
+					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
 				<!--- Struct for adding to qoq_img --->
 				<cfset var q = {
@@ -582,8 +582,8 @@
 					<!--- For single quotes remove them instead of replacing with space --->
 					<cfset var thedesc_1 = REReplaceNoCase(description, "'", " ", "ALL") >
 					<cfset var thekeys_1 = REReplaceNoCase(keywords,  "'", " ", "ALL")>
-					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars, " ", "ALL") & " " & thedesc>
-					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars, " ", "ALL") & " " & thekeys>
+					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
+					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
 				<!--- Struct for adding to qoq_aud --->
 				<cfset var q = {
