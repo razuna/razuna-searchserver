@@ -190,10 +190,11 @@
 		<cfset console("SEARCH WITH: #arguments.criteria#")>
 		<!--- Search in Lucene --->
 		<cfif arguments.maxrows NEQ 0>
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree">
 		<cfelse>
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" uniquecolumn="categorytree">
 		</cfif>
+		<!--- <cfset console(results)> --->
 		<!--- Only return the columns we need from Lucene --->
 		<cfif results.recordcount NEQ 0>
 			<cfquery dbtype="query" name="results">
@@ -201,6 +202,7 @@
 			FROM results
 			</cfquery>
 		</cfif>
+		<!--- <cfset console(results)> --->
 		<cfset console("#now()# ---------------------- SEARCH DONE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<!--- Return --->
 		<cfreturn results>
