@@ -270,7 +270,7 @@
 				<!--- Put totgether the custom field --->
 				<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=criteria)>
 				<!--- The seach string --->
-				<cfset var _search_string = '(#criteria#) filename:(#criteria#) keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) ' & _the_custom_field>
+				<cfset var _search_string = '(#criteria#) filename:("#criteria#") keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) ' & _the_custom_field>
 			</cfif>
 			
 			<!--- Set criteria --->
