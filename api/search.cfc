@@ -190,10 +190,11 @@
 		<cfset console("SEARCH WITH: #arguments.criteria#")>
 		<!--- Search in Lucene --->
 		<cfif arguments.maxrows NEQ 0>
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree">
 		<cfelse>
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" uniquecolumn="categorytree">
 		</cfif>
+		<!--- <cfset console(results)> --->
 		<!--- Only return the columns we need from Lucene --->
 		<cfif results.recordcount NEQ 0>
 			<cfquery dbtype="query" name="results">
@@ -201,6 +202,7 @@
 			FROM results
 			</cfquery>
 		</cfif>
+		<!--- <cfset console(results)> --->
 		<cfset console("#now()# ---------------------- SEARCH DONE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<!--- Return --->
 		<cfreturn results>
@@ -268,7 +270,7 @@
 				<!--- Put totgether the custom field --->
 				<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=criteria)>
 				<!--- The seach string --->
-				<cfset var _search_string = '(#criteria#) filename:(#criteria#) keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) ' & _the_custom_field>
+				<cfset var _search_string = '(#criteria#) filename:("#criteria#") keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) ' & _the_custom_field>
 			</cfif>
 			
 			<!--- Set criteria --->

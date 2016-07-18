@@ -508,6 +508,24 @@
 				} />
 				<!--- Add result to qoq_doc --->
 				<cfset QueryAddrow(query = qoq_doc, data = q) />
+				<!--- Do for the physical file itself --->
+				<cfif arguments.storage EQ "local">
+					<cfset var qry_doc_file = _getDocsFile(hostid = host_id, prefix = prefix, file_id = file_id, notfile = notfile, storage = arguments.storage) />
+					<!--- Struct for adding to qoq_img --->
+					<cfset var q2 = {
+						collection : qry_doc_file.collection,
+						id : qry_doc_file.id,
+						thekey : qry_doc_file.thekey,
+						folder : qry_doc_file.folder,
+						category : qry_doc_file.category,
+						lucene_key : qry_doc_file.lucene_key,
+						host_id : '#host_id#',
+						file_type : qry_doc_file.file_type,
+						is_file : qry_doc_file.is_file
+					} />
+					<!--- Add result to qoq_doc --->
+					<cfset QueryAddrow(query = qoq_doc, data = q2) />
+				</cfif>
 				<!--- Log --->
 				<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
 			<!--- Videos --->
@@ -672,6 +690,7 @@
 		LEFT JOIN #arguments.prefix#xmp x ON f.img_id = x.id_r AND x.asset_type = <cfqueryparam cfsqltype="cf_sql_varchar" value="img"> AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.img_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		AND f.is_available != <cfqueryparam cfsqltype="cf_sql_varchar" value="2">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
@@ -704,47 +723,41 @@
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Getting Document: #arguments.file_id# for host: #arguments.hostid#")>
 		<!--- Param --->
-		<cfset var qry = "" >
-		<cfset var qry_desc = "" >
+		<cfset var _qry = "" >
+		<!--- Get files query --->
+		<cfset _qry = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = file_id, notfile = notfile, storage = arguments.storage)>
+		<!--- Set thekey --->
+		<cfset QuerySetcell( _qry, "thekey", _qry.id ) />
+		<!--- Return --->
+		<cfreturn _qry />
+	</cffunction>
+
+	<!--- Get File --->
+	<cffunction name="_getDocsFile" access="private" output="false">
+		<cfargument name="hostid" required="true" type="string">
+		<cfargument name="prefix" required="true" type="string">
+		<cfargument name="file_id" required="true" type="string">
+		<cfargument name="notfile" required="true" type="string">
+		<cfargument name="storage" required="true" type="string">
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Getting FILE Document: #arguments.file_id# for host: #arguments.hostid#")>
+		<!--- Param --->
+		<cfset var _qryDocsFiles = "" >
 		<!--- Param --->
 		<cfset var the_file = "">
-		<!--- Query Record --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#">
-	    SELECT DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey, f.file_create_time as create_time, f.file_change_time as change_time,
-	    	'original' as file_type, 'false' as is_file
-		FROM #arguments.prefix#files f 
-		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
-		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
-		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
-		</cfquery>
-		<!--- Get keywords and description --->
-		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
-		SELECT file_keywords, file_desc
-		FROM #arguments.prefix#files_desc
-		WHERE file_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
-		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
-		</cfquery>
-		<cfset var desc = "">
-		<cfset var keys = "">
-		<!--- Add to qry --->
-		<cfloop query="qry_desc">
-			<cfset desc = desc & file_desc & " ">
-			<cfset keys = keys & file_keywords & " ">
-		</cfloop>
-		<!--- Set cells --->
-		<cfset QuerySetcell( qry, "keywords", keys ) />
-		<cfset QuerySetcell( qry, "description", desc ) />
+		<!--- Get files query --->
+		<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = file_id, notfile = notfile, storage = arguments.storage)>
 		<!--- Index only doc files --->
-		<cfif qry.link_kind NEQ "url" AND arguments.notfile EQ "F">
+		<cfif _qryDocsFiles.link_kind NEQ "url">
 			<cftry>
 				<!--- Get assetpath of each host (could be different) --->
 				<cfset var assetPath = getAssetPath(arguments.hostid, arguments.prefix) />
 				<!--- Local Storage --->
-				<cfif qry.link_kind NEQ "lan" AND arguments.storage EQ "local" AND fileexists("#assetpath#/#arguments.hostid#/#qry.folder#/#qry.category#/#qry.id#/#qry.filenameorg#")>
+				<cfif _qryDocsFiles.link_kind NEQ "lan" AND fileexists("#assetpath#/#arguments.hostid#/#_qryDocsFiles.folder#/#_qryDocsFiles.category#/#_qryDocsFiles.id#/#_qryDocsFiles.filenameorg#")>
 					<!--- Index: Update file --->
-					<cfset var the_file = "#assetpath#/#arguments.hostid#/#qry.folder#/#qry.category#/#qry.id#/#qry.filenameorg#">
+					<cfset var the_file = "#assetpath#/#arguments.hostid#/#_qryDocsFiles.folder#/#_qryDocsFiles.category#/#_qryDocsFiles.id#/#_qryDocsFiles.filenameorg#">
 				<!--- Linked file --->
-				<cfelseif qry.link_kind EQ "lan">
+				<cfelseif _qryDocsFiles.link_kind EQ "lan">
 					<cfset var qryfile ="">
 					<cfquery name="qryfile" datasource="#application.razuna.datasource#">
 						select link_path_url from #arguments.prefix#files where file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
@@ -754,24 +767,67 @@
 						<cfset var the_file = qryfile.link_path_url>
 					</cfif>
 				</cfif>
+				<!--- Set values in query --->
+				<cfif the_file NEQ ''>
+					<cfset QuerySetcell( _qryDocsFiles, "is_file", 'true' ) />
+					<cfset QuerySetcell( _qryDocsFiles, "thekey", the_file ) />
+				<cfelse>
+					<!--- Set _qryDocsFiles to zero --->
+					<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = "0", notfile = notfile, storage = arguments.storage)>	
+				</cfif>
 				<cfcatch type="any">
+					<!--- Set _qryDocsFiles to zero --->
+					<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = "0", notfile = notfile, storage = arguments.storage)>	
 					<cfset consoleoutput(true)>
 					<cfset console("#now()# ---------------------- Error while indexing doc file #arguments.file_id#")>
 					<cfset console(cfcatch)>
 				</cfcatch>
 			</cftry>
 		</cfif>
-		<!--- Decide on the key --->
-		<cfif the_file EQ "">
-			<cfset var thekey = qry.id>
-		<cfelse>
-			<cfset var thekey = the_file>
-			<!--- Set key properly --->
-			<cfset QuerySetcell( qry, "is_file", 'true' ) />
+		<!--- Return --->
+		<cfreturn _qryDocsFiles />
+	</cffunction>
+
+	<!--- Sub query: Get File --->
+	<cffunction name="_getDocsQuery" access="private" output="false">
+		<cfargument name="hostid" required="true" type="string">
+		<cfargument name="prefix" required="true" type="string">
+		<cfargument name="file_id" required="true" type="string">
+		<cfargument name="notfile" required="true" type="string">
+		<cfargument name="storage" required="true" type="string">
+		<!--- Param --->
+		<cfset var qry = "" >
+		<cfset var qry_desc = "" >
+		<!--- Query Record --->
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+	    SELECT DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey, f.file_create_time as create_time, f.file_change_time as change_time,
+	    	'original' as file_type, 'false' as is_file
+		FROM #arguments.prefix#files f 
+		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		AND f.is_available != <cfqueryparam cfsqltype="cf_sql_varchar" value="2">
+		</cfquery>
+		<!--- If record found --->
+		<cfif qry.recordcount NEQ 0>
+			<!--- Get keywords and description --->
+			<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
+			SELECT file_keywords, file_desc
+			FROM #arguments.prefix#files_desc
+			WHERE file_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+			AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+			</cfquery>
+			<cfset var desc = "">
+			<cfset var keys = "">
+			<!--- Add to qry --->
+			<cfloop query="qry_desc">
+				<cfset desc = desc & file_desc & " ">
+				<cfset keys = keys & file_keywords & " ">
+			</cfloop>
+			<!--- Set cells --->
+			<cfset QuerySetcell( qry, "keywords", keys ) />
+			<cfset QuerySetcell( qry, "description", desc ) />
 		</cfif>
-		<!--- Set key properly --->
-		<cfset QuerySetcell( qry, "thekey", thekey ) />
-		<!--- <cfset QuerySetcell( qry, "thekey", qry.id ) /> --->
 		<!--- Return --->
 		<cfreturn qry />
 	</cffunction>
@@ -797,6 +853,7 @@
 		FROM #arguments.prefix#videos f 
 		WHERE f.vid_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		AND f.is_available != <cfqueryparam cfsqltype="cf_sql_varchar" value="2">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
@@ -841,6 +898,7 @@
 		LEFT JOIN #arguments.prefix#audios_text aut ON a.aud_id = aut.aud_id_r
 		WHERE a.aud_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND a.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+		AND a.is_available != <cfqueryparam cfsqltype="cf_sql_varchar" value="2">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
@@ -1136,25 +1194,8 @@
 					body : "id",
 					custommap :{
 						id : "id",
-						filename : "filename",
-						filenameorg : "filenameorg",
-						keywords : "keywords",
-						description : "description",
-						rawmetadata : "rawmetadata",
-						extension : "theext",
-						author : "author",
-						rights : "rights",
-						authorsposition : "authorsposition", 
-						captionwriter : "captionwriter", 
-						webstatement : "webstatement", 
-						rightsmarked : "rightsmarked",
-						labels : "labels",
-						customfieldvalue : "customfieldvalue",
-						folderpath : "folderpath",
-						folder : "folder",
 						host_id : "host_id",
-						create_time : "create_time",
-						change_time : "change_time",
+						folder : "folder",
 						file_type : "file_type"
 						}
 					};
