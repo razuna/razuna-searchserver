@@ -323,14 +323,27 @@
 		<cfargument name="host_id" type="numeric" required="true">
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
-		<!--- Param --->
-		<cfset var qry = "">
-		<!--- Query --->
-		<cfquery name="qry" datasource="#application.razuna.datasource#">
-		SELECT DISTINCT cf_id
-		FROM #config.conf_db_prefix#custom_fields
-		WHERE lower(cf_enabled) = <cfqueryparam cfsqltype="cf_sql_varchar" value="t">
-		AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.host_id#">
+		<!--- Loop --->
+		<cfloop list="#config.conf_db_prefix#" index="prefix" delimiters=",">
+			<!--- Param --->
+			<cfset var qry = "">
+			<!--- Query --->
+			<cfquery name="qry_#prefix#" datasource="#application.razuna.datasource#">
+			SELECT DISTINCT cf_id
+			FROM #prefix#custom_fields
+			WHERE lower(cf_enabled) = <cfqueryparam cfsqltype="cf_sql_varchar" value="t">
+			AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.host_id#">
+			</cfquery>
+		</cfloop>
+		<!--- Combine above query if there is raz2_ --->
+		<cfquery dbtype="query" name="qry">
+		SELECT *
+		FROM qry_raz1_
+		<cfif listfind(config.conf_db_prefix, "raz2_")>
+			UNION
+			SELECT *
+			FROM qry_raz2_
+		</cfif>
 		</cfquery>
 		<!--- Return --->
 		<cfreturn valuelist(qry.cf_id) >
