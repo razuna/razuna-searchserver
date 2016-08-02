@@ -261,16 +261,20 @@
 						<cfset var _del = "">
 					</cfif>
 					<!--- Put totgether the custom field --->
-					<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=word)>
+					<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=word,criteria=criteria)>
+					<!--- Search fields --->
+					<cfset var _search_fields = _createSearchFields(criteria=criteria,the_word=word)>
 					<!--- For each word create the search string --->
-					<cfset var _search_string = _search_string & '( ' & '(#word#) filename:(#word#) keywords:(#word#) description:(#word#) id:(#word#) labels:(#word#) ' &  _the_custom_field & ' )' & _del>
+					<cfset var _search_string = _search_string & '( ' & _search_fields &  _the_custom_field & ' )' & _del>
 				</cfloop>
 			<!--- Just one word in criteria --->
 			<cfelse>
 				<!--- Put totgether the custom field --->
-				<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=criteria)>
+				<cfset var _the_custom_field = _createCustomFields(fields=_cf_fields,word=criteria,criteria=criteria)>
+				<!--- Search fields --->
+				<cfset var _search_fields = _createSearchFields(criteria=criteria)>
 				<!--- The seach string --->
-				<cfset var _search_string = '(#criteria#) filename:("#criteria#") keywords:(#criteria#) description:(#criteria#) id:(#criteria#) labels:(#criteria#) ' & _the_custom_field>
+				<cfset var _search_string = _search_fields & _the_custom_field>
 			</cfif>
 			
 			<!--- Set criteria --->
@@ -340,6 +344,7 @@
 	<cffunction name="_createCustomFields" access="private" output="false" returntype="string">
 		<cfargument name="fields" type="string" required="true">
 		<cfargument name="word" type="string" required="true">
+		<cfargument name="criteria" type="string" required="true">
 		<!--- Param --->
 		<cfset var _field = "">
 		<!--- Loop over fields --->
@@ -347,11 +352,28 @@
 			<!--- Remove - from id --->
 			<cfset var _id = replace(f, "-", "", "ALL")>
 			<!--- Each id and word--->
-			<cfset var _field = _field & "customfieldvalue:(" & _id & arguments.word & ") ">
+			<cfif NOT arguments.criteria CONTAINS "*">
+				<cfset var _field = _field & "customfieldvalue:(""" & _id & arguments.word & """) ">
+			<cfelse>
+				<cfset var _field = _field & "customfieldvalue:(" & _id & arguments.word & ") ">
+			</cfif>
 		</cfloop>
 		<!--- Return --->
 		<cfreturn _field>
 	</cffunction>
 
+	<!--- Put search fields together --->
+	<cffunction name="_createSearchFields" access="private" output="false" returntype="string">
+		<cfargument name="criteria" type="string" required="true">
+		<cfargument name="the_word" type="string" required="false" default="#arguments.criteria#">
+		<!--- Fields --->
+		<cfset var _searchfields = '(#arguments.the_word#) filename:(#arguments.the_word#) keywords:(#arguments.the_word#) description:(#arguments.the_word#) id:(#arguments.the_word#) labels:(#arguments.the_word#) '>
+		<!--- If we find a * in criteria then search contains --->
+		<cfif NOT arguments.criteria CONTAINS "*">
+			<cfset var _searchfields = '("#arguments.the_word#") filename:("#arguments.the_word#") keywords:("#arguments.the_word#") description:("#arguments.the_word#") id:(#arguments.the_word#) labels:("#arguments.the_word#") '>
+		</cfif>
+		<!--- Return --->
+		<cfreturn _searchfields>
+	</cffunction>
 
 </cfcomponent>
