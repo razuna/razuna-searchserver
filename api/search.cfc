@@ -106,7 +106,7 @@
 							<cfset "variables.folderlist_#counter_folderlist#" = "">
 						</cfif>
 						<!--- Append to list --->
-						<cfset "variables.folderlist_#counter_folderlist#" = variables["folderlist_" & counter_folderlist] & ' folder:("#folderid#")'>
+						<cfset "variables.folderlist_#counter_folderlist#" = variables["folderlist_" & counter_folderlist] & ' folder:("#folderid#") folder_alias:("#folderid#")'>
 					</cfloop>
 					<!--- We go the individual folder lists, now loop over it and put together the criteria and search in Lucene --->
 					<cfloop from="0" to="#counter_folderlist#" index="n">
@@ -148,7 +148,7 @@
 				<cfelse>
 					<!--- Since it could be a list --->
 					<cfloop list="#arguments.folderid#" index="i" delimiters=",">
-						<cfset var folderlist = folderlist & ' folder:("#i#")' />
+						<cfset var folderlist = folderlist & ' folder:("#i#") folder_alias:("#i#")' />
 					</cfloop>
 					<!--- If the returning _criteria is empty we only tag on the folderlist (with this fix user can search with *) --->
 					<cfif _criteria EQ "">

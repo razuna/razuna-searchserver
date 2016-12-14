@@ -352,16 +352,13 @@
 				supplementalcategories, urgency, ciadrcity, ciadrctry, location, ciadrpcode, ciemailwork, ciurlwork, citelwork, 
 				intellectualgenre, instructions, source, usageterms, copyrightstatus, transmissionreference, webstatement, headline, 
 				datecreated, city, ciadrregion, country, countrycode, scene, state, credit, rights, labels, 
-				customfieldvalue, folderpath, host_id, change_time, create_time, file_type") />
+				customfieldvalue, folderpath, host_id, change_time, create_time, file_type, folder_alias") />
 		<!--- Create the qoq_vid --->
-		<cfset var qoq_vid = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type") />
+		<cfset var qoq_vid = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category, theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type, folder_alias") />
 		<!--- Create the qoq_aud --->
-		<cfset var qoq_aud = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type") />
+		<cfset var qoq_aud = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,	theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type, folder_alias") />
 		<!--- Create the qoq_doc --->
-		<cfset var qoq_doc = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,
-				theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id, change_time, create_time, file_type, is_file") />
+		<cfset var qoq_doc = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,	theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id, change_time, create_time, file_type, is_file, folder_alias") />
 				
 		<!--- Loop over records --->
 		<cfloop query="arguments.qryfiles">
@@ -391,6 +388,8 @@
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
+				<!--- Get Aliases --->
+				<cfset var _qry_aliases = _getAliases(file_id = file_id, type = 'img')>
 				<!--- Struct for adding to qoq_img --->
 				<cfset var q = {
 					collection : qry_img.collection,
@@ -445,7 +444,8 @@
 					host_id : '#host_id#',
 					create_time : dateformat(qry_img.create_time, 'yyyymmdd'),
 					change_time : dateformat(qry_img.change_time, 'yyyymmdd'),
-					file_type : qry_img.file_type
+					file_type : qry_img.file_type,
+					folder_alias : _qry_aliases
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_img, data = q) />
@@ -475,6 +475,8 @@
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
+				<!--- Get Aliases --->
+				<cfset var _qry_aliases = _getAliases(file_id = file_id, type = 'doc')>
 				<!--- Struct for adding to qoq_img --->
 				<cfset var q = {
 					collection : qry_doc.collection,
@@ -504,7 +506,8 @@
 					create_time : dateformat(qry_doc.create_time, 'yyyymmdd'),
 					change_time : dateformat(qry_doc.change_time, 'yyyymmdd'),
 					file_type : qry_doc.file_type,
-					is_file : qry_doc.is_file
+					is_file : qry_doc.is_file,
+					folder_alias : _qry_aliases
 				} />
 				<!--- Add result to qoq_doc --->
 				<cfset QueryAddrow(query = qoq_doc, data = q) />
@@ -552,6 +555,8 @@
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
+				<!--- Get Aliases --->
+				<cfset var _qry_aliases = _getAliases(file_id = file_id, type = 'vid')>
 				<!--- Struct for adding to qoq_img --->
 				<cfset var q = {
 					collection : qry_vid.collection,
@@ -573,7 +578,8 @@
 					host_id : '#host_id#',
 					create_time : dateformat(qry_vid.create_time, 'yyyymmdd'),
 					change_time : dateformat(qry_vid.change_time, 'yyyymmdd'),
-					file_type : qry_vid.file_type
+					file_type : qry_vid.file_type,
+					folder_alias : _qry_aliases
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_vid, data = q) />
@@ -603,6 +609,8 @@
 					<cfset var thedesc = REReplaceNoCase(thedesc_1 , theregchars_cf, " ", "ALL") & " " & thedesc>
 					<cfset var thekeys = REReplaceNoCase(thekeys_1, theregchars_cf, " ", "ALL") & " " & thekeys>
 				</cfloop>
+				<!--- Get Aliases --->
+				<cfset var _qry_aliases = _getAliases(file_id = file_id, type = 'aud')>
 				<!--- Struct for adding to qoq_aud --->
 				<cfset var q = {
 					collection : qry_aud.collection,
@@ -624,7 +632,8 @@
 					host_id : '#host_id#',
 					create_time : dateformat(qry_aud.create_time, 'yyyymmdd'),
 					change_time : dateformat(qry_aud.change_time, 'yyyymmdd'),
-					file_type : qry_aud.file_type
+					file_type : qry_aud.file_type,
+					folder_alias : _qry_aliases
 				} />
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_aud, data = q) />
@@ -1022,6 +1031,32 @@
 		<cfreturn list />
 	</cffunction>
 
+	<!--- Get Aliases --->
+	<cffunction name="_getAliases" access="private" output="false">
+		<cfargument name="file_id" required="true" type="string">
+		<cfargument name="type" required="true" type="string">
+		<!--- Log --->
+		<cfset console("#now()# ---------------------- Getting Aliases for file id: #arguments.file_id#")>
+		<!--- Param --->
+		<cfset var qry = "" >
+		<cfset var list = "" >
+		<!--- Query Record --->
+		<cfquery name="qry" datasource="#application.razuna.datasource#">
+		SELECT folder_id_r
+		FROM ct_aliases
+		WHERE asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
+		AND type = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.type#">
+		</cfquery>
+		<!--- if records found --->
+		<cfif qry.recordcount NEQ 0>
+			<!--- Add labels to a list --->
+			<cfset var list = valuelist(qry.folder_id_r," ")>
+		</cfif>
+		<cfset console('ALIASES FOLDER LIST : #list#')>
+		<!--- Return --->
+		<cfreturn list />
+	</cffunction>
+
 	<!--- Add to Lucene --->
 	<cffunction name="_addImgToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
@@ -1097,7 +1132,8 @@
 						host_id : "host_id",
 						create_time : "create_time",
 						change_time : "change_time",
-						file_type : "file_type"
+						file_type : "file_type",
+						folder_alias : "folder_alias"
 						}
 					};
 					results = CollectionIndexCustom( argumentCollection=args );
@@ -1172,7 +1208,8 @@
 						host_id : "host_id",
 						create_time : "create_time",
 						change_time : "change_time",
-						file_type : "file_type"
+						file_type : "file_type",
+						folder_alias : "folder_alias"
 						}
 					};
 					results = CollectionIndexCustom( argumentCollection=args );
@@ -1257,7 +1294,8 @@
 					host_id : "host_id",
 					create_time : "create_time",
 					change_time : "change_time",
-					file_type : "file_type"
+					file_type : "file_type",
+					folder_alias : "folder_alias"
 					}
 				};
 				results = CollectionIndexCustom( argumentCollection=args );
@@ -1313,7 +1351,8 @@
 					host_id : "host_id",
 					create_time : "create_time",
 					change_time : "change_time",
-					file_type : "file_type"
+					file_type : "file_type",
+					folder_alias : "folder_alias"
 					}
 				};
 				results = CollectionIndexCustom( argumentCollection=args );
