@@ -335,7 +335,7 @@
 			<cfquery name="qry_#prefix#" datasource="#application.razuna.datasource#">
 			SELECT DISTINCT cf_id
 			FROM #prefix#custom_fields
-			WHERE lower(cf_enabled) = <cfqueryparam cfsqltype="cf_sql_varchar" value="t">
+			WHERE cf_enabled = <cfqueryparam cfsqltype="cf_sql_varchar" value="t">
 			AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.host_id#">
 			</cfquery>
 		</cfloop>
