@@ -66,7 +66,7 @@
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
 		<!--- Grab records to remove --->
-		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix, dbtype=config.conf_db_type))>
+		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix, dbtype=config.conf_db_type)>
 		<!--- Remove records in Lucene --->
 		<cfset _removeFromIndex(qryrecords=_qryRecords,prefix=config.conf_db_prefix)>
 		<!--- All done remove records in database --->
