@@ -1427,50 +1427,50 @@
 			UNION ALL
 			SELECT img_id as id, 'img' as type, host_id
 			FROM raz1_images
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT vid_id as id, 'vid' as type, host_id
 			FROM raz1_videos
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT aud_id as id, 'aud' as type, host_id
 			FROM raz1_audios
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT file_id as id, 'doc' as type, host_id
 			FROM raz1_files
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			<cfif Listfindnocase(arguments.prefix,"raz2_") NEQ 0>
 			UNION ALL
 			SELECT img_id as id, 'img' as type, host_id
 			FROM raz2_images
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT vid_id as id, 'vid' as type, host_id
 			FROM raz2_videos
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT aud_id as id, 'aud' as type, host_id
 			FROM raz2_audios
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT file_id as id, 'doc' as type, host_id
 			FROM raz2_files
-			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
+			WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			</cfif>

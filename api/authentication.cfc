@@ -134,7 +134,7 @@
 		<!--- Param --->
 		<cfset var qry = "">
 		<!--- Query --->
-		<cfquery datasource="#application.razuna.datasource#" name="qry">
+		<cfquery datasource="#application.razuna.datasource#" name="qry" cachedwithin="#CreateTimeSpan(0,1,0,0)#">
 		SELECT host_id
 		FROM hosts
 		</cfquery>
@@ -250,7 +250,7 @@
 			<cfquery dataSource="#application.razuna.datasource#" name="qry">
 			SELECT opt_value
 			FROM options
-			WHERE lower(opt_id) = <cfqueryparam value="taskserver_secret" CFSQLType="CF_SQL_VARCHAR">
+			WHERE opt_id = <cfqueryparam value="taskserver_secret" CFSQLType="CF_SQL_VARCHAR">
 			</cfquery>
 			<cfset var key = trim(qry.opt_value)>
 			<cfcatch type="any">
