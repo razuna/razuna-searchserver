@@ -66,7 +66,7 @@
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
 		<!--- Grab records to remove --->
-		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix)>
+		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix, dbtype=config.conf_db_type))>
 		<!--- Remove records in Lucene --->
 		<cfset _removeFromIndex(qryrecords=_qryRecords,prefix=config.conf_db_prefix)>
 		<!--- All done remove records in database --->
@@ -1412,56 +1412,67 @@
 	<!--- Query records to remove --->
 	<cffunction name="_qryRemoveRecords" access="private" output="false" returntype="query">
 		<cfargument name="prefix" required="true">
+		<cfargument name="dbtype" required="true">
 		<cftry>
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Fetching records to remove from index")>
 			<!--- Param --->
 			<cfset var qry = "">
+			<cfset var howmany = 1000 />
 			<!--- Query --->
 			<cfquery datasource="#application.razuna.datasource#" name="qry">
 			SELECT id, type, host_id
 			FROM lucene
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT img_id as id, 'img' as type, host_id
 			FROM raz1_images
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT vid_id as id, 'vid' as type, host_id
 			FROM raz1_videos
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT aud_id as id, 'aud' as type, host_id
 			FROM raz1_audios
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT file_id as id, 'doc' as type, host_id
 			FROM raz1_files
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			<cfif Listfindnocase(arguments.prefix,"raz2_") NEQ 0>
 			UNION ALL
 			SELECT img_id as id, 'img' as type, host_id
 			FROM raz2_images
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT vid_id as id, 'vid' as type, host_id
 			FROM raz2_videos
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT aud_id as id, 'aud' as type, host_id
 			FROM raz2_audios
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			UNION ALL
 			SELECT file_id as id, 'doc' as type, host_id
 			FROM raz2_files
 			WHERE lower(in_trash) = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 			AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+			<cfif arguments.dbtype NEQ "mssql">LIMIT #howmany#</cfif>
 			</cfif>
 			</cfquery>
 			<!--- Only continue if records are found --->
