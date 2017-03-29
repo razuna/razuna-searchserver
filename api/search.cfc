@@ -90,8 +90,8 @@
 			<cfif arguments.folderid NEQ 0>
 				<!--- New list var --->
 				<cfset var counter_folderlist = 0>
-				<!--- If more than 1000 folders do the split, else normal operation --->
-				<cfif listlen(arguments.folderid) GTE 1000>
+				<!--- If more than 500 folders do the split, else normal operation --->
+				<cfif listlen(arguments.folderid) GTE 500>
 					<!--- Create new temp query for lucene results --->
 					<cfset var _tmp_results = queryNew("category, categorytree, rank, searchcount")>
 					<!--- Create new list --->
@@ -99,7 +99,7 @@
 					<!--- Loop over folders --->
 					<cfloop list="#arguments.folderid#" index="folderid">
 						<!--- If we have more than 200 in the current list create a new list --->
-						<cfif listlen(variables["folderlist_" & counter_folderlist], " ") GTE 1000>
+						<cfif listlen(variables["folderlist_" & counter_folderlist], " ") GTE 500>
 							<!--- Increase counter --->
 							<cfset counter_folderlist++>
 							<!--- Create new list with new counter --->
