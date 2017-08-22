@@ -198,7 +198,7 @@
 		<!--- Only return the columns we need from Lucene --->
 		<cfif results.recordcount NEQ 0>
 			<cfquery dbtype="query" name="results">
-			SELECT category, categorytree, rank, searchcount
+			SELECT category, categorytree, rank, searchcount, folder
 			FROM results
 			</cfquery>
 		</cfif>
