@@ -60,13 +60,13 @@
 		<cfreturn r />
 	</cffunction>
 
-	
+
 
 
 	<!--- PRIVATE --->
 
 
-	
+
 
 	<!--- Internal search --->
 	<cffunction name="_search" access="private" output="false" returntype="query">
@@ -127,10 +127,10 @@
 						</cftry>
 						<!--- Add lucene query to tmp results --->
 						<cfquery dbtype="query" name="_tmp_results">
-						SELECT category, categorytree, rank, searchcount
+						SELECT category, categorytree, rank, searchcount, folder
 						FROM _tmp_results
 						UNION
-						SELECT category, categorytree, rank, searchcount
+						SELECT category, categorytree, rank, searchcount, folder
 						FROM _thisqry
 						ORDER BY rank
 						</cfquery>
@@ -142,6 +142,7 @@
 						<cfset _q.categorytree = categorytree>
 						<cfset _q.rank = rank>
 						<cfset _q.searchcount = _searchcount>
+						<cfset _q.folder = folder>
 						<!--- Add to query --->
 						<cfset queryaddrow(query=results, data=_q)>
 					</cfoutput>
@@ -214,8 +215,8 @@
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
 		<cfargument name="host_id" required="true" type="numeric">
-		<!--- 
-		 Decode URL encoding that is encoded using the encodeURIComponent javascript method. 
+		<!---
+		 Decode URL encoding that is encoded using the encodeURIComponent javascript method.
 		 Preserve the '+' sign during decoding as the URLDecode methode will remove it if present.
 		 Do not use escape(deprecated) or encodeURI (doesn't encode '+' sign) methods to encode. Use the encodeURIComponent javascript method only.
 		--->
@@ -276,7 +277,7 @@
 				<!--- The seach string --->
 				<cfset var _search_string = _search_fields & _the_custom_field>
 			</cfif>
-			
+
 			<!--- Set criteria --->
 			<cfset var criteria = _search_string />
 		</cfif>
@@ -299,27 +300,27 @@
 	<!--- Escapes lucene special characters in a given string --->
 	<cffunction name="_escapelucenechars" returntype="String" access="private" returntype="string">
 		<cfargument name="lucenestr" type="String" required="true">
-		<!--- 
+		<!---
 		The following lucene special characters will be escaped in searches
 		\ ! {} [] - && || ()
-		The following lucene special characters  will NOT be escaped as we want to allow users to use these in their search criterion 
+		The following lucene special characters  will NOT be escaped as we want to allow users to use these in their search criterion
 		+ " ~ * ? : ^
 		--->
 		<cfset lucenestr = replace(arguments.lucenestr,"\","\\","ALL")>
-		<cfset lucenestr = replace(lucenestr,"!","\!","ALL")>	
+		<cfset lucenestr = replace(lucenestr,"!","\!","ALL")>
 		<cfset lucenestr = replace(lucenestr,"{","\{","ALL")>
 		<cfset lucenestr = replace(lucenestr,"}","\}","ALL")>
 		<cfset lucenestr = replace(lucenestr,"[","\[","ALL")>
 		<cfset lucenestr = replace(lucenestr,"]","\]","ALL")>
 		<cfset lucenestr = replace(lucenestr,"-","\-","ALL")>
-		<cfset lucenestr = replace(lucenestr,"&&","\&&","ALL")>	
-		<cfset lucenestr = replace(lucenestr,"||","\||","ALL")>	
-		<cfset lucenestr = replace(lucenestr,"||","\||","ALL")>	
+		<cfset lucenestr = replace(lucenestr,"&&","\&&","ALL")>
+		<cfset lucenestr = replace(lucenestr,"||","\||","ALL")>
+		<cfset lucenestr = replace(lucenestr,"||","\||","ALL")>
 		<cfset lucenestr = replace(lucenestr,"(","\(","ALL")>
-		<cfset lucenestr = replace(lucenestr,")","\)","ALL")>		
-		<cfset lucenestr = replace(lucenestr,'"','','ALL')>		
+		<cfset lucenestr = replace(lucenestr,")","\)","ALL")>
+		<cfset lucenestr = replace(lucenestr,'"','','ALL')>
 		<!--- Return --->
-		<cfreturn lucenestr>	
+		<cfreturn lucenestr>
 	</cffunction>
 
 	<!--- Get all custom fields --->
