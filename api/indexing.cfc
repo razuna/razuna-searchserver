@@ -46,7 +46,7 @@
 		<!--- Update database and flush cache --->
 		<cfset _updateDb(qryfiles = _qryNew) />
 		<!--- Remove lock file --->
-		<cfset _removeLockFile(_qryNew) />			
+		<cfset _removeLockFile(_qryNew) />
 		<!--- If cloud based remove the temp doc storage
 		<cfif config.conf_storage EQ "amazon">
 			<cfset _removeTempDocStore(_qryNew) />
@@ -185,7 +185,7 @@
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
-	
+
 	<!--- Get all hosts --->
 	<cffunction name="_getHosts" access="private">
 		<cfargument name="prefix" required="true">
@@ -217,7 +217,7 @@
 				(
 					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> f.host_id as host_id, h.host_shard_group as prefix, f.file_id as file_id, 'doc' as category, 'F' as notfile
 					FROM #prefix#files f, hosts h
-					WHERE f.host_id = h.host_id		
+					WHERE f.host_id = h.host_id
 					AND f.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
 					AND f.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
 					AND f.is_available = <cfqueryparam CFSQLType="CF_SQL_VARCHAR" value="1">
@@ -231,7 +231,7 @@
 				(
 					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> v.host_id as host_id, h.host_shard_group as prefix, v.vid_id as file_id, 'vid' as category, 'T' as notfile
 					FROM #prefix#videos v, hosts h
-					WHERE v.host_id = h.host_id		
+					WHERE v.host_id = h.host_id
 					AND v.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
 					AND v.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
 					AND v.is_available = <cfqueryparam CFSQLType="CF_SQL_VARCHAR" value="1">
@@ -245,7 +245,7 @@
 				(
 					SELECT<cfif arguments.dbtype EQ "mssql"> TOP #howmany#</cfif> a.host_id as host_id, h.host_shard_group as prefix, a.aud_id as file_id, 'aud' as category, 'T' as notfile
 					FROM #prefix#audios a, hosts h
-					WHERE a.host_id = h.host_id		
+					WHERE a.host_id = h.host_id
 					AND a.is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
 					AND a.in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="F">
 					AND a.is_available = <cfqueryparam CFSQLType="CF_SQL_VARCHAR" value="1">
@@ -350,10 +350,10 @@
 		<cfset var thekeys = "">
 		<!--- Create the qoq_img --->
 		<cfset var qoq_img = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords,
-				theext, extension, rawmetadata, category, subjectcode, creator, title, authorsposition, captionwriter, ciadrextadr, xmp_category, 
-				supplementalcategories, urgency, ciadrcity, ciadrctry, location, ciadrpcode, ciemailwork, ciurlwork, citelwork, 
-				intellectualgenre, instructions, source, usageterms, copyrightstatus, transmissionreference, webstatement, headline, 
-				datecreated, city, ciadrregion, country, countrycode, scene, state, credit, rights, labels, 
+				theext, extension, rawmetadata, category, subjectcode, creator, title, authorsposition, captionwriter, ciadrextadr, xmp_category,
+				supplementalcategories, urgency, ciadrcity, ciadrctry, location, ciadrpcode, ciemailwork, ciurlwork, citelwork,
+				intellectualgenre, instructions, source, usageterms, copyrightstatus, transmissionreference, webstatement, headline,
+				datecreated, city, ciadrregion, country, countrycode, scene, state, credit, rights, labels,
 				customfieldvalue, folderpath, host_id, change_time, create_time, file_type, folder_alias") />
 		<!--- Create the qoq_vid --->
 		<cfset var qoq_vid = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category, theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type, folder_alias") />
@@ -361,7 +361,7 @@
 		<cfset var qoq_aud = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,	theext, labels, customfieldvalue, folderpath, host_id, change_time, create_time, file_type, folder_alias") />
 		<!--- Create the qoq_doc --->
 		<cfset var qoq_doc = queryNew("collection, id, folder, filename, filenameorg, link_kind, lucene_key, description, keywords, rawmetadata, thecategory, category,	theext, labels, customfieldvalue, folderpath, author, rights, authorsposition, captionwriter, webstatement, rightsmarked, thekey, host_id, change_time, create_time, file_type, is_file, folder_alias") />
-				
+
 		<!--- Loop over records --->
 		<cfloop query="arguments.qryfiles">
 			<!--- Log --->
@@ -396,7 +396,7 @@
 				<cfset var q = {
 					collection : qry_img.collection,
 					id : qry_img.id,
-					folder : qry_img.folder,  
+					folder : qry_img.folder,
 					filename : 	'#thefilename# #qry_img.filename#',
 					filenameorg : qry_img.filenameorg,
 					link_kind : qry_img.link_kind,
@@ -498,11 +498,11 @@
 					labels : '#labels_doc#',
 					customfieldvalue : cf_doc,
 					folderpath : '#folderpath_doc#',
-					author : qry_doc.author, 
-					rights : qry_doc.rights, 
-					authorsposition : qry_doc.authorsposition, 
-					captionwriter : qry_doc.captionwriter, 
-					webstatement : qry_doc.webstatement, 
+					author : qry_doc.author,
+					rights : qry_doc.rights,
+					authorsposition : qry_doc.authorsposition,
+					captionwriter : qry_doc.captionwriter,
+					webstatement : qry_doc.webstatement,
 					rightsmarked : qry_doc.rightsmarked,
 					host_id : '#host_id#',
 					create_time : dateformat(qry_doc.create_time, 'yyyymmdd'),
@@ -689,15 +689,15 @@
 		SELECT DISTINCT f.host_id collection, f.img_id id, f.folder_id_r folder, f.img_filename filename, f.img_filename_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, f.img_create_time as create_time, f.img_change_time as change_time,
 		f.img_extension theext, img_meta as rawmetadata, 'img' as category,
 		x.subjectcode, x.creator, x.title, x.authorsposition, x.captionwriter, x.ciadrextadr, x.category as xmp_category,
-		x.supplementalcategories, x.urgency, x.ciadrcity, 
+		x.supplementalcategories, x.urgency, x.ciadrcity,
 		x.ciadrctry, x.location, x.ciadrpcode, x.ciemailwork, x.ciurlwork, x.citelwork, x.intellectualgenre, x.instructions, x.source,
-		x.usageterms, x.copyrightstatus, x.transmissionreference, x.webstatement, x.headline, x.datecreated, x.city, x.ciadrregion, 
+		x.usageterms, x.copyrightstatus, x.transmissionreference, x.webstatement, x.headline, x.datecreated, x.city, x.ciadrregion,
 		x.country, x.countrycode, x.scene, x.state, x.credit, x.rights, f.img_group as groupid,
 		CASE
 			WHEN (f.img_group = '' OR f.img_group IS NULL) THEN 'original'
 	        ELSE 'rendition'
 		END as file_type
-		FROM #arguments.prefix#images f 
+		FROM #arguments.prefix#images f
 		LEFT JOIN #arguments.prefix#xmp x ON f.img_id = x.id_r AND x.asset_type = <cfqueryparam cfsqltype="cf_sql_varchar" value="img"> AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.img_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -784,11 +784,11 @@
 					<cfset QuerySetcell( _qryDocsFiles, "thekey", the_file ) />
 				<cfelse>
 					<!--- Set _qryDocsFiles to zero --->
-					<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = "0", notfile = notfile, storage = arguments.storage)>	
+					<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = "0", notfile = notfile, storage = arguments.storage)>
 				</cfif>
 				<cfcatch type="any">
 					<!--- Set _qryDocsFiles to zero --->
-					<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = "0", notfile = notfile, storage = arguments.storage)>	
+					<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = "0", notfile = notfile, storage = arguments.storage)>
 					<cfset consoleoutput(true)>
 					<cfset console("#now()# ---------------------- Error while indexing doc file #arguments.file_id#")>
 					<cfset console(cfcatch)>
@@ -813,7 +813,7 @@
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 	    SELECT DISTINCT f.host_id collection, f.file_id id, f.folder_id_r folder, f.file_name filename, f.file_name_org filenameorg, f.link_kind, f.lucene_key, '0' AS description, '0' AS keywords, 'doc' as category, f.file_meta as rawmetadata, 'doc' as thecategory, f.file_extension theext, x.author, x.rights, x.authorsposition, x.captionwriter, x.webstatement, x.rightsmarked, '0' as thekey, f.file_create_time as create_time, f.file_change_time as change_time,
 	    	'original' as file_type, 'false' as is_file
-		FROM #arguments.prefix#files f 
+		FROM #arguments.prefix#files f
 		LEFT JOIN #arguments.prefix#files_xmp x ON f.file_id = x.asset_id_r AND x.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
@@ -855,13 +855,13 @@
 		<cfset var qry_desc = "" >
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
-	    SELECT DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key, f.vid_create_time as create_time, f.vid_change_time as change_time, 
+	    SELECT DISTINCT f.host_id collection, f.vid_id id, f.folder_id_r folder, f.vid_filename filename, f.vid_name_org filenameorg, f.link_kind, f.lucene_key, f.vid_create_time as create_time, f.vid_change_time as change_time,
 	    '0' AS description, '0' AS keywords, vid_meta as rawmetadata, 'vid' as thecategory, f.vid_extension theext, 'vid' as category, f.vid_group as groupid,
 	    CASE
 	    	WHEN (f.vid_group = '' OR f.vid_group IS NULL) THEN 'original'
 	        ELSE 'rendition'
 	    END as file_type
-		FROM #arguments.prefix#videos f 
+		FROM #arguments.prefix#videos f
 		WHERE f.vid_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND f.is_available != <cfqueryparam cfsqltype="cf_sql_varchar" value="2">
@@ -969,8 +969,8 @@
 		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND v.cf_value != ''
 		AND v.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
-		AND v.cf_id_r = ft.cf_id_r 
-		AND v.host_id = ft.host_id 
+		AND v.cf_id_r = ft.cf_id_r
+		AND v.host_id = ft.host_id
 		AND ft.lang_id_r = 1
 		</cfquery> --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
@@ -979,8 +979,8 @@
 		WHERE v.asset_id_r = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND ( v.cf_value != '' OR v.cf_value IS NOT NULL )
 		AND v.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
-		AND v.cf_id_r = ft.cf_id_r 
-		AND v.host_id = ft.host_id 
+		AND v.cf_id_r = ft.cf_id_r
+		AND v.host_id = ft.host_id
 		AND ft.lang_id_r = 1
 		</cfquery>
 		<!--- Loop over records and put fields together --->
@@ -1096,36 +1096,36 @@
 						extension : "theext",
 						subjectcode : "subjectcode",
 						creator : "creator",
-						title : "title", 
-						authorsposition : "authorsposition", 
-						captionwriter : "captionwriter", 
-						ciadrextadr : "ciadrextadr", 
+						title : "title",
+						authorsposition : "authorsposition",
+						captionwriter : "captionwriter",
+						ciadrextadr : "ciadrextadr",
 						category : "xmp_category",
-						supplementalcategories : "supplementalcategories", 
+						supplementalcategories : "supplementalcategories",
 						urgency : "urgency",
-						ciadrcity : "ciadrcity", 
-						ciadrctry : "ciadrctry", 
-						location : "location", 
-						ciadrpcode : "ciadrpcode", 
-						ciemailwork : "ciemailwork", 
-						ciurlwork : "ciurlwork", 
-						citelwork : "citelwork", 
-						intellectualgenre : "intellectualgenre", 
-						instructions : "instructions", 
+						ciadrcity : "ciadrcity",
+						ciadrctry : "ciadrctry",
+						location : "location",
+						ciadrpcode : "ciadrpcode",
+						ciemailwork : "ciemailwork",
+						ciurlwork : "ciurlwork",
+						citelwork : "citelwork",
+						intellectualgenre : "intellectualgenre",
+						instructions : "instructions",
 						source : "source",
-						usageterms : "usageterms", 
-						copyrightstatus : "copyrightstatus", 
-						transmissionreference : "transmissionreference", 
-						webstatement : "webstatement", 
-						headline : "headline", 
-						datecreated : "datecreated", 
-						city : "city", 
-						ciadrregion : "ciadrregion", 
-						country : "country", 
-						countrycode : "countrycode", 
-						scene : "scene", 
-						state : "state", 
-						credit : "credit", 
+						usageterms : "usageterms",
+						copyrightstatus : "copyrightstatus",
+						transmissionreference : "transmissionreference",
+						webstatement : "webstatement",
+						headline : "headline",
+						datecreated : "datecreated",
+						city : "city",
+						ciadrregion : "ciadrregion",
+						country : "country",
+						countrycode : "countrycode",
+						scene : "scene",
+						state : "state",
+						credit : "credit",
 						rights : "rights",
 						labels : "labels",
 						customfieldvalue : "customfieldvalue",
@@ -1199,9 +1199,9 @@
 						extension : "theext",
 						author : "author",
 						rights : "rights",
-						authorsposition : "authorsposition", 
-						captionwriter : "captionwriter", 
-						webstatement : "webstatement", 
+						authorsposition : "authorsposition",
+						captionwriter : "captionwriter",
+						webstatement : "webstatement",
 						rightsmarked : "rightsmarked",
 						labels : "labels",
 						customfieldvalue : "customfieldvalue",
@@ -1429,35 +1429,35 @@
 				SELECT id, type, host_id
 				FROM lucene
 				WHERE host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-				
+
 				UNION ALL
 				SELECT img_id as id, 'img' as type, host_id
 				FROM raz1_images
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-				
+
 				UNION ALL
 				SELECT vid_id as id, 'vid' as type, host_id
 				FROM raz1_videos
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-				
+
 				UNION ALL
 				SELECT aud_id as id, 'aud' as type, host_id
 				FROM raz1_audios
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-				
+
 				UNION ALL
 				SELECT file_id as id, 'doc' as type, host_id
 				FROM raz1_files
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-				
+
 				<cfif Listfindnocase(arguments.prefix,"raz2_") NEQ 0>
 					UNION ALL
 					SELECT img_id as id, 'img' as type, host_id
@@ -1465,28 +1465,28 @@
 					WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 					AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 					AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-					
+
 					UNION ALL
 					SELECT vid_id as id, 'vid' as type, host_id
 					FROM raz2_videos
 					WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 					AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 					AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-					
+
 					UNION ALL
 					SELECT aud_id as id, 'aud' as type, host_id
 					FROM raz2_audios
 					WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 					AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 					AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-					
+
 					UNION ALL
 					SELECT file_id as id, 'doc' as type, host_id
 					FROM raz2_files
 					WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="t">
 					AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
 					AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
-					
+
 				</cfif>
 				</cfquery>
 			</cfloop>

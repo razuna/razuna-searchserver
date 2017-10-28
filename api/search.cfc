@@ -38,6 +38,7 @@
 		<cfargument name="search_rendition" required="true" type="string">
 		<!--- Log --->
 		<cfset consoleoutput(true)>
+		<!--- <cfset console(arguments)> --->
 		<cfset console("#now()# ---------------------- Starting Search")>
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
@@ -143,6 +144,7 @@
 						<cfset _q.rank = rank>
 						<cfset _q.searchcount = _searchcount>
 						<cfset _q.folder = folder>
+						<!--- <cfset _q.full_id = categorytree & '-' & category> --->
 						<!--- Add to query --->
 						<cfset queryaddrow(query=results, data=_q)>
 					</cfoutput>
@@ -199,12 +201,12 @@
 		<!--- Only return the columns we need from Lucene --->
 		<cfif results.recordcount NEQ 0>
 			<cfquery dbtype="query" name="results">
-			SELECT category, categorytree, rank, searchcount, folder
+			SELECT category, categorytree, rank, searchcount, folder, categorytree + '-' + category as full_id
 			FROM results
 			</cfquery>
 		</cfif>
 		<!--- <cfset console(results)> --->
-		<cfset console("#now()# ---------------------- SEARCH DONE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
+		<cfset console("#now()# ---------------------- SEARCH DONE: #results.recordcount# records found  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<!--- Return --->
 		<cfreturn results>
 	</cffunction>
