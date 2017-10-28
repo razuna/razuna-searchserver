@@ -7,7 +7,7 @@
     <assert>false</assert>
     <missingtemplatehandler></missingtemplatehandler>
     <tempdirectory>/WEB-INF/bluedragon/work/temp</tempdirectory>
-    <lastfile>/Users/nitai/Documents/workspace/razuna-task-server/WEB-INF/bluedragon/bluedragon.xml.bak.1</lastfile>
+    <lastfile>C:\Users\nitai\repos\razuna-searchserver\WEB-INF\bluedragon\bluedragon.xml.bak.1</lastfile>
     <runtimelogging>true</runtimelogging>
     <deniedips></deniedips>
     <defaultcharset>UTF-8</defaultcharset>
@@ -23,7 +23,7 @@
     <nativelibdir>/WEB-INF/bin</nativelibdir>
     <errorhandler></errorhandler>
     <functionscopedvariables>true</functionscopedvariables>
-    <lastupdated>03/Apr/2015 15:38.27</lastupdated>
+    <lastupdated>27/Oct/2017 20:01.03</lastupdated>
     <whitespacecomp>true</whitespacecomp>
     <allowedips></allowedips>
   </system>
@@ -31,6 +31,57 @@
     <maxfiles>1000</maxfiles>
     <trustcache>false</trustcache>
   </file>
+  <cfcollection>
+    <collection name="5">
+      <storebody>false</storebody>
+      <name>5</name>
+      <relative>true</relative>
+      <path>/WEB-INF/collections/5</path>
+      <language>english</language>
+    </collection>
+    <collection name="6">
+      <storebody>false</storebody>
+      <name>6</name>
+      <relative>true</relative>
+      <path>/WEB-INF/collections/6</path>
+      <language>english</language>
+    </collection>
+    <collection name="1">
+      <storebody>false</storebody>
+      <name>1</name>
+      <relative>true</relative>
+      <path>/WEB-INF/collections/1</path>
+      <language>english</language>
+    </collection>
+    <collection name="7">
+      <storebody>false</storebody>
+      <name>7</name>
+      <relative>true</relative>
+      <path>/WEB-INF/collections/7</path>
+      <language>english</language>
+    </collection>
+    <collection name="2">
+      <storebody>false</storebody>
+      <name>2</name>
+      <relative>true</relative>
+      <path>/WEB-INF/collections/2</path>
+      <language>english</language>
+    </collection>
+    <collection name="8">
+      <storebody>false</storebody>
+      <name>8</name>
+      <relative>true</relative>
+      <path>/WEB-INF/collections/8</path>
+      <language>english</language>
+    </collection>
+    <collection name="3">
+      <storebody>false</storebody>
+      <name>3</name>
+      <relative>true</relative>
+      <path>/WEB-INF/collections/3</path>
+      <language>english</language>
+    </collection>
+  </cfcollection>
   <javacustomtags>
     <classes>/WEB-INF/classes</classes>
     <mapping name="cfx_javabluedragonhello">
@@ -58,6 +109,30 @@
     <dirs>C:\Windows\Fonts</dirs>
   </fonts>
   <cfquery>
+    <datasource name="razuna_server">
+      <displayname>razuna_server</displayname>
+      <password>E5SRlRiIltYdnpY=</password>
+      <connectionretries>0</connectionretries>
+      <sqldelete>true</sqldelete>
+      <sqlupdate>true</sqlupdate>
+      <username>root</username>
+      <drivername>com.mysql.jdbc.Driver</drivername>
+      <sqlstoredprocedures>true</sqlstoredprocedures>
+      <perrequestconnections>false</perrequestconnections>
+      <sqlinsert>true</sqlinsert>
+      <sqlselect>true</sqlselect>
+      <connectiontimeout>120</connectiontimeout>
+      <port>3306</port>
+      <server>127.0.0.1</server>
+      <databasename>razuna</databasename>
+      <description></description>
+      <connectstring>zeroDateTimeBehavior=convertToNull</connectstring>
+      <logintimeout>120</logintimeout>
+      <initstring></initstring>
+      <hoststring>jdbc:mysql://127.0.0.1:3306/razuna?cacheResultSetMetadata=false&amp;autoReconnect=true&amp;useEncoding=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull</hoststring>
+      <maxconnections>3</maxconnections>
+      <name>razuna_server</name>
+    </datasource>
     <cache>true</cache>
     <cachecount>1000</cachecount>
     <slowlog>-1</slowlog>
@@ -181,8 +256,8 @@
     <clientstorage>cookie</clientstorage>
   </cfapplication>
   <openbdadminapi>
-    <version>2.0</version>
-    <lastupdated>03/Apr/2015 15:19:37</lastupdated>
+    <version>1.3</version>
+    <lastupdated>27/Oct/2017 14:47:33</lastupdated>
   </openbdadminapi>
   <cfmail>
     <usetls>false</usetls>
