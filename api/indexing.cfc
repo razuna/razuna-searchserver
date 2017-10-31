@@ -106,6 +106,8 @@
 	<cffunction name="_lockFile" access="private" returntype="query">
 		<cfargument name="qry" required="true" type="query">
 		<cfargument name="type" required="true" type="string">
+		<!--- Enable Log --->
+		<cfset consoleoutput(true)>
 		<!--- Indexing --->
 		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qry.host_id)) />
 		<!--- Put query into var --->
