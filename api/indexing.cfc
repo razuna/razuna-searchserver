@@ -65,10 +65,10 @@
 		<cfset console("#now()# ---------------------- Starting removal")>
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
-		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
-		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles, 'remove') />
 		<!--- Grab hosts --->
-		<!--- <cfset var _qryHosts = _qryHosts()> --->
+		<cfset var _qryHosts = _qryHosts()>
+		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
+		<cfset var _qryNew = _lockFile(_qryHosts, 'remove') />
 		<!--- Grab records to remove --->
 		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix, dbtype=config.conf_db_type, qryhosts=_qryNew)>
 		<!--- Remove records in Lucene --->
