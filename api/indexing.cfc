@@ -36,7 +36,7 @@
 		<!--- Get all hosts to index. This will abort if nothing found. --->
 		<cfset var qryAllHostsAndFiles = _getHosts(prefix=config.conf_db_prefix, dbtype=config.conf_db_type) />
 		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
-		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles) />
+		<cfset var _qryNew = _lockFile(qryAllHostsAndFiles, 'index') />
 		<!--- Download doc files if cloud based --->
 		<!--- <cfif config.conf_storage EQ "amazon">
 			<cfset _getFilesInCloud(_qryNew) />
@@ -46,7 +46,7 @@
 		<!--- Update database and flush cache --->
 		<cfset _updateDb(qryfiles = _qryNew) />
 		<!--- Remove lock file --->
-		<cfset _removeLockFile(_qryNew) />
+		<cfset _removeLockFile(_qryNew, 'index') />
 		<!--- If cloud based remove the temp doc storage
 		<cfif config.conf_storage EQ "amazon">
 			<cfset _removeTempDocStore(_qryNew) />
@@ -67,12 +67,16 @@
 		<cfset var config = getConfig()>
 		<!--- Grab hosts --->
 		<cfset var _qryHosts = _qryHosts()>
+		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
+		<cfset var _qryNew = _lockFile(_qryHosts, 'remove') />
 		<!--- Grab records to remove --->
-		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix, dbtype=config.conf_db_type, qryhosts=_qryHosts)>
+		<cfset var _qryRecords = _qryRemoveRecords(prefix=config.conf_db_prefix, dbtype=config.conf_db_type, qryhosts=_qryNew)>
 		<!--- Remove records in Lucene --->
 		<cfset _removeFromIndex(qryrecords=_qryRecords,prefix=config.conf_db_prefix)>
 		<!--- All done remove records in database --->
 		<cfset _removeFromDatabase(_qryRecords)>
+		<!--- Remove lock file --->
+		<cfset _removeLockFile(_qryNew, 'remove') />
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Finished removal")>
 		<!--- Return --->
@@ -101,6 +105,9 @@
 	<!--- lock File --->
 	<cffunction name="_lockFile" access="private" returntype="query">
 		<cfargument name="qry" required="true" type="query">
+		<cfargument name="type" required="true" type="string">
+		<!--- Enable Log --->
+		<cfset consoleoutput(true)>
 		<!--- Indexing --->
 		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qry.host_id)) />
 		<!--- Put query into var --->
@@ -110,7 +117,7 @@
 			<!--- Log --->
 			<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
 			<!--- Name of lock file --->
-			<cfset var lockfile = "lucene_#host_id#.lock">
+			<cfset var lockfile = "lucene_#host_id#_#arguments.type#.lock">
 			<!--- Check if lucene.lock file exists and a) If it is older than a day then delete it or b) if not older than a day them abort as its probably running from a previous call --->
 			<cfset var lockfilepath = "#GetTempDirectory()#/#lockfile#">
 			<cfset var lockfiledelerr = false>
@@ -161,6 +168,7 @@
 	<!--- Remove lock file --->
 	<cffunction name="_removeLockFile" access="private">
 		<cfargument name="qry_remove_lock" required="true" type="query">
+		<cfargument name="type" required="true" type="string">
 		<!--- Param --->
 		<cfset var host_id = "">
 		<!--- Valuelist hosts --->
@@ -171,7 +179,7 @@
 				<!--- Log --->
 				<cfset console("#now()# ---------------------- Removing lock file of Host: #host_id#")>
 				<!--- Name of lock file --->
-				<cfset var lockfile = "lucene_#host_id#.lock">
+				<cfset var lockfile = "lucene_#host_id#_#arguments.type#.lock">
 				<!--- Action --->
 				<cfif fileExists("#GetTempDirectory()#/#lockfile#")>
 					<cffile action="delete" file="#GetTempDirectory()#/#lockfile#" />
