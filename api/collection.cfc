@@ -59,21 +59,21 @@
 	<cffunction name="createCollections" access="public" output="false">
 		<!--- Log --->
 		<cfset consoleoutput(true)>
-		<cfset console("#now()# ---------------------- Creating new collections")>
+		<!--- <cfset console("#now()# ---------------------- Creating new collections")> --->
 		<!--- Grab all hosts --->
 		<cfset var _qry_hosts = _qryHosts()>
 		<!--- Loop over hosts --->
 		<cfloop query="_qry_hosts">
 			<!---Create Collection --->
 			<cftry>
-				<cfset console("#now()# ---------------------- CHECKING collection for Host #host_id#")>
+				<!--- <cfset console("#now()# ---------------------- CHECKING collection for Host #host_id#")> --->
 				<!--- Create --->
 				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
 				<cfset console("#now()# ---------------------- CREATED collection for Host #host_id#")>
 				<cfcatch type="any">
 					<cfif cfcatch.message CONTAINS "already exists">
 						<!--- Log --->
-						<cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")>
+						<!--- <cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")> --->
 					<cfelse>
 						<!--- Log --->
 						<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
@@ -117,7 +117,7 @@
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- CHECKING that collection exists for Host #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- CHECKING that collection exists for Host #arguments.hostid#")> --->
 		<!--- We simply create a collection and let it throw an error --->
 		<cftry>
 			<!--- Create --->
@@ -137,8 +137,6 @@
 
 	<!--- PRIVATE --->
 
-
-	
 
 	<!--- Check for Collection --->
 	<cffunction name="_createCollection" access="private" output="false">
