@@ -36,6 +36,7 @@
 		<cfargument name="folderid" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
+		<cfargument name="search_upc" required="false" type="boolean" default="false">
 		<!--- Log --->
 		<cfset consoleoutput(true)>
 		<!--- <cfset console(arguments)> --->
@@ -56,6 +57,7 @@
 			<cfinvokeargument name="folderid" value="#arguments.folderid#" />
 			<cfinvokeargument name="search_type" value="#arguments.search_type#" />
 			<cfinvokeargument name="search_rendition" value="#arguments.search_rendition#" />
+			<cfinvokeargument name="search_upc" value="#arguments.search_upc#" />
 		</cfinvoke>
 		<!--- Return --->
 		<cfreturn r />
@@ -79,6 +81,7 @@
 		<cfargument name="folderid" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
+		<cfargument name="search_upc" required="false" type="boolean" default="false">
 		<!--- Param --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<cfset var folderlist = "" />
@@ -160,11 +163,11 @@
 						<cfset var _criteria = "( #_criteria# ) AND ( #folderlist# )" />
 					</cfif>
 					<!--- Call internal function --->
-					<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
+					<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows, search_upc=arguments.search_upc)>
 				</cfif>
 			<cfelse>
 				<!--- Call internal function --->
-				<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows)>
+				<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows, search_upc=arguments.search_upc)>
 			</cfif>
 			<cfcatch type="any">
 				<cfset consoleoutput(true)>
@@ -185,17 +188,21 @@
 		<cfargument name="category" required="true" type="string">
 		<cfargument name="startrow" required="true" type="string">
 		<cfargument name="maxrows" required="true" type="string">
+		<cfargument name="search_upc" required="true" type="boolean">
 		<!--- Var --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<!--- Log --->
-		<cfset consoleoutput(true)>
+		<cfset consoleoutput(true, true)>
+		<!--- <cfset console("ARGUMENTS SEARCH UPC : ", arguments.search_upc)> --->
 		<cfset console("#now()# ---------------------- SEARCH STARTING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<cfset console("SEARCH WITH: #arguments.criteria#")>
+		<!--- FOR UPC --->
+		<cfset var _leadingWildcard = arguments.search_upc ? true : false>
 		<!--- Search in Lucene --->
 		<cfif arguments.maxrows NEQ 0>
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#">
 		<cfelse>
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" uniquecolumn="categorytree">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#">
 		</cfif>
 		<!--- <cfset console(results)> --->
 		<!--- Only return the columns we need from Lucene --->
