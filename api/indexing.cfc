@@ -204,7 +204,7 @@
 		<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
 		<!--- Var --->
 		<cfset var qry = "" />
-		<cfset var howmany = 5000 />
+		<cfset var howmany = 2000 />
 		<!--- Loop over prefix --->
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<cftry>
