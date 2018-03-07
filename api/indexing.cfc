@@ -922,7 +922,7 @@
 		<!--- Query Record --->
 		<cfquery name="qry" datasource="#application.razuna.datasource#">
 		SELECT DISTINCT a.host_id collection, a.aud_id id, a.folder_id_r folder, a.aud_name filename, a.aud_name_org filenameorg, a.link_kind, a.lucene_key, a.aud_create_time as create_time, a.aud_change_time as change_time,
-		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category, a.aud_group as groupid, f.aud_upc_number as upc,
+		'0' AS description, '0' AS keywords, a.aud_meta as rawmetadata, 'aud' as thecategory, a.aud_extension theext, 'aud' as category, a.aud_group as groupid, a.aud_upc_number as upc,
 		CASE
 			WHEN (a.aud_group = '' OR a.aud_group IS NULL) THEN 'original'
 	        ELSE 'rendition'
