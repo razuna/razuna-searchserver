@@ -121,7 +121,7 @@
 							<cfset "variables.criteria_#n#" = "( #_criteria# ) AND ( " & variables["folderlist_" & n] & " )" />
 						</cfif>
 						<!--- Call internal function. Search all records --->
-						<cfset "variables.results_#n#" = _embeddedSearch(collection=arguments.collection, criteria=variables["criteria_" & n], category=arguments.arg_category, startrow=0, maxrows=0)>
+						<cfset "variables.results_#n#" = _embeddedSearch(collection=arguments.collection, criteria=variables["criteria_" & n], category=arguments.arg_category, startrow=0, maxrows=0, search_upc=arguments.search_upc)>
 						<!--- Set result in variable as QoQ can't handle complex variables --->
 						<cfset var _thisqry = variables["results_" & n]>
 						<!--- Add up the searchcount --->
