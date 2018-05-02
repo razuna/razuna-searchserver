@@ -36,7 +36,7 @@
 		<cfargument name="folderid" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
-		<cfargument name="search_upc" required="false" type="boolean" default="false">
+		<cfargument name="search_upc" required="false" type="string" default="false">
 		<!--- Log --->
 		<cfset consoleoutput(true)>
 		<!--- <cfset console(arguments)> --->
@@ -81,7 +81,7 @@
 		<cfargument name="folderid" required="true" type="string">
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
-		<cfargument name="search_upc" required="false" type="boolean" default="false">
+		<cfargument name="search_upc" required="false" type="string" default="false">
 		<!--- Param --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<cfset var folderlist = "" />
@@ -188,7 +188,7 @@
 		<cfargument name="category" required="true" type="string">
 		<cfargument name="startrow" required="true" type="string">
 		<cfargument name="maxrows" required="true" type="string">
-		<cfargument name="search_upc" required="true" type="boolean">
+		<cfargument name="search_upc" required="true" type="string">
 		<!--- Var --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<!--- Log --->
@@ -197,7 +197,7 @@
 		<cfset console("#now()# ---------------------- SEARCH STARTING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<cfset console("SEARCH WITH: #arguments.criteria#")>
 		<!--- FOR UPC --->
-		<cfset var _leadingWildcard = arguments.search_upc ? true : false>
+		<cfset var _leadingWildcard = arguments.search_upc EQ "true" ? true : false>
 		<!--- Search in Lucene --->
 		<cfif arguments.maxrows NEQ 0>
 			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#">
