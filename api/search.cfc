@@ -188,7 +188,7 @@
 		<cfargument name="category" required="true" type="string">
 		<cfargument name="startrow" required="true" type="string">
 		<cfargument name="maxrows" required="true" type="string">
-		<cfargument name="search_upc" required="true" type="string">
+		<cfargument name="search_upc" required="false" type="string">
 		<!--- Var --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<!--- Log --->
