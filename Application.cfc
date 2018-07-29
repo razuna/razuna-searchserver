@@ -27,12 +27,15 @@
 
 	<!--- Application Settings --->
 	<cffunction name="onApplicationStart" returnType="boolean" output="false">
-		
 		<!--- Set datasource --->
 		<cfset application.razuna.datasource = "razuna_server">
-
 		<!--- Return --->
 		<cfreturn true>
 	</cffunction>
-	
+
+	<!--- On Request start --->
+	<cffunction name="OnRequestStart" access="public" output="false">
+		<cfset consoleoutput(false)>
+	</cffunction>
+
 </cfcomponent>

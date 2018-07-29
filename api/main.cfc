@@ -5,7 +5,6 @@
 	<!--- Run indexing --->
 	<cffunction name="index" output="false" access="public">
 		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<cfset console("#now()# --- Executing Indexing from Cron")>
 		<!--- Call Indexing --->
 		<cfinvoke component="indexing" method="indexFiles" />
@@ -15,7 +14,6 @@
 	<!--- Run Deleting --->
 	<cffunction name="remove" output="false" access="public">
 		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<cfset console("#now()# --- Executing Remove from Cron")>
 		<!--- Call Indexing --->
 		<cfinvoke component="indexing" method="removeFiles" />
@@ -25,7 +23,6 @@
 	<!--- Run Update --->
 	<cffunction name="update" output="false" access="public">
 		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<cfset console("#now()# --- Executing Update from Cron")>
 		<!--- Call Indexing --->
 		<cfinvoke component="indexing" method="updateIndex" />

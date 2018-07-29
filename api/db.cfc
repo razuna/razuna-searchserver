@@ -36,7 +36,6 @@
 		<cfargument name="db_pass" required="true" type="string">
 		<cfargument name="db_path" required="true" type="string">
 		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<cfset console("#now()# ---------------------- Adding DB connection")>
 		<!--- Check login --->
 		<!--- <cfset auth(arguments.secret)> --->
@@ -50,6 +49,9 @@
 		<cfif !_result.success>
 			<cfset r.success = false>
 			<cfset r.error = _result.error>
+			<cfset consoleoutput(true)>
+			<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+			<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 		</cfif>
 		<!--- Return --->
 		<cfreturn r />
@@ -100,7 +102,6 @@
 			<cfset thedrivername = "net.sourceforge.jtds.jdbc.Driver">
 		</cfif>
 		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<cfset console("#now()# ---------------------- Inserting into config")>
 		<!--- Set the datasource --->
 		<cftry>
@@ -123,6 +124,9 @@
 			<cfcatch type="any">
 				<cfset status.success = false>
 				<cfset status.error = cfcatch>
+				<cfset consoleoutput(true)>
+				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 			</cfcatch>
 		</cftry>
 		<!--- Return --->

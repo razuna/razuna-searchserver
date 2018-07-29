@@ -48,7 +48,6 @@
 		</cfif>
 		<cfif !login>
 			<!--- Log --->
-			<cfset consoleoutput(true)>
 			<cfset console("#now()# ---------------------- Secret key is not valid! Aborting...")>
 			<cfabort>
 		</cfif>
@@ -80,7 +79,6 @@
 			<!--- Return --->
 			<cfreturn s />
 			<cfcatch type="any">
-				<cfset consoleoutput(true)>
 				<cfset console("#now()# ---------------------- Config Error. Aborting... !!!!!!!!!!!!!!!!!!!!!!!!!")>
 				<cfset console(cfcatch)>
 				<cfabort>
@@ -241,7 +239,6 @@
 	<cffunction name="_getSecretRemote" access="private" output="false" returntype="string">
 		<!--- Query --->
 		<cftry>
-			<cfset consoleoutput(true)>
 			<cfset console("#now()# ---------------------- Fetching remote secret key")>
 			<!--- Param --->
 			<cfset var qry = "">
