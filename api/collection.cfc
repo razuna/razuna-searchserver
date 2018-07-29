@@ -32,7 +32,6 @@
 		<cfargument name="hostid" required="true" type="string">
 		<cfargument name="secret" required="true" type="string">
 		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<cfset console("#now()# ---------------------- Removing Collection for rebuild")>
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
@@ -58,7 +57,6 @@
 	<!--- This is being called from create collection cron job --->
 	<cffunction name="createCollections" access="public" output="false">
 		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<!--- <cfset console("#now()# ---------------------- Creating new collections")> --->
 		<!--- Grab all hosts --->
 		<cfset var _qry_hosts = _qryHosts()>
@@ -99,6 +97,7 @@
 							<cfpause interval="10" />
 							<cfcatch type="any">
 								<!--- Log --->
+								<cfset consoleoutput(true)>
 								<cfset console("#now()# ---------------------- STILL AN ERROR ------------------")>
 								<cfset console("#now()# ---------------------- #cfcatch.message#")>
 							</cfcatch>
@@ -127,6 +126,7 @@
 			<!--- On error --->
 			<cfcatch type="any">
 				<!--- Log --->
+				<cfset consoleoutput(true)>
 				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
 				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 			</cfcatch>
@@ -162,6 +162,9 @@
 			<cfcatch type="any">
 				<cfset r.success = false>
 				<cfset r.error = cfcatch.message>
+				<cfset consoleoutput(true)>
+				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 			</cfcatch>
 		</cftry>
 		<!--- Return --->

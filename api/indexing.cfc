@@ -27,8 +27,6 @@
 
 	<!--- Index Files --->
 	<cffunction name="indexFiles" access="public" output="false">
-		<!--- Enable Log --->
-		<cfset consoleoutput(true)>
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
 		<!--- Log --->
@@ -59,8 +57,6 @@
 
 	<!--- Index Files --->
 	<cffunction name="removeFiles" access="public" output="false">
-		<!--- Enable Log --->
-		<cfset consoleoutput(true)>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting removal")>
 		<!--- Get Config --->
@@ -87,8 +83,6 @@
 
 	<!--- Update Index --->
 	<cffunction name="updateIndex" access="public" output="false">
-		<!--- Enable Log --->
-		<cfset consoleoutput(true)>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Starting update")>
 		<!--- Grab hosts --->
@@ -108,8 +102,6 @@
 	<cffunction name="_lockFile" access="private" returntype="query">
 		<cfargument name="qry" required="true" type="query">
 		<cfargument name="type" required="true" type="string">
-		<!--- Enable Log --->
-		<cfset consoleoutput(true)>
 		<!--- Indexing --->
 		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qry.host_id)) />
 		<!--- Put query into var --->
@@ -204,7 +196,7 @@
 		<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
 		<!--- Var --->
 		<cfset var qry = "" />
-		<cfset var howmany = 2000 />
+		<cfset var howmany = 5000 />
 		<!--- Loop over prefix --->
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<cftry>
@@ -465,7 +457,7 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_img, data = q) />
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
 			<!--- Docs --->
 			<cfelseif category EQ "doc">
 				<!--- Query --->
@@ -548,7 +540,7 @@
 					<cfset QueryAddrow(query = qoq_doc, data = q2) />
 				</cfif>
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
 			<!--- Videos --->
 			<cfelseif category EQ "vid">
 				<!--- Query --->
@@ -605,7 +597,7 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_vid, data = q) />
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
 			<!--- Audios --->
 			<cfelseif category EQ "aud">
 				<!--- Query --->
@@ -662,7 +654,7 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_aud, data = q) />
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
 			</cfif>
 			<cfset var q = "">
 			<cfset var thedesc_1 = "">
@@ -702,7 +694,7 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting Image: #arguments.file_id# for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting Image: #arguments.file_id# for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
@@ -754,7 +746,7 @@
 		<cfargument name="notfile" required="true" type="string">
 		<cfargument name="storage" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting Document: #arguments.file_id# for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting Document: #arguments.file_id# for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var _qry = "" >
 		<!--- Get files query --->
@@ -773,7 +765,7 @@
 		<cfargument name="notfile" required="true" type="string">
 		<cfargument name="storage" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting FILE Document: #arguments.file_id# for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting FILE Document: #arguments.file_id# for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var _qryDocsFiles = "" >
 		<!--- Param --->
@@ -871,7 +863,7 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting Video: #arguments.file_id# for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting Video: #arguments.file_id# for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
@@ -915,7 +907,7 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting Audio: #arguments.file_id# for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting Audio: #arguments.file_id# for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
@@ -960,12 +952,12 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="folder" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting FolderPath: #arguments.folder# for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting FolderPath: #arguments.folder# for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var folderpath = "" >
 		<!--- Get folder path --->
 		<cfset var qry_bc = _getbreadcrumb(folder_id_r = arguments.folder, prefix = arguments.prefix, hostid = arguments.hostid ) />
-		<cfloop list="#qry_bc#" delimiters=";" index="p">
+		<cfloop list="#qry_bc#" delimiters=";," index="p">
 			<cfset folderpath = folderpath & "/" & listFirst(p, "|")>
 		</cfloop>
 		<!--- Return --->
@@ -980,7 +972,7 @@
 		<cfargument name="thedatabase" required="true" type="string">
 		<cfargument name="category" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var _values = "" >
@@ -1008,7 +1000,7 @@
 		<!--- Loop over records and put fields together --->
 		<cfloop query="qry">
 			<cfset _id = replace(cf_id_r, '-', '', 'ALL')>
-			<cfloop list="#cf_value#" delimiters=" " index="value">
+			<cfloop list="#cf_value#" delimiters=" ;," index="value">
 				<cfset _values = _values & "#_id##value# ">
 			</cfloop>
 		</cfloop>
@@ -1026,7 +1018,7 @@
 		<cfargument name="category" required="true" type="string">
 		<cfargument name="groupid" required="false" default="" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting Labels: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
+		<!--- <cfset console("#now()# ---------------------- Getting Labels: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")> --->
 		<!--- Param --->
 		<cfset var qry = "" >
 		<!--- Get the labels of the original record if there is a group value --->
@@ -1060,7 +1052,7 @@
 		<cfargument name="file_id" required="true" type="string">
 		<cfargument name="type" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Getting Aliases for file id: #arguments.file_id#")>
+		<!--- <cfset console("#now()# ---------------------- Getting Aliases for file id: #arguments.file_id#")> --->
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var list = "" >
@@ -1076,7 +1068,7 @@
 			<!--- Add labels to a list --->
 			<cfset var list = valuelist(qry.folder_id_r," ")>
 		</cfif>
-		<cfset console('ALIASES FOLDER LIST : #list#')>
+		<!--- <cfset console('ALIASES FOLDER LIST : #list#')> --->
 		<!--- Return --->
 		<cfreturn list />
 	</cffunction>
@@ -1421,7 +1413,7 @@
 				<cfset var theid = "file_id" />
 			</cfif>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Updating #file_id# (#db#) record for Host #host_id#")>
+			<!--- <cfset console("#now()# ---------------------- Updating #file_id# (#db#) record for Host #host_id#")> --->
 			<!--- Update database --->
 			<cfquery datasource="#application.razuna.datasource#">
 			UPDATE #prefix##db#
@@ -1452,7 +1444,7 @@
 		<cfargument name="qryHosts" required="true">
 		<cftry>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Fetching records to remove from index")>
+			<!--- <cfset console("#now()# ---------------------- Fetching records to remove from index")> --->
 			<!--- Param --->
 			<cfset var qry = "">
 			<cfset var howmany = 1000 />

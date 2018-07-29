@@ -37,8 +37,6 @@
 		<cfargument name="search_type" required="true" type="string">
 		<cfargument name="search_rendition" required="true" type="string">
 		<cfargument name="search_upc" required="false" type="string" default="false">
-		<!--- Log --->
-		<cfset consoleoutput(true)>
 		<!--- <cfset console(arguments)> --->
 		<cfset console("#now()# ---------------------- Starting Search")>
 		<!--- Check login --->
@@ -191,8 +189,6 @@
 		<cfargument name="search_upc" required="false" type="string">
 		<!--- Var --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
-		<!--- Log --->
-		<cfset consoleoutput(true, true)>
 		<!--- <cfset console("ARGUMENTS SEARCH UPC : ", arguments.search_upc)> --->
 		<cfset console("#now()# ---------------------- SEARCH STARTING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<cfset console("SEARCH WITH: #arguments.criteria#")>
@@ -230,7 +226,6 @@
 		 Do not use escape(deprecated) or encodeURI (doesn't encode '+' sign) methods to encode. Use the encodeURIComponent javascript method only.
 		--->
 		<!--- Params --->
-		<cfset consoleoutput(true)>
 		<cfset var _del = " OR ">
 		<cfset var _space = 0>
 		<cfset var _count = 0>

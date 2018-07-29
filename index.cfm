@@ -1,4 +1,4 @@
-<h1>Razuna Index - Search - Server - v2.7</h1>
+<h1>Razuna Index - Search - Server - v2.8</h1>
 <h2>Nothing here for you to do!</h2>
 
 <cfabort>
