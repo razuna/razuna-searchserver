@@ -35,6 +35,7 @@
 		<cfargument name="db_user" required="true" type="string">
 		<cfargument name="db_pass" required="true" type="string">
 		<cfargument name="db_path" required="true" type="string">
+		<cfset consoleoutput(true)>
 		<!--- Log --->
 		<cfset console("#now()# ---------------------- Adding DB connection")>
 		<!--- Check login --->
@@ -74,6 +75,7 @@
 		<cfargument name="db_user" required="true" type="string">
 		<cfargument name="db_pass" required="true" type="string">
 		<cfargument name="db_path" required="true" type="string">
+		<cfset consoleoutput(true)>
 		<!--- Name of this connection --->
 		<cfset var datasource_name = "razuna_server">
 		<!--- Delete the current connection first --->
