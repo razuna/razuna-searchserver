@@ -99,7 +99,7 @@
 			<cfset theconnectstring = "AUTO_RECONNECT=TRUE;AUTO_SERVER=TRUE">
 		<cfelseif arguments.db_type EQ "mysql">
 			<cfset thedrivername = "com.mysql.jdbc.Driver">
-			<cfset theconnectstring = "zeroDateTimeBehavior=convertToNull&useSSL=false">
+			<cfset theconnectstring = "zeroDateTimeBehavior=convertToNull&useSSL=false&dontTrackOpenResources=true&autoReconnectForPools=true&cacheCallableStmts=true">
 		<cfelseif arguments.db_type EQ "mssql">
 			<cfset thedrivername = "net.sourceforge.jtds.jdbc.Driver">
 		</cfif>
