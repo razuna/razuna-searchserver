@@ -2,43 +2,43 @@
 
   <cffunction name="onServerStart">
     <cfset consoleoutput(true)>
-    <cfset console("------------SERVER STARTUP------------------")>
+    <cfset console("------------SEARCHSERVER: SERVER STARTUP------------------")>
     <!--- Delete any .lock file --->
     <cftry>
-      <cfset console("---START: Lock file cleanup---")>
+      <cfset console("---SEARCHSERVER: START: Lock file cleanup---")>
       <cfdirectory action="list" directory="#GetTempdirectory()#" listinfo="name" filter="*.lock" name="l">
       <cfif l.recordcount NEQ 0>
         <cfloop query="l">
           <cfset filedelete(GetTempdirectory() & name)>
         </cfloop>
         <cfset consoleoutput(true)>
-        <cfset console("All .lock files have been deleted")>
+        <cfset console("SEARCHSERVER: All .lock files have been deleted")>
       <cfelse>
         <cfset consoleoutput(true)>
-        <cfset console("No .lock file to remove")>
+        <cfset console("SEARCHSERVER: No .lock file to remove")>
       </cfif>
-      <cfset console("---DONE: Lock file cleanup---")>
+      <cfset console("---SEARCHSERVER: DONE: Lock file cleanup---")>
       <cfcatch type="any">
         <cfset consoleoutput(true)>
-        <cfset console("Lock removal error #cfcatch#")>
+        <cfset console("SEARCHSERVER: Lock removal error #cfcatch#")>
       </cfcatch>
     </cftry>
 
     <cftry>
-      <cfset console("------------ENABLING CRON------------------")>
+      <cfset console("------------SEARCHSERVER: ENABLING CRON------------------")>
       <cfset cronEnable(true) />
       <cfcatch type="any">
         <cfset consoleoutput(true)>
-        <cfset console("------------ Cron error !!!!!!!!!!!!!!!!!!!!!!!!!")>
+        <cfset console("------------ SEARCHSERVER: Cron error !!!!!!!!!!!!!!!!!!!!!!!!!")>
         <cfset console(cfcatch)>
       </cfcatch>
     </cftry>
     <cftry>
-      <cfset console("------------ENABLING CRON DIRECTORY------------------")>
+      <cfset console("------------SEARCHSERVER: ENABLING CRON DIRECTORY------------------")>
        <cfset CronSetDirectory("/cron") />
       <cfcatch type="any">
         <cfset consoleoutput(true)>
-        <cfset console("------------ Cron error !!!!!!!!!!!!!!!!!!!!!!!!!")>
+        <cfset console("------------ SEARCHSERVER: Cron error !!!!!!!!!!!!!!!!!!!!!!!!!")>
         <cfset console(cfcatch)>
       </cfcatch>
     </cftry>
@@ -85,7 +85,7 @@
     )>
     --->
      <!--- <cfset console("---DONE: Cache Setup---")> --->
-     <cfset console("---------------FINISHED---------------------")>
+     <cfset console("---------------SEARCHSERVER: FINISHED---------------------")>
 
   </cffunction>
 
