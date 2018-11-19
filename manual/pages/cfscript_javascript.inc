@@ -127,7 +127,14 @@ As discussed the <code>$cf</code> is a global variable that lets you interact wi
 <tbody>
 	<tr>
 		<td>print()</td>
-		<td>This is similar to <a href="./?/function/writeoutput">WriteOutput()</a> function letting you quickly output to the browser window.</td>
+		<td>This is similar to the <a href="./?/function/writeoutput">WriteOutput()</a> function, letting you quickly output to the browser window.</td>
+	</tr>
+	<tr>
+		<td>dump()</td>
+		<td>
+			This is similar to the <a href="./?/function/writedump">WriteDump()</a> function, letting you quickly dump simple and complex data to the browser window.<br>
+			Unlike the writeDump() function, it only takes a single variable.
+		</td>
 	</tr>
 	<tr>
 		<td>console()</td>

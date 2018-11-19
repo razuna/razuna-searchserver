@@ -1,4 +1,5 @@
-<cfset request.page.title = "Support"><cfset request.page.section = "support">
+<cfset request.page.title = "Support">
+<cfset request.page.section = "support">
 <cfset request.page.desc	= "Getting Help with OpenBD">
 
 
@@ -24,7 +25,7 @@
 			
 			<p>All are welcomed to join in the public discussion list.  This list is open to anyone wishing to discuss anything related to the Open BlueDragon open source J2EE project.</p>
 			
-			<p><a href="http://groups.google.com/group/openbd" class="btn google">Join our Google Discussion Group</a></p>
+			<p><a href="https://groups.google.com/forum/#!forum/openbluedragon" class="btn google">Join our Google Discussion Group</a></p>
 		
 		</div><!-- .section -->
 
