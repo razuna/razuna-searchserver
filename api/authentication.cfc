@@ -32,7 +32,7 @@
 	<cfelse>
 		<cfset this._path = ExpandPath("../") />
 	</cfif>
-	
+
 
 	<!--- Check for key --->
 	<cffunction name="auth" access="public" output="false">
@@ -48,7 +48,9 @@
 		</cfif>
 		<cfif !login>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Secret key is not valid! Aborting...")>
+			<cfif application.razuna.debug>
+				<cfset console("#now()# ---------------------- Secret key is not valid! Aborting...")>
+			</cfif>
 			<cfabort>
 		</cfif>
 		<!--- Return --->
@@ -79,14 +81,16 @@
 			<!--- Return --->
 			<cfreturn s />
 			<cfcatch type="any">
+				<cfset consoleoutput(true, true)>
 				<cfset console("#now()# ---------------------- Config Error. Aborting... !!!!!!!!!!!!!!!!!!!!!!!!!")>
 				<cfset console(cfcatch)>
+				<cfset consoleoutput(false, false)>
 				<cfabort>
 			</cfcatch>
    		</cftry>
-		
+
 	</cffunction>
-	
+
 	<!--- Get Cachetoken --->
 	<cffunction name="getcachetoken" output="false" returntype="string">
 		<cfargument name="type" type="string" required="yes">
@@ -226,11 +230,12 @@
 				<!--- Set the current values into the list --->
 				<cfset flist = arguments.folderlist>
 			</cfif>
-			<!--- Return --->	
+			<!--- Return --->
 			<cfreturn flist>
 			<cfcatch type="any">
-				<cfset consoleoutput(true)>
+				<cfset consoleoutput(true, true)>
 				<cfset console(cfcatch)>
+				<cfset consoleoutput(false, false)>
 			</cfcatch>
 		</cftry>
 	</cffunction>
@@ -239,7 +244,9 @@
 	<cffunction name="_getSecretRemote" access="private" output="false" returntype="string">
 		<!--- Query --->
 		<cftry>
-			<cfset console("#now()# ---------------------- Fetching remote secret key")>
+			<cfif application.razuna.debug>
+				<cfset console("#now()# ---------------------- Fetching remote secret key")>
+			</cfif>
 			<!--- Param --->
 			<cfset var qry = "">
 			<cfset var key = "">
@@ -251,15 +258,17 @@
 			</cfquery>
 			<cfset var key = trim(qry.opt_value)>
 			<cfcatch type="any">
+				<cfset consoleoutput(true, true)>
 				<cfset console(cfcatch)>
+				<cfset consoleoutput(false, false)>
 				<cfset var key = "">
 			</cfcatch>
 		</cftry>
-		<cfset console("#now()# ---------------------- Found key : #key#")>
+		<cfif application.razuna.debug>
+			<cfset console("#now()# ---------------------- Found key : #key#")>
+		</cfif>
 		<cfreturn key />
 	</cffunction>
-
-	
 
 </cfcomponent>
 
