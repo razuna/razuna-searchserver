@@ -224,7 +224,7 @@
 		</cfif>
 		<!--- Var --->
 		<cfset var qry = "" />
-		<cfset var howmany = 2000 />
+		<cfset var howmany = 1000 />
 		<!--- Loop over prefix --->
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<cftry>
@@ -766,6 +766,7 @@
 		WHERE f.img_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND f.is_available = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+		AND f.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
@@ -887,6 +888,7 @@
 		WHERE f.file_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND f.is_available = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+		AND f.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
 		</cfquery>
 		<!--- If record found --->
 		<cfif qry.recordcount NEQ 0>
@@ -936,6 +938,7 @@
 		WHERE f.vid_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND f.is_available = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+		AND f.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
@@ -983,6 +986,7 @@
 		WHERE a.aud_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND a.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND a.is_available = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+		AND f.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
