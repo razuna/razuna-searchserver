@@ -29,15 +29,15 @@
 	<cffunction name="onApplicationStart" returnType="boolean" output="false">
 		<!--- Set datasource --->
 		<cfset application.razuna.datasource = "razuna_server">
+		<cfset application.razuna.debug = true>
 		<!--- Return --->
 		<cfreturn true>
 	</cffunction>
 
 	<!--- On Request start --->
 	<cffunction name="OnRequestStart" access="public" output="false">
-		<cfset debug = true>
 		<!--- Set console out fopr debugging --->
-		<cfset consoleoutput(debug, debug)>
+		<cfset consoleoutput(application.razuna.debug, application.razuna.debug)>
 	</cffunction>
 
 </cfcomponent>
