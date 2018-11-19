@@ -204,6 +204,11 @@
 		<cfargument name="prefix" type="string" required="true">
 		<cfargument name="hostid" type="string" required="true">
 		<cfargument name="folderlist" type="string" default="" required="false">
+		<!--- Sometimes folderlist can be very long. Hence we limit it to 10 folders --->
+		<cfif listLen(arguments.folderlist, "|") GTE 10>
+			<cfreturn arguments.folderlist />
+		</cfif>
+		<!--- Get folders --->
 		<cftry>
 			<!--- Params --->
 			<cfset var qry = "">
@@ -216,6 +221,7 @@
 			FROM #arguments.prefix#folders f
 			WHERE f.folder_id = <cfqueryparam value="#arguments.folder_id_r#" cfsqltype="CF_SQL_VARCHAR">
 			AND f.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
+			AND f.in_trash = <cfqueryparam value="f" cfsqltype="CF_SQL_VARCHAR">
 			</cfquery>
 			<!--- No recursivness if no more records --->
 			<cfif qry.recordcount NEQ 0>
