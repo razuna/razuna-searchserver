@@ -32,7 +32,7 @@
 		<cfargument name="hostid" required="true" type="string">
 		<cfargument name="secret" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Removing Collection for rebuild")>
 		</cfif>
 		<!--- Check login --->
@@ -40,7 +40,7 @@
 		<!--- Remove Collection --->
 		<cftry>
 			<cfset CollectionDelete(arguments.hostid)>
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Collection removed for rebuild")>
 			</cfif>
 			<cfpause interval="10" />
@@ -48,12 +48,12 @@
 		</cftry>
 		<!--- Now create it again --->
 		<cftry>
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
 			</cfif>
 			<!--- Create --->
 			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- DONE creating collection for Host #arguments.hostid#")>
 			</cfif>
 			<cfcatch type="any"></cfcatch>
@@ -65,7 +65,7 @@
 	<!--- This is being called from create collection cron job --->
 	<cffunction name="createCollections" access="public" output="false">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Creating new collections")>
 		</cfif>
 		<!--- Grab all hosts --->
@@ -74,23 +74,23 @@
 		<cfloop query="_qry_hosts">
 			<!---Create Collection --->
 			<cftry>
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- CHECKING collection for Host #host_id#")>
 				</cfif>
 				<!--- Create --->
 				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- CREATED collection for Host #host_id#")>
 				</cfif>
 				<cfcatch type="any">
 					<cfif cfcatch.message CONTAINS "already exists">
 						<!--- Log --->
-						<cfif debug>
+						<cfif application.razuna.debug>
 							<cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")>
 						</cfif>
 					<cfelse>
 						<!--- Log --->
-						<cfif debug>
+						<cfif application.razuna.debug>
 							<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
 							<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 						</cfif>
@@ -99,25 +99,25 @@
 							<cftry>
 								<cfset CollectionDelete(host_id)>
 								<cfcatch type="any">
-									<cfif debug>
+									<cfif application.razuna.debug>
 										<cfset console("CollectionDelete: #cfcatch.message#")>
 									</cfif>
 								</cfcatch>
 							</cftry>
 							<!--- Lets also remove the directory on disk --->
 							<cftry>
-								<cfif debug>
+								<cfif application.razuna.debug>
 									<cfset console("#now()# ---------------------- REMOVING COLLECTION DIR FOR HOST #host_id#")>
 								</cfif>
 								<cfset var d = REReplaceNoCase(GetTempDirectory(),"/bluedragon/work/temp","","one")>
 								<cfdirectory action="delete" directory="#d#collections/#host_id#" recurse="true" />
 								<cfcatch type="any">
-									<cfif debug>
+									<cfif application.razuna.debug>
 										<cfset console("cfdirectory: #cfcatch.message#")>
 									</cfif>
 								</cfcatch>
 							</cftry>
-							<cfif debug>
+							<cfif application.razuna.debug>
 								<cfset console("#now()# ---------------------- Collection removed for rebuild")>
 							</cfif>
 							<cfpause interval="10" />
@@ -143,7 +143,7 @@
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- CHECKING that collection exists for Host #arguments.hostid#")>
 		</cfif>
 		<!--- We simply create a collection and let it throw an error --->
@@ -151,7 +151,7 @@
 			<!--- Create --->
 			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- While checking collection for Host #arguments.hostid# we found that we had to re-create it !!!!!!")>
 			</cfif>
 			<!--- On error --->
@@ -187,7 +187,7 @@
 		<!--- Create collection --->
 		<cftry>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
 			</cfif>
 			<!--- Create --->

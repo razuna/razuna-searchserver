@@ -36,7 +36,7 @@
 		<cfargument name="db_pass" required="true" type="string">
 		<cfargument name="db_path" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Adding DB connection")>
 		</cfif>
 		<!--- Check login --->
@@ -51,7 +51,7 @@
 		<cfif !_result.success>
 			<cfset r.success = false>
 			<cfset r.error = _result.error>
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
 				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 			</cfif>
@@ -105,7 +105,7 @@
 			<cfset thedrivername = "net.sourceforge.jtds.jdbc.Driver">
 		</cfif>
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Inserting into config")>
 		</cfif>
 		<!--- Set the datasource --->
@@ -129,7 +129,7 @@
 			<cfcatch type="any">
 				<cfset status.success = false>
 				<cfset status.error = cfcatch>
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
 					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
 				</cfif>

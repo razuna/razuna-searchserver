@@ -5,7 +5,7 @@
 	<!--- Run indexing --->
 	<cffunction name="index" output="false" access="public">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# --- Executing Indexing from Cron")>
 		</cfif>
 		<!--- Call Indexing --->
@@ -16,7 +16,7 @@
 	<!--- Run Deleting --->
 	<cffunction name="remove" output="false" access="public">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# --- Executing Remove from Cron")>
 		</cfif>
 		<!--- Call Indexing --->
@@ -27,7 +27,7 @@
 	<!--- Run Update --->
 	<cffunction name="update" output="false" access="public">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# --- Executing Update from Cron")>
 		</cfif>
 		<!--- Call Indexing --->

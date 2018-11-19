@@ -30,7 +30,7 @@
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Starting indexing")>
 		</cfif>
 		<!--- Get all hosts to index. This will abort if nothing found. --->
@@ -52,7 +52,7 @@
 			<cfset _removeTempDocStore(_qryNew) />
 		</cfif> --->
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Indexing done!!!!")>
 		</cfif>
 		<!--- Return --->
@@ -62,7 +62,7 @@
 	<!--- Index Files --->
 	<cffunction name="removeFiles" access="public" output="false">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Starting removal")>
 		</cfif>
 		<!--- Get Config --->
@@ -82,7 +82,7 @@
 		<!--- Clean up Lucene DB --->
 		<cfset _cleanLuceneDB(prefix=config.conf_db_prefix)>
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Finished removal")>
 		</cfif>
 		<!--- Return --->
@@ -92,7 +92,7 @@
 	<!--- Update Index --->
 	<cffunction name="updateIndex" access="public" output="false">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Starting update")>
 		</cfif>
 		<!--- Grab hosts --->
@@ -100,7 +100,7 @@
 		<!--- Insert dummy record --->
 		<cfset _insertDeleteRecordInIndex(_qryHosts)>
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Finished update")>
 		</cfif>
 		<!--- Return --->
@@ -121,7 +121,7 @@
 		<!--- Group all hosts (since the qry is per file) --->
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
 			</cfif>
 			<!--- Name of lock file --->
@@ -143,7 +143,7 @@
 			<!--- If error on lock file deletion then abort as file is probably still being used for indexing --->
 			<cfif lockfiledelerr>
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Lock file for Collection: #host_id# exists. Skipping this host for now!")>
 				</cfif>
 				<!--- Select without this host --->
@@ -154,7 +154,7 @@
 				</cfquery>
 			<cfelse>
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Lock file created for: #host_id#")>
 				</cfif>
 				<!--- We are all good write file --->
@@ -164,12 +164,12 @@
 		<!--- Only continue if records are found --->
 		<cfif _newQry.recordcount NEQ 0>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index.")>
 			</cfif>
 		<cfelse>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index. Aborting...")>
 			</cfif>
 			<!--- Remove lock file --->
@@ -193,7 +193,7 @@
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<cftry>
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Removing lock file of Host: #host_id#")>
 				</cfif>
 				<!--- Name of lock file --->
@@ -219,7 +219,7 @@
 		<cfargument name="prefix" required="true">
 		<cfargument name="dbtype" required="true">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
 		</cfif>
 		<!--- Var --->
@@ -306,12 +306,12 @@
 		<!--- Only continue if records are found --->
 		<cfif qry.recordcount NEQ 0>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index")>
 			</cfif>
 		<cfelse>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index. Aborting...")>
 			</cfif>
 			<cfabort>
@@ -324,7 +324,7 @@
 	<cffunction name="_getFilesInCloud" output="false" returntype="void" access="private">
 		<cfargument name="qry" type="query" required="true">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Grabing all DOC files and storing them locally")>
 		</cfif>
 		<!--- Params --->
@@ -357,7 +357,7 @@
 	<cffunction name="_removeTempDocStore" output="false" returntype="void" access="private">
 		<cfargument name="qry" type="query" required="true">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Removing the temp doc store")>
 		</cfif>
 		<!--- List files in temp --->
@@ -405,7 +405,7 @@
 		<!--- Loop over records --->
 		<cfloop query="arguments.qryfiles">
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Starting to index file: #file_id# (#category#) for host: #host_id#")>
 			</cfif>
 			<!--- Images --->
@@ -497,7 +497,7 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_img, data = q) />
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
 				</cfif>
 			<!--- Docs --->
@@ -582,7 +582,7 @@
 					<cfset QueryAddrow(query = qoq_doc, data = q2) />
 				</cfif>
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
 				</cfif>
 			<!--- Videos --->
@@ -641,7 +641,7 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_vid, data = q) />
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
 				</cfif>
 			<!--- Audios --->
@@ -700,7 +700,7 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_aud, data = q) />
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
 				</cfif>
 			</cfif>
@@ -742,7 +742,7 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting Image: #arguments.file_id# for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -796,7 +796,7 @@
 		<cfargument name="notfile" required="true" type="string">
 		<cfargument name="storage" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting Document: #arguments.file_id# for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -817,7 +817,7 @@
 		<cfargument name="notfile" required="true" type="string">
 		<cfargument name="storage" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting FILE Document: #arguments.file_id# for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -918,7 +918,7 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting Video: #arguments.file_id# for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -964,7 +964,7 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting Audio: #arguments.file_id# for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -1011,7 +1011,7 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="folder" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting FolderPath: #arguments.folder# for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -1033,7 +1033,7 @@
 		<cfargument name="thedatabase" required="true" type="string">
 		<cfargument name="category" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -1081,7 +1081,7 @@
 		<cfargument name="category" required="true" type="string">
 		<cfargument name="groupid" required="false" default="" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting Labels: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
 		</cfif>
 		<!--- Param --->
@@ -1117,7 +1117,7 @@
 		<cfargument name="file_id" required="true" type="string">
 		<cfargument name="type" required="true" type="string">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Getting Aliases for file id: #arguments.file_id#")>
 		</cfif>
 		<!--- Param --->
@@ -1143,7 +1143,7 @@
 	<cffunction name="_addImgToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Image Index")>
 		</cfif>
 		<!--- Param --->
@@ -1235,7 +1235,7 @@
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Image Index")>
 		</cfif>
 		<!--- Return --->
@@ -1246,7 +1246,7 @@
 	<cffunction name="_addDocToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Document Index")>
 		</cfif>
 		<!--- Param --->
@@ -1347,7 +1347,7 @@
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Document Index")>
 		</cfif>
 		<!--- Return --->
@@ -1358,7 +1358,7 @@
 	<cffunction name="_addVidToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Video Index")>
 		</cfif>
 		<!--- Param --->
@@ -1411,7 +1411,7 @@
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Video Index")>
 		</cfif>
 		<!--- Return --->
@@ -1422,7 +1422,7 @@
 	<cffunction name="_addAudToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Audio Index")>
 		</cfif>
 		<!--- Param --->
@@ -1475,7 +1475,7 @@
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Audio Index")>
 		</cfif>
 		<!--- Return --->
@@ -1501,7 +1501,7 @@
 				<cfset var theid = "file_id" />
 			</cfif>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Updating #file_id# (#db#) record for Host #host_id#")>
 			</cfif>
 			<!--- Update database --->
@@ -1534,7 +1534,7 @@
 		<cfargument name="qryHosts" required="true">
 		<cftry>
 			<!--- Log --->
-			<cfif debug>
+			<cfif application.razuna.debug>
 				<cfset console("#now()# ---------------------- Fetching records to remove from index")>
 			</cfif>
 			<!--- Param --->
@@ -1611,12 +1611,12 @@
 			<!--- Only continue if records are found --->
 			<cfif qry.recordcount NEQ 0>
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
 				</cfif>
 			<cfelse>
 				<!--- Log --->
-				<cfif debug>
+				<cfif application.razuna.debug>
 					<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
 				</cfif>
 			</cfif>
@@ -1637,7 +1637,7 @@
 		<cfargument name="qryrecords" required="true" type="query">
 		<cfargument name="prefix" required="true">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records from index")>
 		</cfif>
 		<!--- Group hosts --->
@@ -1708,7 +1708,7 @@
 			</cftry>
 		</cfloop>
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Finished removing #qryrecords.recordcount# records from index")>
 		</cfif>
 		<!--- Return --->
@@ -1719,7 +1719,7 @@
 	<cffunction name="_removeFromDatabase" access="private" output="false">
 		<cfargument name="qryrecords" required="true" type="query">
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records in database")>
 		</cfif>
 		<!--- Delete --->
@@ -1730,7 +1730,7 @@
 			</cfquery>
 		</cfloop>
 		<!--- Log --->
-		<cfif debug>
+		<cfif application.razuna.debug>
 			<cfset console("#now()# ---------------------- All #qryrecords.recordcount# records removed in database")>
 		</cfif>
 		<!--- Return --->
