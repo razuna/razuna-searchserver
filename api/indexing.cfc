@@ -30,7 +30,9 @@
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Starting indexing")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Starting indexing")>
+		</cfif>
 		<!--- Get all hosts to index. This will abort if nothing found. --->
 		<cfset var qryAllHostsAndFiles = _getHosts(prefix=config.conf_db_prefix, dbtype=config.conf_db_type) />
 		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
@@ -50,7 +52,9 @@
 			<cfset _removeTempDocStore(_qryNew) />
 		</cfif> --->
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Indexing done!!!!")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Indexing done!!!!")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -58,7 +62,9 @@
 	<!--- Index Files --->
 	<cffunction name="removeFiles" access="public" output="false">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Starting removal")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Starting removal")>
+		</cfif>
 		<!--- Get Config --->
 		<cfset var config = getConfig()>
 		<!--- Grab hosts --->
@@ -76,7 +82,9 @@
 		<!--- Clean up Lucene DB --->
 		<cfset _cleanLuceneDB(prefix=config.conf_db_prefix)>
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Finished removal")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Finished removal")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -84,13 +92,17 @@
 	<!--- Update Index --->
 	<cffunction name="updateIndex" access="public" output="false">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Starting update")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Starting update")>
+		</cfif>
 		<!--- Grab hosts --->
 		<cfset var _qryHosts = _qryHosts()>
 		<!--- Insert dummy record --->
 		<cfset _insertDeleteRecordInIndex(_qryHosts)>
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Finished update")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Finished update")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -109,7 +121,9 @@
 		<!--- Group all hosts (since the qry is per file) --->
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
+			</cfif>
 			<!--- Name of lock file --->
 			<cfset var lockfile = "lucene_#host_id#_#arguments.type#.lock">
 			<!--- Check if lucene.lock file exists and a) If it is older than a day then delete it or b) if not older than a day them abort as its probably running from a previous call --->
@@ -129,7 +143,9 @@
 			<!--- If error on lock file deletion then abort as file is probably still being used for indexing --->
 			<cfif lockfiledelerr>
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Lock file for Collection: #host_id# exists. Skipping this host for now!")>
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Lock file for Collection: #host_id# exists. Skipping this host for now!")>
+				</cfif>
 				<!--- Select without this host --->
 				<cfquery dbtype="query" name="_newQry">
 				SELECT *
@@ -138,7 +154,9 @@
 				</cfquery>
 			<cfelse>
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Lock file created for: #host_id#")>
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Lock file created for: #host_id#")>
+				</cfif>
 				<!--- We are all good write file --->
 				<cffile action="write" file="#GetTempDirectory()#/#lockfile#" output="x" mode="775" />
 			</cfif>
@@ -146,10 +164,14 @@
 		<!--- Only continue if records are found --->
 		<cfif _newQry.recordcount NEQ 0>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index.")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index.")>
+			</cfif>
 		<cfelse>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index. Aborting...")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index. Aborting...")>
+			</cfif>
 			<!--- Remove lock file --->
 			<!--- <cfset _removeLockFile(arguments.qry) /> --->
 			<!--- Abort --->
@@ -171,7 +193,9 @@
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<cftry>
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Removing lock file of Host: #host_id#")>
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Removing lock file of Host: #host_id#")>
+				</cfif>
 				<!--- Name of lock file --->
 				<cfset var lockfile = "lucene_#host_id#_#arguments.type#.lock">
 				<!--- Action --->
@@ -179,8 +203,10 @@
 					<cffile action="delete" file="#GetTempDirectory()#/#lockfile#" />
 				</cfif>
 				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
 					<cfset console("#now()# ---------------------- ERROR removing lock file for Host: #host_id#")>
 					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 		</cfloop>
@@ -193,10 +219,12 @@
 		<cfargument name="prefix" required="true">
 		<cfargument name="dbtype" required="true">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Grabing hosts and files for indexing")>
+		</cfif>
 		<!--- Var --->
 		<cfset var qry = "" />
-		<cfset var howmany = 5000 />
+		<cfset var howmany = 2000 />
 		<!--- Loop over prefix --->
 		<cfloop list="#arguments.prefix#" index="prefix" delimiters=",">
 			<cftry>
@@ -259,7 +287,9 @@
 				)
 				</cfquery>
 				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
 					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 		</cfloop>
@@ -276,10 +306,14 @@
 		<!--- Only continue if records are found --->
 		<cfif qry.recordcount NEQ 0>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index")>
+			</cfif>
 		<cfelse>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index. Aborting...")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to index. Aborting...")>
+			</cfif>
 			<cfabort>
 		</cfif>
 		<!--- Return --->
@@ -290,7 +324,9 @@
 	<cffunction name="_getFilesInCloud" output="false" returntype="void" access="private">
 		<cfargument name="qry" type="query" required="true">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Grabing all DOC files and storing them locally")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Grabing all DOC files and storing them locally")>
+		</cfif>
 		<!--- Params --->
 		<cfset var docpath = GetTempDirectory() & "reindex_" & createuuid("")>
 		<!--- Create a temp folder for the documents --->
@@ -321,7 +357,9 @@
 	<cffunction name="_removeTempDocStore" output="false" returntype="void" access="private">
 		<cfargument name="qry" type="query" required="true">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Removing the temp doc store")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Removing the temp doc store")>
+		</cfif>
 		<!--- List files in temp --->
 		<cfset var dirlist = DirectoryList( GetTempDirectory(), false, "path" ) >
 		<!--- Loop over array --->
@@ -367,7 +405,9 @@
 		<!--- Loop over records --->
 		<cfloop query="arguments.qryfiles">
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Starting to index file: #file_id# (#category#) for host: #host_id#")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Starting to index file: #file_id# (#category#) for host: #host_id#")>
+			</cfif>
 			<!--- Images --->
 			<cfif category EQ "img">
 				<!--- Query --->
@@ -457,7 +497,9 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_img, data = q) />
 				<!--- Log --->
-				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				</cfif>
 			<!--- Docs --->
 			<cfelseif category EQ "doc">
 				<!--- Query --->
@@ -540,7 +582,9 @@
 					<cfset QueryAddrow(query = qoq_doc, data = q2) />
 				</cfif>
 				<!--- Log --->
-				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				</cfif>
 			<!--- Videos --->
 			<cfelseif category EQ "vid">
 				<!--- Query --->
@@ -597,7 +641,9 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_vid, data = q) />
 				<!--- Log --->
-				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				</cfif>
 			<!--- Audios --->
 			<cfelseif category EQ "aud">
 				<!--- Query --->
@@ -654,7 +700,9 @@
 				<!--- Add result to qoq_img --->
 				<cfset QueryAddrow(query = qoq_aud, data = q) />
 				<!--- Log --->
-				<!--- <cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")> --->
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Added file #file_id# (#category#) for host: #host_id# to QoQ")>
+				</cfif>
 			</cfif>
 			<cfset var q = "">
 			<cfset var thedesc_1 = "">
@@ -694,7 +742,9 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting Image: #arguments.file_id# for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting Image: #arguments.file_id# for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
@@ -746,7 +796,9 @@
 		<cfargument name="notfile" required="true" type="string">
 		<cfargument name="storage" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting Document: #arguments.file_id# for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting Document: #arguments.file_id# for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var _qry = "" >
 		<!--- Get files query --->
@@ -765,7 +817,9 @@
 		<cfargument name="notfile" required="true" type="string">
 		<cfargument name="storage" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting FILE Document: #arguments.file_id# for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting FILE Document: #arguments.file_id# for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var _qryDocsFiles = "" >
 		<!--- Param --->
@@ -803,9 +857,10 @@
 				<cfcatch type="any">
 					<!--- Set _qryDocsFiles to zero --->
 					<cfset _qryDocsFiles = _getDocsQuery(hostid = host_id, prefix = prefix, file_id = "0", notfile = notfile, storage = arguments.storage)>
-					<cfset consoleoutput(true)>
+					<cfset consoleoutput(true, true)>
 					<cfset console("#now()# ---------------------- Error while indexing doc file #arguments.file_id#")>
 					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 		</cfif>
@@ -863,7 +918,9 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting Video: #arguments.file_id# for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting Video: #arguments.file_id# for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
@@ -907,7 +964,9 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="file_id" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting Audio: #arguments.file_id# for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting Audio: #arguments.file_id# for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var qry_desc = "" >
@@ -952,7 +1011,9 @@
 		<cfargument name="prefix" required="true" type="string">
 		<cfargument name="folder" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting FolderPath: #arguments.folder# for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting FolderPath: #arguments.folder# for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var folderpath = "" >
 		<!--- Get folder path --->
@@ -972,7 +1033,9 @@
 		<cfargument name="thedatabase" required="true" type="string">
 		<cfargument name="category" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting Custom Fields: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var _values = "" >
@@ -1018,7 +1081,9 @@
 		<cfargument name="category" required="true" type="string">
 		<cfargument name="groupid" required="false" default="" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting Labels: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting Labels: #arguments.file_id# (#arguments.category#) for host: #arguments.hostid#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry = "" >
 		<!--- Get the labels of the original record if there is a group value --->
@@ -1052,7 +1117,9 @@
 		<cfargument name="file_id" required="true" type="string">
 		<cfargument name="type" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Getting Aliases for file id: #arguments.file_id#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Getting Aliases for file id: #arguments.file_id#")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry = "" >
 		<cfset var list = "" >
@@ -1068,7 +1135,6 @@
 			<!--- Add labels to a list --->
 			<cfset var list = valuelist(qry.folder_id_r," ")>
 		</cfif>
-		<!--- <cfset console('ALIASES FOLDER LIST : #list#')> --->
 		<!--- Return --->
 		<cfreturn list />
 	</cffunction>
@@ -1077,7 +1143,9 @@
 	<cffunction name="_addImgToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Image Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Image Index")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Indexing --->
@@ -1158,14 +1226,18 @@
 					results = CollectionIndexCustom( argumentCollection=args );
 				</cfscript>
 				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
 					<cfset console(cfcatch) />
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 		</cfloop>
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Image Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Image Index")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1174,7 +1246,9 @@
 	<cffunction name="_addDocToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Document Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Document Index")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Indexing --->
@@ -1237,8 +1311,10 @@
 					results = CollectionIndexCustom( argumentCollection=args );
 				</cfscript>
 				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
 					<cfset console("#now()# ---------------------- ERROR")>
 					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 			<cftry>
@@ -1261,15 +1337,19 @@
 					results = CollectionIndexfile( argumentCollection=args );
 				</cfscript>
 				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
 					<cfset console("#now()# ---------------------- ERROR INDEXING FILES")>
 					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 		</cfloop>
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Document Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Document Index")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1278,7 +1358,9 @@
 	<cffunction name="_addVidToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Video Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Video Index")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Indexing --->
@@ -1329,7 +1411,9 @@
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Video Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Video Index")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1338,7 +1422,9 @@
 	<cffunction name="_addAudToLucene" access="private" output="false">
 		<cfargument name="qoq" required="true" type="query">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Audio Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Adding #qoq.recordcount# to Audio Index")>
+		</cfif>
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Indexing --->
@@ -1389,7 +1475,9 @@
 		<!--- Param --->
 		<cfset var qry_records = "">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Audio Index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Finished adding #qoq.recordcount# to Audio Index")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1413,7 +1501,9 @@
 				<cfset var theid = "file_id" />
 			</cfif>
 			<!--- Log --->
-			<!--- <cfset console("#now()# ---------------------- Updating #file_id# (#db#) record for Host #host_id#")> --->
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Updating #file_id# (#db#) record for Host #host_id#")>
+			</cfif>
 			<!--- Update database --->
 			<cfquery datasource="#application.razuna.datasource#">
 			UPDATE #prefix##db#
@@ -1444,7 +1534,9 @@
 		<cfargument name="qryHosts" required="true">
 		<cftry>
 			<!--- Log --->
-			<!--- <cfset console("#now()# ---------------------- Fetching records to remove from index")> --->
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Fetching records to remove from index")>
+			</cfif>
 			<!--- Param --->
 			<cfset var qry = "">
 			<cfset var howmany = 1000 />
@@ -1519,17 +1611,22 @@
 			<!--- Only continue if records are found --->
 			<cfif qry.recordcount NEQ 0>
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
+				</cfif>
 			<cfelse>
 				<!--- Log --->
-				<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
+				<cfif debug>
+					<cfset console("#now()# ---------------------- Found #qry.recordcount# records to remove")>
+				</cfif>
 			</cfif>
 			<!--- Return --->
 			<cfreturn qry />
 			<cfcatch type="any">
-				<cfset consoleoutput(true)>
+				<cfset consoleoutput(true, true)>
 				<cfset console("#now()# ---------------------- Error fetching records. Aborting... !!!!!!!!!!!!!!!!!!!!!!!!!")>
 				<cfset console(cfcatch)>
+				<cfset consoleoutput(false, false)>
 				<cfabort>
 			</cfcatch>
 		</cftry>
@@ -1540,7 +1637,9 @@
 		<cfargument name="qryrecords" required="true" type="query">
 		<cfargument name="prefix" required="true">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records from index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records from index")>
+		</cfif>
 		<!--- Group hosts --->
 		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qryrecords.host_id)) />
 		<!--- Loop --->
@@ -1584,8 +1683,10 @@
 							</cfquery>
 						</cfif>
 						<cfcatch type="database">
+							<cfset consoleoutput(true, true)>
 							<cfset console("ERROR IN UPDATING DB FOR REMOVE")>
 							<cfset console(cfcatch)>
+							<cfset consoleoutput(false, false)>
 						</cfcatch>
 					</cftry>
 				</cfloop>
@@ -1599,13 +1700,17 @@
 				</cfscript>
 				<cfset console(results)> --->
 				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
 					<cfset console("ERROR IN REMOVING")>
 					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 		</cfloop>
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Finished removing #qryrecords.recordcount# records from index")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Finished removing #qryrecords.recordcount# records from index")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1614,7 +1719,9 @@
 	<cffunction name="_removeFromDatabase" access="private" output="false">
 		<cfargument name="qryrecords" required="true" type="query">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records in database")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Removing #qryrecords.recordcount# records in database")>
+		</cfif>
 		<!--- Delete --->
 		<cfloop query="arguments.qryrecords">
 			<cfquery datasource="#application.razuna.datasource#">
@@ -1623,7 +1730,9 @@
 			</cfquery>
 		</cfloop>
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- All #qryrecords.recordcount# records removed in database")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- All #qryrecords.recordcount# records removed in database")>
+		</cfif>
 		<!--- Return --->
 		<cfreturn />
 	</cffunction>
@@ -1709,8 +1818,9 @@
 					</cfif>
 				</cfif>
 				<cfcatch type="any">
-					<cfset consoleoutput(true)>
+					<cfset consoleoutput(true, true)>
 					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
 		</cfloop>

@@ -35,9 +35,10 @@
 		<cfargument name="db_user" required="true" type="string">
 		<cfargument name="db_pass" required="true" type="string">
 		<cfargument name="db_path" required="true" type="string">
-		<cfset consoleoutput(true)>
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Adding DB connection")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Adding DB connection")>
+		</cfif>
 		<!--- Check login --->
 		<!--- <cfset auth(arguments.secret)> --->
 		<!--- Param --->
@@ -50,9 +51,10 @@
 		<cfif !_result.success>
 			<cfset r.success = false>
 			<cfset r.error = _result.error>
-			<cfset consoleoutput(true)>
-			<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
-			<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+			</cfif>
 		</cfif>
 		<!--- Return --->
 		<cfreturn r />
@@ -75,7 +77,6 @@
 		<cfargument name="db_user" required="true" type="string">
 		<cfargument name="db_pass" required="true" type="string">
 		<cfargument name="db_path" required="true" type="string">
-		<cfset consoleoutput(true)>
 		<!--- Name of this connection --->
 		<cfset var datasource_name = "razuna_server">
 		<!--- Delete the current connection first --->
@@ -99,12 +100,14 @@
 			<cfset theconnectstring = "AUTO_RECONNECT=TRUE;AUTO_SERVER=TRUE">
 		<cfelseif arguments.db_type EQ "mysql">
 			<cfset thedrivername = "com.mysql.jdbc.Driver">
-			<cfset theconnectstring = "zeroDateTimeBehavior=convertToNull&useSSL=false&dontTrackOpenResources=true&autoReconnectForPools=true&cacheCallableStmts=true">
+			<cfset theconnectstring = "zeroDateTimeBehavior=convertToNull&useSSL=false">
 		<cfelseif arguments.db_type EQ "mssql">
 			<cfset thedrivername = "net.sourceforge.jtds.jdbc.Driver">
 		</cfif>
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Inserting into config")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Inserting into config")>
+		</cfif>
 		<!--- Set the datasource --->
 		<cftry>
 			<cfinvoke component="bd_config" method="setDatasource">
@@ -126,9 +129,10 @@
 			<cfcatch type="any">
 				<cfset status.success = false>
 				<cfset status.error = cfcatch>
-				<cfset consoleoutput(true)>
-				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
-				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+				<cfif debug>
+					<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
+					<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+				</cfif>
 			</cfcatch>
 		</cftry>
 		<!--- Return --->

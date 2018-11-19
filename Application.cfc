@@ -35,7 +35,9 @@
 
 	<!--- On Request start --->
 	<cffunction name="OnRequestStart" access="public" output="false">
-		<cfset consoleoutput(false)>
+		<cfset debug = true>
+		<!--- Set console out fopr debugging --->
+		<cfset consoleoutput(debug, debug)>
 	</cffunction>
 
 </cfcomponent>
