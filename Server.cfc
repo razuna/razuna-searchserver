@@ -11,13 +11,13 @@
         <cfloop query="l">
           <cfset filedelete(GetTempdirectory() & name)>
         </cfloop>
-        <cfset console("SEARCHSERVER: All .lock files have been deleted")>
+        <cfset console("---SEARCHSERVER: All .lock files have been deleted---")>
       <cfelse>
-        <cfset console("SEARCHSERVER: No .lock file to remove")>
+        <cfset console("---SEARCHSERVER: No .lock file to remove---")>
       </cfif>
       <cfset console("---SEARCHSERVER: DONE: Lock file cleanup---")>
       <cfcatch type="any">
-        <cfset console("SEARCHSERVER: Lock removal error #cfcatch#")>
+        <cfset console("---SEARCHSERVER: Lock removal error #cfcatch#")>
       </cfcatch>
     </cftry>
 
