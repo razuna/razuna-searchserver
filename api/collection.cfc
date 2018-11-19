@@ -32,22 +32,30 @@
 		<cfargument name="hostid" required="true" type="string">
 		<cfargument name="secret" required="true" type="string">
 		<!--- Log --->
-		<cfset console("#now()# ---------------------- Removing Collection for rebuild")>
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Removing Collection for rebuild")>
+		</cfif>
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
 		<!--- Remove Collection --->
 		<cftry>
 			<cfset CollectionDelete(arguments.hostid)>
-			<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+			</cfif>
 			<cfpause interval="10" />
 			<cfcatch type="any"></cfcatch>
 		</cftry>
 		<!--- Now create it again --->
 		<cftry>
-			<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- CREATING collection for Host #arguments.hostid#")>
+			</cfif>
 			<!--- Create --->
 			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
-			<cfset console("#now()# ---------------------- DONE creating collection for Host #arguments.hostid#")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- DONE creating collection for Host #arguments.hostid#")>
+			</cfif>
 			<cfcatch type="any"></cfcatch>
 		</cftry>
 		<!--- Return --->
@@ -57,49 +65,68 @@
 	<!--- This is being called from create collection cron job --->
 	<cffunction name="createCollections" access="public" output="false">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- Creating new collections")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- Creating new collections")>
+		</cfif>
 		<!--- Grab all hosts --->
 		<cfset var _qry_hosts = _qryHosts()>
 		<!--- Loop over hosts --->
 		<cfloop query="_qry_hosts">
 			<!---Create Collection --->
 			<cftry>
-				<!--- <cfset console("#now()# ---------------------- CHECKING collection for Host #host_id#")> --->
+				<cfif debug>
+					<cfset console("#now()# ---------------------- CHECKING collection for Host #host_id#")>
+				</cfif>
 				<!--- Create --->
 				<cfset CollectionCreate(collection=host_id, relative=true, path="/WEB-INF/collections/#host_id#")>
-				<cfset console("#now()# ---------------------- CREATED collection for Host #host_id#")>
+				<cfif debug>
+					<cfset console("#now()# ---------------------- CREATED collection for Host #host_id#")>
+				</cfif>
 				<cfcatch type="any">
 					<cfif cfcatch.message CONTAINS "already exists">
 						<!--- Log --->
-						<!--- <cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")> --->
+						<cfif debug>
+							<cfset console("#now()# ---------------------- Collection for Host #host_id# exists and is alive !!!")>
+						</cfif>
 					<cfelse>
 						<!--- Log --->
-						<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
-						<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+						<cfif debug>
+							<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #host_id#")>
+							<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+						</cfif>
 						<!--- Lets remove the directory and collection so on next run it works --->
 						<cftry>
 							<cftry>
 								<cfset CollectionDelete(host_id)>
 								<cfcatch type="any">
-									<cfset console("CollectionDelete: #cfcatch.message#")>
+									<cfif debug>
+										<cfset console("CollectionDelete: #cfcatch.message#")>
+									</cfif>
 								</cfcatch>
 							</cftry>
 							<!--- Lets also remove the directory on disk --->
 							<cftry>
-								<cfset console("#now()# ---------------------- REMOVING COLLECTION DIR FOR HOST #host_id#")>
+								<cfif debug>
+									<cfset console("#now()# ---------------------- REMOVING COLLECTION DIR FOR HOST #host_id#")>
+								</cfif>
 								<cfset var d = REReplaceNoCase(GetTempDirectory(),"/bluedragon/work/temp","","one")>
 								<cfdirectory action="delete" directory="#d#collections/#host_id#" recurse="true" />
 								<cfcatch type="any">
-									<cfset console("cfdirectory: #cfcatch.message#")>
+									<cfif debug>
+										<cfset console("cfdirectory: #cfcatch.message#")>
+									</cfif>
 								</cfcatch>
 							</cftry>
-							<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+							<cfif debug>
+								<cfset console("#now()# ---------------------- Collection removed for rebuild")>
+							</cfif>
 							<cfpause interval="10" />
 							<cfcatch type="any">
 								<!--- Log --->
-								<cfset consoleoutput(true)>
+								<cfset consoleoutput(true, true)>
 								<cfset console("#now()# ---------------------- STILL AN ERROR ------------------")>
 								<cfset console("#now()# ---------------------- #cfcatch.message#")>
+								<cfset consoleoutput(false, false)>
 							</cfcatch>
 						</cftry>
 					</cfif>
@@ -116,19 +143,24 @@
 	<cffunction name="checkCollection" access="public" output="false">
 		<cfargument name="hostid" required="true" type="string">
 		<!--- Log --->
-		<!--- <cfset console("#now()# ---------------------- CHECKING that collection exists for Host #arguments.hostid#")> --->
+		<cfif debug>
+			<cfset console("#now()# ---------------------- CHECKING that collection exists for Host #arguments.hostid#")>
+		</cfif>
 		<!--- We simply create a collection and let it throw an error --->
 		<cftry>
 			<!--- Create --->
 			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- While checking collection for Host #arguments.hostid# we found that we had to re-create it !!!!!!")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- While checking collection for Host #arguments.hostid# we found that we had to re-create it !!!!!!")>
+			</cfif>
 			<!--- On error --->
 			<cfcatch type="any">
 				<!--- Log --->
-				<cfset consoleoutput(true)>
+				<cfset consoleoutput(true, true)>
 				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
 				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+				<cfset consoleoutput(false, false)>
 			</cfcatch>
 		</cftry>
 		<cfreturn />
@@ -155,16 +187,19 @@
 		<!--- Create collection --->
 		<cftry>
 			<!--- Log --->
-			<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
+			<cfif debug>
+				<cfset console("#now()# ---------------------- Creating collection for Host #arguments.hostid#")>
+			</cfif>
 			<!--- Create --->
 			<cfset CollectionCreate(collection=arguments.hostid, relative=true, path="/WEB-INF/collections/#arguments.hostid#")>
 			<!--- On error --->
 			<cfcatch type="any">
 				<cfset r.success = false>
 				<cfset r.error = cfcatch.message>
-				<cfset consoleoutput(true)>
+				<cfset consoleoutput(true, true)>
 				<cfset console("#now()# ---------------------- ERROR: Creating collection for Host #arguments.hostid#")>
 				<cfset console("#now()# ---------------------- ERROR: #cfcatch.message#")>
+				<cfset consoleoutput(false, false)>
 			</cfcatch>
 		</cftry>
 		<!--- Return --->

@@ -38,7 +38,9 @@
 		<cfargument name="search_rendition" required="true" type="string">
 		<cfargument name="search_upc" required="false" type="string" default="false">
 		<!--- <cfset console(arguments)> --->
+		<cfset consoleoutput(true, true)>
 		<cfset console("#now()# ---------------------- Starting Search")>
+		<cfset consoleoutput(false, false)>
 		<!--- Check login --->
 		<cfset auth(arguments.secret)>
 		<!--- Param --->
@@ -168,11 +170,12 @@
 				<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows, search_upc=arguments.search_upc)>
 			</cfif>
 			<cfcatch type="any">
-				<cfset consoleoutput(true)>
+				<cfset consoleoutput(true, true)>
 				<cfset console("#now()# ---------------------- START Error on search")>
 				<cfset console(cfcatch)>
 				<cfset console("#now()# ---------------------- END Error on search")>
 				<cfset results = querynew("x")>
+				<cfset consoleoutput(false, false)>
 			</cfcatch>
 		</cftry>
 		<!--- Return --->
@@ -190,6 +193,7 @@
 		<!--- Var --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<!--- <cfset console("ARGUMENTS SEARCH UPC : ", arguments.search_upc)> --->
+		<cfset consoleoutput(true, true)>
 		<cfset console("#now()# ---------------------- SEARCH STARTING  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
 		<cfset console("SEARCH WITH: #arguments.criteria#")>
 		<!--- FOR UPC --->
@@ -210,6 +214,7 @@
 		</cfif>
 		<!--- <cfset console(results)> --->
 		<cfset console("#now()# ---------------------- SEARCH DONE: #results.recordcount# records found  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")>
+		<cfset consoleoutput(false, false)>
 		<!--- Return --->
 		<cfreturn results>
 	</cffunction>
