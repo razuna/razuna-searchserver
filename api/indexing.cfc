@@ -989,7 +989,7 @@
 		WHERE a.aud_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND a.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND a.is_available = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
-		AND f.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
+		AND a.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
