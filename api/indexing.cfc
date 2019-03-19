@@ -1861,6 +1861,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_images, type="img", prefix="raz1_")>
@@ -1877,6 +1878,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_images, type="img", prefix="raz2_")>
@@ -1895,6 +1897,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_videos, type="vid", prefix="raz1_")>
@@ -1911,6 +1914,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_videos, type="vid", prefix="raz2_")>
@@ -1929,6 +1933,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_audios, type="aud", prefix="raz1_")>
@@ -1945,6 +1950,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_audios, type="aud", prefix="raz2_")>
@@ -1963,6 +1969,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_files, type="doc", prefix="raz1_")>
@@ -1979,6 +1986,7 @@
 				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
 				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
 				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
 				</cfquery>
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_files, type="doc", prefix="raz2_")>
