@@ -1883,9 +1883,9 @@
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_images, type="img", prefix="raz2_")>
 				<cfcatch type="any">
-					<cfset consoleoutput(true, true)>
+					<!--- <cfset consoleoutput(true, true)>
 					<cfset console(cfcatch)>
-					<cfset consoleoutput(false, false)>
+					<cfset consoleoutput(false, false)> --->
 				</cfcatch>
 			</cftry>
 
@@ -1919,9 +1919,9 @@
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_videos, type="vid", prefix="raz2_")>
 				<cfcatch type="any">
-					<cfset consoleoutput(true, true)>
+					<!--- <cfset consoleoutput(true, true)>
 					<cfset console(cfcatch)>
-					<cfset consoleoutput(false, false)>
+					<cfset consoleoutput(false, false)> --->
 				</cfcatch>
 			</cftry>
 
@@ -1955,9 +1955,9 @@
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_audios, type="aud", prefix="raz2_")>
 				<cfcatch type="any">
-					<cfset consoleoutput(true, true)>
+					<!--- <cfset consoleoutput(true, true)>
 					<cfset console(cfcatch)>
-					<cfset consoleoutput(false, false)>
+					<cfset consoleoutput(false, false)> --->
 				</cfcatch>
 			</cftry>
 
@@ -1991,9 +1991,9 @@
 				<!--- Int --->
 				<cfset _updateLuceneTableSub(qry=qry_files, type="doc", prefix="raz2_")>
 				<cfcatch type="any">
-					<cfset consoleoutput(true, true)>
+					<!--- <cfset consoleoutput(true, true)>
 					<cfset console(cfcatch)>
-					<cfset consoleoutput(false, false)>
+					<cfset consoleoutput(false, false)> --->
 				</cfcatch>
 			</cftry>
 
