@@ -107,6 +107,24 @@
 		<cfreturn />
 	</cffunction>
 
+	<!--- Update Lucene Table --->
+	<cffunction name="updateLucene" access="public" output="false">
+		<!--- Log --->
+		<cfif application.razuna.debug>
+			<cfset console("#now()# ---------------------- Starting update lucene table")>
+		</cfif>
+		<!--- Grab hosts --->
+		<cfset var _qryHosts = _qryHosts()>
+		<!--- Insert dummy record --->
+		<cfset _updateLuceneTable(_qryHosts)>
+		<!--- Log --->
+		<cfif application.razuna.debug>
+			<cfset console("#now()# ---------------------- Finished update lucene table")>
+		</cfif>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
 
 	<!--- PRIVATE --->
 
@@ -989,7 +1007,7 @@
 		WHERE a.aud_id = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="#arguments.file_id#">
 		AND a.host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#arguments.hostid#">
 		AND a.is_available = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
-		AND f.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
+		AND a.in_trash = <cfqueryparam cfsqltype="cf_sql_varchar" value="f">
 		</cfquery>
 		<!--- Get keywords and description --->
 		<cfquery name="qry_desc" datasource="#application.razuna.datasource#">
@@ -1523,7 +1541,7 @@
 		<cfset var _hosts = ListRemoveDuplicates(valuelist(arguments.qryfiles.host_id)) />
 		<!--- Loop over hosts --->
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
-		<!--- Flush cache for this host --->
+			<!--- Flush cache for this host --->
 			<cfset _resetcachetoken(type="search", hostid=host_id) />
 			<cfset _resetcachetoken(type="images", hostid=host_id) />
 			<cfset _resetcachetoken(type="videos", hostid=host_id) />
@@ -1820,6 +1838,208 @@
 					<cfset consoleoutput(false, false)>
 				</cfcatch>
 			</cftry>
+		</cfloop>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
+	<!--- Check all records in trash and make sure they are added to Lucene --->
+	<cffunction name="_updateLuceneTable" access="private">
+		<cfargument name="qryHosts" required="true" type="query">
+		<!--- Loop over Hosts --->
+		<cfloop query="arguments.qryHosts">
+			<cfset var qry_images = "">
+			<cfset var qry_videos = "">
+			<cfset var qry_audios = "">
+			<cfset var qry_files = "">
+
+			<!--- Grab all images --->
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_images">
+				SELECT img_id as id, host_id
+				FROM raz1_images
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_images, type="img", prefix="raz1_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_images">
+				SELECT img_id as id, host_id
+				FROM raz2_images
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_images, type="img", prefix="raz2_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+
+			<!--- Grab all videos --->
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_videos">
+				SELECT vid_id as id, host_id
+				FROM raz1_videos
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_videos, type="vid", prefix="raz1_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_videos">
+				SELECT vid_id as id, host_id
+				FROM raz2_videos
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_videos, type="vid", prefix="raz2_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+
+			<!--- Grab all audios --->
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_audios">
+				SELECT aud_id as id, host_id
+				FROM raz1_audios
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_audios, type="aud", prefix="raz1_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_audios">
+				SELECT aud_id as id, host_id
+				FROM raz2_audios
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_audios, type="aud", prefix="raz2_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+
+			<!--- Grab all files --->
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_files">
+				SELECT file_id as id, host_id
+				FROM raz1_files
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_files, type="doc", prefix="raz1_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_files">
+				SELECT file_id as id, host_id
+				FROM raz2_files
+				WHERE in_trash = <cfqueryparam cfsqltype="CF_SQL_VARCHAR" value="T">
+				AND host_id = <cfqueryparam cfsqltype="cf_sql_numeric" value="#host_id#">
+				AND is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="1">
+				LIMIT 1000
+				</cfquery>
+				<!--- Int --->
+				<cfset _updateLuceneTableSub(qry=qry_files, type="doc", prefix="raz2_")>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+
+			<!--- Flush cache for this host --->
+			<cfset _resetcachetoken(type="search", hostid=host_id) />
+			<cfset _resetcachetoken(type="images", hostid=host_id) />
+			<cfset _resetcachetoken(type="videos", hostid=host_id) />
+			<cfset _resetcachetoken(type="files", hostid=host_id) />
+			<cfset _resetcachetoken(type="audios", hostid=host_id) />
+
+		</cfloop>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
+	<!--- Subfunction for lucenetable --->
+	<cffunction name="_updateLuceneTableSub" access="private">
+		<cfargument name="qry" required="true" type="query">
+		<cfargument name="type" required="true" type="string">
+		<cfargument name="prefix" required="true" type="string">
+		<!--- According to type --->
+		<cfif type EQ "img">
+			<cfset var _db = "images">
+			<cfset var _id = "img_id">
+		<cfelseif type EQ "vid">
+			<cfset var _db = "videos" />
+			<cfset var _id = "vid_id" />
+		<cfelseif type EQ "aud">
+			<cfset var _db = "audios" />
+			<cfset var _id = "aud_id" />
+		<cfelseif type EQ "doc">
+			<cfset var _db = "files" />
+			<cfset var _id = "file_id" />
+		</cfif>
+		<cfset consoleoutput(true, true)>
+		<!--- Loop --->
+		<cfloop query="arguments.qry">
+			<cfset console('#arguments.type# remove from index: ', id)>
+			<!--- Remove from index --->
+			<cfindex collection="#host_id#" action="delete" key="#id#" />
+			<!--- Update record --->
+			<cfquery datasource="#application.razuna.datasource#">
+			UPDATE #arguments.prefix##_db#
+			SET is_indexed = <cfqueryparam cfsqltype="cf_sql_varchar" value="0">
+			WHERE #_id# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#id#">
+			</cfquery>
 		</cfloop>
 		<!--- Return --->
 		<cfreturn />

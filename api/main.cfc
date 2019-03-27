@@ -35,4 +35,15 @@
 		<cfreturn />
 	</cffunction>
 
+	<!--- Run Update Lucene --->
+	<cffunction name="updateLucene" output="false" access="public">
+		<!--- Log --->
+		<cfif application.razuna.debug>
+			<cfset console("#now()# --- Executing Update Lucene from Cron")>
+		</cfif>
+		<!--- Call Indexing --->
+		<cfinvoke component="indexing" method="updateLucene" />
+		<cfreturn />
+	</cffunction>
+
 </cfcomponent>

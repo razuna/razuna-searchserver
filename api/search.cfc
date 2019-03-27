@@ -91,7 +91,7 @@
 			<!--- Syntax --->
 			<cfset var _criteria = _searchSyntax(criteria=arguments.criteria, search_type=arguments.search_type, search_rendition=arguments.search_rendition, host_id=arguments.collection) />
 			<!--- if the folderid is not 0 we need to filter by folderid --->
-			<cfif arguments.folderid NEQ 0>
+			<cfif arguments.folderid NEQ "0">
 				<!--- New list var --->
 				<cfset var counter_folderlist = 0>
 				<!--- If more than 500 folders do the split, else normal operation --->
@@ -164,10 +164,14 @@
 					</cfif>
 					<!--- Call internal function --->
 					<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows, search_upc=arguments.search_upc)>
+					<!--- <cfset consoleoutput(true, true)>
+					<cfset console("", results)> --->
 				</cfif>
 			<cfelse>
 				<!--- Call internal function --->
 				<cfset var results = _embeddedSearch(collection=arguments.collection, criteria=_criteria, category=arguments.arg_category, startrow=arguments.startrow, maxrows=arguments.maxrows, search_upc=arguments.search_upc)>
+				<!--- <cfset consoleoutput(true, true)>
+				<cfset console("newsearch results:", results)> --->
 			</cfif>
 			<cfcatch type="any">
 				<cfset consoleoutput(true, true)>
@@ -190,6 +194,7 @@
 		<cfargument name="startrow" required="true" type="string">
 		<cfargument name="maxrows" required="true" type="string">
 		<cfargument name="search_upc" required="false" type="string">
+		<cfset consoleoutput(true, true)>
 		<!--- Var --->
 		<cfset var results = querynew("category, categorytree, rank, searchcount")>
 		<!--- <cfset console("ARGUMENTS SEARCH UPC : ", arguments.search_upc)> --->
@@ -199,7 +204,7 @@
 		<!--- FOR UPC --->
 		<cfset var _leadingWildcard = arguments.search_upc EQ "true" ? true : false>
 		<!--- Search in Lucene --->
-		<cfif arguments.maxrows NEQ 0>
+		<cfif arguments.maxrows NEQ "0">
 			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#">
 		<cfelse>
 			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#">
