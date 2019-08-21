@@ -2104,7 +2104,7 @@
 		SELECT categorytree, searchcount
 		FROM qry_lucene
 		</cfquery>
-		<cfset console("#now()# ---------------------- Found #_qry.recordcount# record to check for integrity")>
+		<cfset console("#now()# ---------------------- Found #_qry.searchcount# record to check for integrity. Doing #arguments.startrow# records now...")>
 		<!--- Loop over results --->
 		<cfloop query="_qry">
 			<cftry>
