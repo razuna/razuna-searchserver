@@ -46,4 +46,15 @@
 		<cfreturn />
 	</cffunction>
 
+	<!--- Integrity Check --->
+	<cffunction name="integrityCheck" output="false" access="public">
+		<!--- Log --->
+		<cfif application.razuna.debug>
+			<cfset console("#now()# --- Executing integrity check from Cron")>
+		</cfif>
+		<!--- Call Indexing --->
+		<cfinvoke component="indexing" method="integrityCheck" />
+		<cfreturn />
+	</cffunction>
+
 </cfcomponent>
