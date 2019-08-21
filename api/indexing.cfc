@@ -125,6 +125,28 @@
 		<cfreturn />
 	</cffunction>
 
+	<!--- Integrity Check --->
+	<cffunction name="integrityCheck" access="public" output="false">
+		<!--- Log --->
+		<cfif application.razuna.debug>
+			<cfset console("#now()# ---------------------- Starting integrity check")>
+		</cfif>
+		<!--- Grab hosts --->
+		<cfset var _qryHosts = _qryHosts()>
+		<!--- Check for lock file. This return a new qry with hosts that can be processed --->
+		<cfset var _qryNew = _lockFile(_qryHosts, 'integrity') />
+		<!--- Integrity--->
+		<cfset _integrityCheck(_qryNew)>
+		<!--- Remove lock file --->
+		<cfset _removeLockFile(_qryNew, 'integrity') />
+		<!--- Log --->
+		<cfif application.razuna.debug>
+			<cfset console("#now()# ---------------------- Finished integrity check")>
+		</cfif>
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
 
 	<!--- PRIVATE --->
 
@@ -140,7 +162,7 @@
 		<cfloop list="#_hosts#" delimiters="," index="host_id">
 			<!--- Log --->
 			<cfif application.razuna.debug>
-				<cfset console("#now()# ---------------------- Checking the lock file for Collection: #host_id#")>
+				<cfset console("#now()# ---------------------- Checking the lock file for Host: #host_id#")>
 			</cfif>
 			<!--- Name of lock file --->
 			<cfset var lockfile = "lucene_#host_id#_#arguments.type#.lock">
@@ -162,7 +184,7 @@
 			<cfif lockfiledelerr>
 				<!--- Log --->
 				<cfif application.razuna.debug>
-					<cfset console("#now()# ---------------------- Lock file for Collection: #host_id# exists. Skipping this host for now!")>
+					<cfset console("#now()# ---------------------- Lock file for Host: #host_id# exists. Skipping this host for now!")>
 				</cfif>
 				<!--- Select without this host --->
 				<cfquery dbtype="query" name="_newQry">
@@ -2041,8 +2063,94 @@
 			WHERE #_id# = <cfqueryparam cfsqltype="cf_sql_varchar" value="#id#">
 			</cfquery>
 		</cfloop>
+		<cfset consoleoutput(false, false)>
 		<!--- Return --->
 		<cfreturn />
+	</cffunction>
+
+	<!---  --->
+	<cffunction name="_integrityCheck" access="private">
+		<cfargument name="qryHosts" required="true" type="query">
+		<!--- Loop over Hosts --->
+		<cfloop query="arguments.qryHosts">
+			<cfset console("#now()# ---------------------- Starting integrity check for Host #host_id#")>
+			<!--- Set max rows --->
+			<cfset var _startrow = 1>
+			<cfset var _maxrows = 5000>
+			<!--- Call sub function --->
+			<cfset var _done = _integrityCheckSub(hostid=host_id, startrow=_startrow, maxrows=_maxrows)>
+			<!--- if done we continue --->
+			<cfif _done>
+				<cfcontinue>
+			</cfif>
+		</cfloop>
+
+		<!--- Return --->
+		<cfreturn />
+	</cffunction>
+
+	<cffunction name="_integrityCheckSub" access="private">
+		<cfargument name="hostid" required="true" type="numeric">
+		<cfargument name="startrow" required="true" type="numeric">
+		<cfargument name="maxrows" required="true" type="numeric">
+		<!--- Var --->
+		<cfset var qry_record = "">
+		<cfset var qry_lucene = "">
+		<cfset var _qry = "">
+		<!--- Search --->
+		<cfsearch collection="#arguments.hostid#" criteria="*" name="qry_lucene" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="false" contents="false">
+		<!--- Reduce results --->
+		<cfquery dbtype="query" name="_qry">
+		SELECT categorytree, searchcount
+		FROM qry_lucene
+		</cfquery>
+		<cfset console("#now()# ---------------------- Found #_qry.recordcount# record to check for integrity")>
+		<!--- Loop over results --->
+		<cfloop query="_qry">
+			<cftry>
+				<cfquery datasource="#application.razuna.datasource#" name="qry_record">
+				SELECT img_id as id
+				FROM raz1_images
+				WHERE img_id = '#categorytree#'
+				UNION ALL
+				SELECT vid_id as id
+				FROM raz1_videos
+				WHERE vid_id = '#categorytree#'
+				UNION ALL
+				SELECT aud_id as id
+				FROM raz1_audios
+				WHERE aud_id = '#categorytree#'
+				UNION ALL
+				SELECT file_id as id
+				FROM raz1_files
+				WHERE file_id = '#categorytree#'
+				</cfquery>
+				<!--- If no record we need to remove it from lucene --->
+				<cfif !qry_record.recordcount>
+					<cfset console("Removing from index now:", qry_record, categorytree)>
+					<!--- Remove from index --->
+					<cfindex collection="#arguments.hostid#" action="delete" key="#qry_record.id#" />
+				</cfif>
+				<cfcatch type="any">
+					<cfset consoleoutput(true, true)>
+					<cfset console("Error in _integrityCheckSub", qry_record, arguments)>
+					<cfset console(cfcatch)>
+					<cfset consoleoutput(false, false)>
+				</cfcatch>
+			</cftry>
+		</cfloop>
+
+		<!--- Increase the startrow --->
+		<cfset arguments.startrow = arguments.startrow + 1000>
+
+		<!--- Done the first patch --->
+		<cfif _qry.searchcount GT arguments.startrow>
+			<!--- Call function again --->
+			<cfset _integrityCheckSub(hostid=arguments.hostid, startrow=arguments.startrow, maxrows=arguments.maxrows)>
+		</cfif>
+
+		<!--- Return --->
+		<cfreturn true />
 	</cffunction>
 
 </cfcomponent>
