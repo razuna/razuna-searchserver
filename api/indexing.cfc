@@ -205,12 +205,12 @@
 		<cfif _newQry.recordcount NEQ 0>
 			<!--- Log --->
 			<cfif application.razuna.debug>
-				<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index.")>
+				<!--- <cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index.")> --->
 			</cfif>
 		<cfelse>
 			<!--- Log --->
 			<cfif application.razuna.debug>
-				<cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index. Aborting...")>
+				<!--- <cfset console("#now()# ---------------------- Found #_newQry.recordcount# consolidated records to index. Aborting...")> --->
 			</cfif>
 			<!--- Remove lock file --->
 			<!--- <cfset _removeLockFile(arguments.qry) /> --->
@@ -2076,7 +2076,7 @@
 			<cfset console("#now()# ---------------------- Starting integrity check for Host #host_id#")>
 			<!--- Set max rows --->
 			<cfset var _startrow = 1>
-			<cfset var _maxrows = 5000>
+			<cfset var _maxrows = 1000>
 			<!--- Call sub function --->
 			<cfset var _done = _integrityCheckSub(hostid=host_id, startrow=_startrow, maxrows=_maxrows)>
 			<!--- if done we continue --->
@@ -2090,21 +2090,27 @@
 	</cffunction>
 
 	<cffunction name="_integrityCheckSub" access="private">
-		<cfargument name="hostid" required="true" type="numeric">
-		<cfargument name="startrow" required="true" type="numeric">
-		<cfargument name="maxrows" required="true" type="numeric">
+		<cfargument name="hostid" required="true">
+		<cfargument name="startrow" required="true">
+		<cfargument name="maxrows" required="true">
 		<!--- Var --->
 		<cfset var qry_record = "">
 		<cfset var qry_lucene = "">
 		<cfset var _qry = "">
 		<!--- Search --->
-		<cfsearch collection="#arguments.hostid#" criteria="*" name="qry_lucene" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="false" contents="false">
+		<cftry>
+			<cfsearch collection="#arguments.hostid#" criteria="*" name="qry_lucene" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="false" contents="false">
+			<cfcatch type="any">
+				<cfset console("#now()# ---------------------- Found no records to check for integrity for this host")>
+				<cfreturn true />
+			</cfcatch>
+		</cftry>
 		<!--- Reduce results --->
 		<cfquery dbtype="query" name="_qry">
 		SELECT categorytree, searchcount
 		FROM qry_lucene
 		</cfquery>
-		<cfset console("#now()# ---------------------- Found #_qry.searchcount# record to check for integrity. Doing #arguments.startrow# records now...")>
+		<cfset console("#now()# ---------------------- Found #_qry.searchcount# record to check for integrity. Getting records starting at #arguments.startrow# now...")>
 		<!--- Loop over results --->
 		<cfloop query="_qry">
 			<cftry>
@@ -2127,9 +2133,9 @@
 				</cfquery>
 				<!--- If no record we need to remove it from lucene --->
 				<cfif !qry_record.recordcount>
-					<cfset console("Removing from index now:", qry_record, categorytree)>
+					<cfset console("No records found. Removing ID #categorytree# from index now")>
 					<!--- Remove from index --->
-					<cfindex collection="#arguments.hostid#" action="delete" key="#qry_record.id#" />
+					<cfindex collection="#arguments.hostid#" action="delete" key="#categorytree#" />
 				</cfif>
 				<cfcatch type="any">
 					<cfset consoleoutput(true, true)>
