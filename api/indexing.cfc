@@ -2105,11 +2105,18 @@
 				<cfreturn true />
 			</cfcatch>
 		</cftry>
-		<!--- Reduce results --->
-		<cfquery dbtype="query" name="_qry">
-		SELECT key, searchcount
-		FROM qry_lucene
-		</cfquery>
+		<cftry>
+			<!--- Reduce results --->
+			<cfquery dbtype="query" name="_qry">
+			SELECT categorytree, searchcount
+			FROM qry_lucene
+			</cfquery>
+			<cfcatch type="any">
+				<cfset console("#now()# ---------------------- Something is wrong with the index")>
+				<cfset console(cfcatch)>
+				<cfreturn true />
+			</cfcatch>
+		</cftry>
 		<cfset console("#now()# ---------------------- Found #_qry.searchcount# record to check for integrity. Getting records starting at #arguments.startrow# now...")>
 		<!--- Loop over results --->
 		<cfloop query="_qry">
@@ -2117,25 +2124,25 @@
 				<cfquery datasource="#application.razuna.datasource#" name="qry_record">
 				SELECT img_id as id
 				FROM raz1_images
-				WHERE img_id = '#key#'
+				WHERE img_id = '#categorytree#'
 				UNION ALL
 				SELECT vid_id as id
 				FROM raz1_videos
-				WHERE vid_id = '#key#'
+				WHERE vid_id = '#categorytree#'
 				UNION ALL
 				SELECT aud_id as id
 				FROM raz1_audios
-				WHERE aud_id = '#key#'
+				WHERE aud_id = '#categorytree#'
 				UNION ALL
 				SELECT file_id as id
 				FROM raz1_files
-				WHERE file_id = '#key#'
+				WHERE file_id = '#categorytree#'
 				</cfquery>
 				<!--- If no record we need to remove it from lucene --->
 				<cfif !qry_record.recordcount>
-					<cfset console("No records found. Removing ID #key# from index now")>
+					<cfset console("No records found. Removing ID #categorytree# from index now")>
 					<!--- Remove from index --->
-					<cfindex collection="#arguments.hostid#" action="delete" key="#key#" />
+					<cfindex collection="#arguments.hostid#" action="delete" key="#categorytree#" />
 				</cfif>
 				<cfcatch type="any">
 					<cfset consoleoutput(true, true)>
