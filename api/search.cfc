@@ -205,9 +205,9 @@
 		<cfset var _leadingWildcard = arguments.search_upc EQ "true" ? true : false>
 		<!--- Search in Lucene --->
 		<cfif arguments.maxrows NEQ "0">
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" startrow="#arguments.startrow#" maxrows="#arguments.maxrows#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#" contents="false">
 		<cfelse>
-			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#">
+			<cfsearch collection="#arguments.collection#" criteria="#arguments.criteria#" name="results" category="#arguments.category#" uniquecolumn="categorytree" allowleadingwildcard="#_leadingWildcard#" contents="false">
 		</cfif>
 		<!--- <cfset console(results)> --->
 		<!--- Only return the columns we need from Lucene --->
